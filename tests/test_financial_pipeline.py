@@ -17,6 +17,8 @@ from modules.config import ALEX_ASSETS, ALEX_BUDGET, ALEX_LIABILITIES
 from modules.detectors import detect_unusual
 from modules.forecast import forecast_cash_flow
 from modules.net_worth import debt_payoff_comparison, net_worth_snapshot
+from modules.reports.pdf_report import main as generate_monthly_pdf
+from modules.reports.trend_report import main as generate_trend_pdf
 
 
 def load_categorized():
@@ -113,6 +115,7 @@ def test_forecast_returns_three_scenarios_for_30_and_90_days():
 
 
 def test_monthly_pdf_contains_required_sections():
+    generate_monthly_pdf()
     pdf_path = PROJECT_ROOT / "outputs" / "alex_rivera_monthly_cfo_report_2026_03.pdf"
     document = fitz.open(pdf_path)
     text = "\n".join(page.get_text() for page in document)
@@ -146,6 +149,7 @@ def test_monthly_pdf_contains_required_sections():
 
 
 def test_trend_pdf_is_one_page():
+    generate_trend_pdf()
     pdf_path = PROJECT_ROOT / "outputs" / "alex_rivera_3_month_trend_summary_2026_q1.pdf"
     document = fitz.open(pdf_path)
     page_count = document.page_count
