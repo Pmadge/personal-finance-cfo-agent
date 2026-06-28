@@ -184,6 +184,30 @@ def test_spending_by_category_table_excludes_income(tmp_path):
     assert "Income" not in spending_section
 
 
+def test_personal_report_includes_full_pillar_suite(tmp_path):
+    """The personal report must carry the CFO pillars, not just the basic snapshot."""
+    from scripts.generate_personal_report import build_draft_personal_report
+    from modules.personal_report_inputs import build_report_transactions_from_review
+
+    report_df = build_report_transactions_from_review(reviewed_rows())
+    output_path = tmp_path / "pillar_personal_report.pdf"
+    charts_dir = tmp_path / "pillar_personal_charts"
+    build_draft_personal_report(report_df, output_path, charts_dir)
+
+    text, _ = extract_pdf_text(output_path)
+    for section in [
+        "Cash Runway",
+        "12-Month Cash Projection",
+        "Goal Tracker",
+        "What-If Scenarios",
+        "Risk Register",
+        "Home Purchase Readiness",
+    ]:
+        assert section in text, section
+    # Emoji are converted for the PDF font, not left as raw glyphs.
+    assert "🟢" not in text and "🔴" not in text
+
+
 def test_personal_report_pdf_excludes_source_identity_fields(tmp_path):
     """Traceability belongs in audit artifacts, not the human-facing report body."""
     review_path = tmp_path / "category_review_applied.csv"

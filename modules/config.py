@@ -134,3 +134,36 @@ ALEX_HOME_TARGET = {
     "term_years": 30,
 }
 ALEX_MAJOR_PURCHASE = 8000.00  # e.g. a used car bought from cash
+
+# Fictional financial profile that feeds the full pillar suite into the draft
+# PERSONAL report. These sample assets/liabilities/goals stand in until a real
+# personal-data workflow is approved; they are intentionally a different persona
+# from Alex so the personal report path is exercised on its own inputs.
+SAMPLE_PERSONAL_PROFILE = {
+    "assets": {"Checking": 3000.00, "Savings": 9000.00, "Investments": 12000.00},
+    "liabilities": {
+        "Credit Card": {"balance": 4000.00, "interest_rate": 21.0},
+        "Student Loan": {"balance": 14000.00, "interest_rate": 5.5},
+    },
+    "monthly_debt_payment": 600.00,
+    "goals": [
+        {"name": "Emergency Fund", "type": "savings", "target_amount": 12000.00,
+         "current_amount": 9000.00, "target_date": "2026-12-31"},
+        {"name": "Pay Off Credit Card", "type": "debt_payoff", "target_amount": 0.00,
+         "current_amount": 4000.00, "starting_amount": 4000.00, "interest_rate": 21.0,
+         "monthly_contribution": 400.00, "target_date": "2027-06-30"},
+        {"name": "Reach $50k Net Worth", "type": "net_worth", "target_amount": 50000.00,
+         "current_amount": 0.00, "target_date": "2029-12-31"},
+        {"name": "Hit 15% Savings Rate", "type": "savings_rate", "target_amount": 15.00,
+         "current_amount": 0.00},
+    ],
+    "scenarios": [
+        {"name": "Lose job (no income)", "monthly_income": 0.00},
+        {"name": "Get a $400/mo raise", "monthly_income_change": 400.00},
+        {"name": "Move (+$300/mo rent)", "monthly_expense_change": 300.00},
+        {"name": "$3,000 one-time purchase", "one_time_cost": 3000.00},
+    ],
+    "home_target": {"home_price": 300000.00, "down_payment_pct": 10.0,
+                    "mortgage_rate": 7.0, "term_years": 30},
+    "major_purchase": 3000.00,
+}

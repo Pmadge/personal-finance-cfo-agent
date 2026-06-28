@@ -39,6 +39,23 @@ python3 scripts/monthly_close.py --sample
 python3 scripts/generate_personal_report.py
 ```
 
+### Personalize the report (optional)
+
+The personal report's pillar sections (cash runway, goals, scenarios, risk
+register, home-purchase readiness) read a financial profile of assets,
+liabilities, goals, what-if scenarios, and a home target. By default it uses a
+built-in fictional sample. To use your own values, copy the example file and
+edit it:
+
+```bash
+cp config/personal_profile.example.json config/personal_profile.json
+# then edit config/personal_profile.json with your numbers
+```
+
+`config/personal_profile.json` is Git-ignored and stays local. If it is absent,
+the report falls back to the fictional sample. Transaction data is still
+sample/fictional until a real personal-data workflow is approved.
+
 ### Robustness stress test
 
 To stress test the engine end to end across many fictional people with different

@@ -11,13 +11,22 @@ if str(PROJECT_ROOT) not in sys.path:
 import pandas as pd
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
-from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import inch
 from reportlab.platypus import Image, PageBreak, SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 
+from modules.analytics import monthly_summary
+from modules.capital_events import home_purchase_readiness, major_purchase_check
 from modules.config import APPROVED_CATEGORIES
+from modules.forecast import cash_runway, project_cash_flow
+from modules.goals import track_goals
+from modules.net_worth import net_worth_snapshot
+from modules.personal_profile import load_personal_profile
 from modules.personal_report_charts import build_personal_insights, generate_personal_report_charts
 from modules.personal_report_inputs import build_report_transactions_from_review
+from modules.risk import build_risk_register, risk_summary
+from modules.scenarios import compare_scenarios
+from modules.scorecard import outcomes_scorecard
 from modules.self_checks import assert_personal_report_self_checks
 from modules.workflow_audit import validate_safe_listed_output_path
 
@@ -86,7 +95,181 @@ def _image(path, width=6.1 * inch):
     return image
 
 
-def build_draft_personal_report(report_df, output_path, charts_dir=DEFAULT_CHARTS_DIR):
+_EMOJI_REPLACEMENTS = {
+    "🟢": "[Green]", "🟡": "[Yellow]", "🔴": "[Red]",
+    "✅": "", "📊": "", "⚪": "", "⚠️": "Warning:",
+}
+
+
+def _clean(text):
+    """Strip status emoji so the PDF font renders the text cleanly."""
+    result = str(text)
+    for emoji, replacement in _EMOJI_REPLACEMENTS.items():
+        result = result.replace(emoji, replacement)
+    return result.strip()
+
+
+def _para_table(headers, rows, col_widths, header_style, cell_style):
+    """A wrapped-text table so long findings and status text never overflow."""
+    data = [[Paragraph(_clean(h), header_style) for h in headers]]
+    for row in rows:
+        data.append([Paragraph(_clean(str(cell)), cell_style) for cell in row])
+    table = Table(data, colWidths=col_widths, hAlign="LEFT", repeatRows=1)
+    table.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1f2937")),
+                ("GRID", (0, 0), (-1, -1), 0.25, colors.HexColor("#d1d5db")),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#f9fafb")]),
+                ("LEFTPADDING", (0, 0), (-1, -1), 5),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 5),
+                ("TOPPADDING", (0, 0), (-1, -1), 4),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+            ]
+        )
+    )
+    return table
+
+
+def _add_pillar_sections(story, report_df, profile, styles):
+    """Append the full CFO pillar suite to the personal report.
+
+    Runway, 12-month projection, goals, scenarios, risk register, and capital-event
+    readiness all run on the reviewed transactions plus the supplied financial
+    profile (assets, liabilities, goals, scenarios, home target). The outcomes
+    scorecard is added only when the data spans more than one month.
+    """
+    header_style = ParagraphStyle(
+        "PillarHeader", parent=styles["BodyText"], textColor=colors.white,
+        fontName="Helvetica-Bold", fontSize=9, leading=11,
+    )
+    cell_style = ParagraphStyle("PillarCell", parent=styles["BodyText"], fontSize=9, leading=11)
+
+    assets = profile["assets"]
+    liabilities = profile["liabilities"]
+    liquid_cash = float(assets.get("Checking", 0.0)) + float(assets.get("Savings", 0.0))
+    months = pd.to_datetime(report_df["date"]).dt.to_period("M").astype(str)
+    report_month = months.max()
+    prior_month = str(pd.Period(report_month, freq="M") - 1)
+    summary = monthly_summary(report_df, report_month)
+    net_worth = net_worth_snapshot(assets, liabilities)
+
+    story.append(PageBreak())
+    story.append(Paragraph("Cash Runway", styles["Heading2"]))
+    runway = cash_runway(report_df, liquid_cash)
+    runway_months = runway["Emergency Runway (months)"]
+    runway_rows = [
+        ["Liquid Cash", _money(runway["Liquid Cash"])],
+        ["Average Monthly Expenses", _money(runway["Monthly Expenses"])],
+        ["Monthly Net Cash Flow", _money(runway["Monthly Net Cash Flow"])],
+        ["Emergency Runway", f"{runway_months} months" if runway_months is not None else "No recurring expenses"],
+        ["Assessment", runway["Status"]],
+    ]
+    story.append(_para_table(["Metric", "Value"], runway_rows, [3.0 * inch, 3.3 * inch], header_style, cell_style))
+
+    story.append(Spacer(1, 0.18 * inch))
+    story.append(Paragraph("12-Month Cash Projection", styles["Heading2"]))
+    projection = project_cash_flow(
+        report_df, starting_cash=liquid_cash, months=12,
+        start_month=str(pd.Period(report_month, freq="M") + 1),
+    )
+    projection_rows = [
+        [r["Month"], _money(r["Projected Income"]), _money(r["Projected Expenses"]), _money(r["Net Cash Flow"]), _money(r["Ending Cash"])]
+        for _, r in projection.iterrows()
+    ]
+    story.append(_para_table(
+        ["Month", "Income", "Expenses", "Net", "Ending Cash"], projection_rows,
+        [1.0 * inch, 1.35 * inch, 1.35 * inch, 1.3 * inch, 1.3 * inch], header_style, cell_style,
+    ))
+
+    story.append(PageBreak())
+    story.append(Paragraph("Goal Tracker", styles["Heading2"]))
+    live_goals = [dict(goal) for goal in profile["goals"]]
+    for goal in live_goals:
+        if goal["type"] == "net_worth":
+            goal["current_amount"] = net_worth["Net Worth"]
+        elif goal["type"] == "savings_rate":
+            goal["current_amount"] = summary["Savings Rate"]
+    goals = track_goals(live_goals, as_of_date=f"{report_month}-28", default_monthly=summary["Net Cash Flow"])
+    goal_rows = [
+        [r["Goal"], _money(r["Target"]), _money(r["Current"]), f"{r['Progress (%)']:.0f}%", r["Status"]]
+        for _, r in goals.iterrows()
+    ]
+    story.append(_para_table(
+        ["Goal", "Target", "Current", "Progress", "Status"], goal_rows,
+        [1.4 * inch, 0.95 * inch, 0.95 * inch, 0.7 * inch, 2.3 * inch], header_style, cell_style,
+    ))
+
+    story.append(Spacer(1, 0.18 * inch))
+    story.append(Paragraph("What-If Scenarios", styles["Heading2"]))
+    scenarios = compare_scenarios(report_df, liquid_cash, profile["scenarios"])
+    scenario_rows = [
+        [r["Scenario"], _money(r["Net Cash Flow"]),
+         f"{r['Runway (months)']}" if r["Runway (months)"] is not None else "n/a",
+         _money(r["Cash in 12 Months"]), r["Cash-Out Risk"]]
+        for _, r in scenarios.iterrows()
+    ]
+    story.append(_para_table(
+        ["Scenario", "Net", "Runway", "Cash 12mo", "Cash-Out Risk"], scenario_rows,
+        [1.6 * inch, 1.1 * inch, 0.8 * inch, 1.2 * inch, 1.6 * inch], header_style, cell_style,
+    ))
+
+    story.append(PageBreak())
+    story.append(Paragraph("Risk Register", styles["Heading2"]))
+    risk = build_risk_register(report_df, assets, liabilities, liquid_cash)
+    _, risk_overall = risk_summary(risk)
+    story.append(Paragraph(_clean(risk_overall), styles["BodyText"]))
+    story.append(Spacer(1, 0.08 * inch))
+    risk_rows = [[r["Risk"], r["Level"], r["Finding"], r["Recommendation"]] for _, r in risk.iterrows()]
+    story.append(_para_table(
+        ["Risk", "Level", "Finding", "Recommendation"], risk_rows,
+        [1.2 * inch, 0.85 * inch, 2.3 * inch, 2.0 * inch], header_style, cell_style,
+    ))
+
+    story.append(PageBreak())
+    story.append(Paragraph("Capital Event: Home Purchase Readiness", styles["Heading2"]))
+    home = home_purchase_readiness(report_df, assets, **profile["home_target"])
+    story.append(Paragraph(_clean(f"Readiness to buy a {_money(home['home_price'])} home: {home['verdict']}"), styles["BodyText"]))
+    story.append(Spacer(1, 0.08 * inch))
+    payment_pct = f"{home['payment_to_income']}%" if home["payment_to_income"] is not None else "n/a"
+    home_rows = [
+        ["Down Payment + Closing", _money(home["cash_needed"])],
+        ["Liquid Cash Available", _money(home["liquid_cash"])],
+        ["Cash After Purchase", _money(home["cash_after_purchase"])],
+        ["Monthly Payment (PITI)", _money(home["monthly_payment_piti"])],
+        ["Payment as % of Income (target <=28%)", payment_pct],
+    ]
+    story.append(_para_table(["Metric", "Value"], home_rows, [3.0 * inch, 3.3 * inch], header_style, cell_style))
+    if home["gaps"]:
+        story.append(Spacer(1, 0.08 * inch))
+        story.append(Paragraph(_clean("Gaps to close: " + " ".join(home["gaps"])), styles["BodyText"]))
+    purchase = major_purchase_check(report_df, assets, profile["major_purchase"], liquid_cash=liquid_cash)
+    story.append(Spacer(1, 0.1 * inch))
+    story.append(Paragraph(
+        _clean(f"Major purchase check ({_money(purchase['amount'])}): {purchase['verdict']} - {purchase['note']}"),
+        styles["BodyText"],
+    ))
+
+    if bool((months == prior_month).any()):
+        story.append(Spacer(1, 0.18 * inch))
+        story.append(Paragraph("Outcomes Scorecard", styles["Heading2"]))
+        card = outcomes_scorecard(report_df, report_month, prior_month)
+
+        def _fmt(metric, value):
+            return f"{value:.2f}%" if metric == "Savings Rate" else _money(value)
+
+        card_rows = [
+            [r["Metric"], _fmt(r["Metric"], r["This Month"]), _fmt(r["Metric"], r["Last Month"]), _fmt(r["Metric"], r["Change"]), r["Trend"]]
+            for _, r in card.iterrows()
+        ]
+        story.append(_para_table(
+            ["Metric", "This Month", "Last Month", "Change", "Trend"], card_rows,
+            [1.4 * inch, 1.2 * inch, 1.2 * inch, 1.1 * inch, 1.4 * inch], header_style, cell_style,
+        ))
+
+
+def build_draft_personal_report(report_df, output_path, charts_dir=DEFAULT_CHARTS_DIR, profile=None):
     """Lower-level renderer; callers must run assert_personal_report_self_checks first."""
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -161,6 +344,8 @@ def build_draft_personal_report(report_df, output_path, charts_dir=DEFAULT_CHART
         )
     )
     story.append(transaction_table)
+
+    _add_pillar_sections(story, report_df, profile or load_personal_profile(), styles)
 
     doc = SimpleDocTemplate(str(output_path), pagesize=letter, leftMargin=0.65 * inch, rightMargin=0.65 * inch)
     doc.build(story)
