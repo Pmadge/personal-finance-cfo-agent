@@ -18,6 +18,7 @@ from datetime import datetime
 from pathlib import Path
 import argparse
 import json
+import math
 import random
 import signal
 import shutil
@@ -39,14 +40,14 @@ from modules.analytics import (
     monthly_summary,
     upcoming_obligations,
 )
-from modules.capital_events import home_purchase_readiness, major_purchase_check
+from modules.capital_events import CLOSE, NOT_YET, READY, home_purchase_readiness, major_purchase_check
 from modules.categorizer import categorize_file
 from modules.config import APPROVED_CATEGORIES
 from modules.detectors import detect_recurring, detect_unusual
 from modules.forecast import cash_runway, forecast_cash_flow, project_cash_flow
 from modules.goals import track_goals
-from modules.net_worth import debt_payoff_comparison, net_worth_snapshot
-from modules.risk import build_risk_register, risk_summary
+from modules.net_worth import MAX_PAYOFF_MONTHS, debt_payoff_comparison, net_worth_snapshot
+from modules.risk import HIGH as RISK_HIGH, LOW as RISK_LOW, MEDIUM as RISK_MEDIUM, build_risk_register, risk_summary
 from modules.scenarios import compare_scenarios
 from modules.scorecard import outcomes_scorecard
 from modules.self_checks import assert_pipeline_self_checks
@@ -508,6 +509,84 @@ def _write_table(value: Any, path: Path) -> None:
         path.with_suffix(".json").write_text(json.dumps(_jsonable(value), indent=2, ensure_ascii=False))
 
 
+def _is_finite_number(value: Any) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)
+
+
+def _check_value_invariants(persona: dict[str, Any], df, outputs: dict[str, Any]) -> dict[str, Any]:
+    """Assert pillar outputs are internally consistent and finite.
+
+    Goes beyond crash detection to catch silently-wrong numbers: broken
+    reconciliation, NaN/infinite values, dropped housing in the runway, negative
+    runway, invalid verdicts/levels, or too many action items. Raises
+    AssertionError listing every problem so the harness records it as a failure.
+    """
+    problems: list[str] = []
+
+    summary = outputs.get("monthly_summary")
+    if isinstance(summary, dict):
+        income, expenses, net = summary.get("Income"), summary.get("Total Expenses"), summary.get("Net Cash Flow")
+        if all(_is_finite_number(v) for v in (income, expenses, net)):
+            if abs(net - (income - expenses)) > 0.02:
+                problems.append(f"net {net} != income {income} - expenses {expenses}")
+            if income < -0.01 or expenses < -0.01:
+                problems.append("negative income or expenses total")
+        else:
+            problems.append("monthly_summary has non-finite core values")
+
+    # Dict outputs must contain no NaN/infinite floats.
+    for key in ("cash_runway", "home_purchase", "major_purchase", "net_worth", "risk_summary"):
+        value = outputs.get(key)
+        if isinstance(value, dict):
+            for field, field_value in value.items():
+                if isinstance(field_value, float) and not math.isfinite(field_value):
+                    problems.append(f"{key}.{field} is non-finite")
+
+    # These tables never legitimately contain NaN or infinite values.
+    for key in ("forecast_cash_flow", "cash_projection", "scenarios"):
+        value = outputs.get(key)
+        if isinstance(value, pd.DataFrame):
+            numeric = value.select_dtypes(include="number")
+            if not numeric.empty and bool(numeric.isna().any().any()):
+                problems.append(f"{key} has NaN values")
+            if not numeric.empty and bool((numeric.abs() == float("inf")).any().any()):
+                problems.append(f"{key} has infinite values")
+
+    runway = outputs.get("cash_runway")
+    if isinstance(runway, dict):
+        months = runway.get("Emergency Runway (months)")
+        if months is not None and (not _is_finite_number(months) or months < 0):
+            problems.append(f"cash runway months invalid: {months}")
+        if df is not None and bool((df["assigned_category"] == "Housing").any()):
+            if not float(runway.get("Essential Monthly Bills", 0.0)) > 0:
+                problems.append("housing present but essential monthly bills = 0 (rent dropped?)")
+
+    risk = outputs.get("risk_register")
+    if isinstance(risk, pd.DataFrame) and not risk.empty:
+        if not set(risk["Level"]).issubset({RISK_HIGH, RISK_MEDIUM, RISK_LOW}):
+            problems.append("risk register has an unexpected level value")
+
+    actions = outputs.get("action_items")
+    if isinstance(actions, pd.DataFrame) and not actions.empty:
+        if len(actions) > 3:
+            problems.append(f"more than 3 action items ({len(actions)})")
+        if "Evaluation" in actions.columns and not bool((actions["Evaluation"] == "PASS").all()):
+            problems.append("an action item failed format validation")
+
+    home = outputs.get("home_purchase")
+    if isinstance(home, dict) and home.get("verdict") not in (None, READY, CLOSE, NOT_YET):
+        problems.append(f"invalid home readiness verdict: {home.get('verdict')}")
+
+    debt = outputs.get("debt_payoff")
+    if isinstance(debt, pd.DataFrame) and "Months to Payoff" in debt.columns:
+        if bool((debt["Months to Payoff"] > MAX_PAYOFF_MONTHS).any()):
+            problems.append("debt payoff months exceed cap")
+
+    if problems:
+        raise AssertionError("; ".join(problems))
+    return {"checks_passed": True}
+
+
 def run_persona(persona: dict[str, Any], persona_dir: Path) -> dict[str, Any]:
     """Run one fictional persona through the full local analytics stack."""
     persona_dir.mkdir(parents=True, exist_ok=True)
@@ -631,6 +710,10 @@ def run_persona(persona: dict[str, Any], persona_dir: Path) -> dict[str, Any]:
             lambda: debt_payoff_comparison(debts, monthly_payment=persona["monthly_debt_payment"]),
             results,
         )
+
+    outputs["value_invariants"] = run_step(
+        "value_invariants", lambda: _check_value_invariants(persona, df, outputs), results
+    )
 
     for name, output in outputs.items():
         _write_table(output, tables_dir / name)
