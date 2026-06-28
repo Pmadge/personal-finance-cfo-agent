@@ -16,7 +16,7 @@ from reportlab.lib.units import inch
 from reportlab.platypus import Image, PageBreak, SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 
 from modules.analytics import monthly_summary
-from modules.capital_events import home_purchase_readiness, major_purchase_check
+from modules.capital_events import home_purchase_readiness, major_purchase_check, rent_vs_buy
 from modules.config import APPROVED_CATEGORIES
 from modules.forecast import cash_runway, project_cash_flow
 from modules.goals import track_goals
@@ -250,6 +250,19 @@ def _add_pillar_sections(story, report_df, profile, styles):
         _clean(f"Major purchase check ({_money(purchase['amount'])}): {purchase['verdict']} - {purchase['note']}"),
         styles["BodyText"],
     ))
+
+    rent_buy = rent_vs_buy(report_df, **profile["home_target"])
+    story.append(Spacer(1, 0.18 * inch))
+    story.append(Paragraph(f"Rent vs Buy ({rent_buy['horizon_years']}-Year)", styles["Heading2"]))
+    rent_buy_rows = [
+        ["Current Monthly Rent", _money(rent_buy["current_monthly_rent"])],
+        [f"Total Rent ({rent_buy['horizon_years']} yrs)", _money(rent_buy["rent_net_cost"])],
+        ["Buy: Net Cost", _money(rent_buy["buy_net_cost"])],
+        ["Lower Net Cost", rent_buy["cheaper"]],
+    ]
+    story.append(_para_table(["Metric", "Value"], rent_buy_rows, [3.0 * inch, 3.3 * inch], header_style, cell_style))
+    story.append(Spacer(1, 0.08 * inch))
+    story.append(Paragraph(_clean(rent_buy["recommendation"]), styles["BodyText"]))
 
     if bool((months == prior_month).any()):
         story.append(Spacer(1, 0.18 * inch))

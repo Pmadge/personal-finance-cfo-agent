@@ -24,7 +24,7 @@ from modules.config import (
     MONTH_LABELS,
     REPORT_MONTH,
 )
-from modules.capital_events import home_purchase_readiness, major_purchase_check
+from modules.capital_events import home_purchase_readiness, major_purchase_check, rent_vs_buy
 from modules.goals import track_goals
 from modules.risk import build_risk_register, risk_summary
 from modules.scenarios import compare_scenarios
@@ -134,6 +134,10 @@ def main():
         print(f"  - {gap}")
     purchase = major_purchase_check(categorized_df, ALEX_ASSETS, ALEX_MAJOR_PURCHASE, liquid_cash=liquid_cash)
     print(f"Capital event - ${ALEX_MAJOR_PURCHASE:,.0f} purchase: {purchase['verdict']} - {purchase['note']}")
+    rent_buy = rent_vs_buy(categorized_df, **ALEX_HOME_TARGET)
+    print(f"Capital event - rent vs buy ({rent_buy['horizon_years']}yr): "
+          f"rent ${rent_buy['rent_net_cost']:,.0f} vs buy net ${rent_buy['buy_net_cost']:,.0f} "
+          f"-> {rent_buy['cheaper']} cheaper")
 
     print(f"\nOutcomes scorecard ({month_3} vs {month_2}):")
     print(outcomes_scorecard(categorized_df, month_3, month_2).to_string(index=False))
