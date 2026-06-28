@@ -17,10 +17,11 @@ from reportlab.platypus import Image, PageBreak, SimpleDocTemplate, Paragraph, S
 
 from modules.analytics import monthly_summary
 from modules.capital_events import home_purchase_readiness, major_purchase_check
-from modules.config import APPROVED_CATEGORIES, SAMPLE_PERSONAL_PROFILE
+from modules.config import APPROVED_CATEGORIES
 from modules.forecast import cash_runway, project_cash_flow
 from modules.goals import track_goals
 from modules.net_worth import net_worth_snapshot
+from modules.personal_profile import load_personal_profile
 from modules.personal_report_charts import build_personal_insights, generate_personal_report_charts
 from modules.personal_report_inputs import build_report_transactions_from_review
 from modules.risk import build_risk_register, risk_summary
@@ -344,7 +345,7 @@ def build_draft_personal_report(report_df, output_path, charts_dir=DEFAULT_CHART
     )
     story.append(transaction_table)
 
-    _add_pillar_sections(story, report_df, profile or SAMPLE_PERSONAL_PROFILE, styles)
+    _add_pillar_sections(story, report_df, profile or load_personal_profile(), styles)
 
     doc = SimpleDocTemplate(str(output_path), pagesize=letter, leftMargin=0.65 * inch, rightMargin=0.65 * inch)
     doc.build(story)

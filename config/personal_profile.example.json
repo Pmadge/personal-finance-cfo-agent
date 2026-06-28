@@ -1,0 +1,27 @@
+{
+  "_note": "Copy this file to config/personal_profile.json and edit the values. That file is Git-ignored and stays local. All values here are fictional examples.",
+  "assets": {
+    "Checking": 3000.0,
+    "Savings": 9000.0,
+    "Investments": 12000.0
+  },
+  "liabilities": {
+    "Credit Card": { "balance": 4000.0, "interest_rate": 21.0 },
+    "Student Loan": { "balance": 14000.0, "interest_rate": 5.5 }
+  },
+  "monthly_debt_payment": 600.0,
+  "goals": [
+    { "name": "Emergency Fund", "type": "savings", "target_amount": 12000.0, "current_amount": 9000.0, "target_date": "2026-12-31" },
+    { "name": "Pay Off Credit Card", "type": "debt_payoff", "target_amount": 0.0, "current_amount": 4000.0, "starting_amount": 4000.0, "interest_rate": 21.0, "monthly_contribution": 400.0, "target_date": "2027-06-30" },
+    { "name": "Reach $50k Net Worth", "type": "net_worth", "target_amount": 50000.0, "current_amount": 0.0, "target_date": "2029-12-31" },
+    { "name": "Hit 15% Savings Rate", "type": "savings_rate", "target_amount": 15.0, "current_amount": 0.0 }
+  ],
+  "scenarios": [
+    { "name": "Lose job (no income)", "monthly_income": 0.0 },
+    { "name": "Get a $400/mo raise", "monthly_income_change": 400.0 },
+    { "name": "Move (+$300/mo rent)", "monthly_expense_change": 300.0 },
+    { "name": "$3,000 one-time purchase", "one_time_cost": 3000.0 }
+  ],
+  "home_target": { "home_price": 300000.0, "down_payment_pct": 10.0, "mortgage_rate": 7.0, "term_years": 30 },
+  "major_purchase": 3000.0
+}

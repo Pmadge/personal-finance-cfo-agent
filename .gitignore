@@ -28,6 +28,10 @@ outputs/personal/*
 # Local categorization rules based on real spending vendors.
 config/personal_rules.*
 
+# Local personal financial profile (assets/goals/scenarios). The committed
+# config/personal_profile.example.json documents the shape; the real one is local.
+config/personal_profile.json
+
 # Local AI-agent plugin/config caches. Root AGENTS.md and CLAUDE.md stay tracked.
 .claude/
 .codex/
