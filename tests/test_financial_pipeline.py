@@ -140,6 +140,7 @@ def test_monthly_pdf_contains_required_sections():
         "Goal Tracker",
         "Risk Register",
         "Capital Event: Home Purchase Readiness",
+        "Rent vs Buy",
         "AI Action Items",
         "Your CFO Engagement",
         "Model Version Log",

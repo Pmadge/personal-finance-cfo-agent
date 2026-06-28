@@ -36,7 +36,7 @@ from modules.analytics import (
 )
 from modules.categorizer import categorize_file
 from modules.charts import generate_all_charts
-from modules.capital_events import home_purchase_readiness, major_purchase_check
+from modules.capital_events import home_purchase_readiness, major_purchase_check, rent_vs_buy
 from modules.config import (
     ALEX_ASSETS,
     ALEX_BUDGET,
@@ -272,6 +272,7 @@ def collect_report_data(output_dir=None):
     _, risk_overall = risk_summary(risk_df)
     home_readiness = home_purchase_readiness(df, ALEX_ASSETS, **ALEX_HOME_TARGET)
     major_purchase = major_purchase_check(df, ALEX_ASSETS, ALEX_MAJOR_PURCHASE, liquid_cash=liquid_cash)
+    rent_buy = rent_vs_buy(df, **ALEX_HOME_TARGET)
     scorecard_df = outcomes_scorecard(df, MONTH, str(pd.Period(MONTH, freq="M") - 1))
 
     biggest_budget_miss = budget_df.sort_values("Variance ($)").iloc[0].to_dict()
@@ -302,6 +303,7 @@ def collect_report_data(output_dir=None):
         "risk_overall": risk_overall,
         "home_readiness": home_readiness,
         "major_purchase": major_purchase,
+        "rent_vs_buy": rent_buy,
         "scorecard_df": scorecard_df,
         "action_df": action_df,
         "executive_summary": executive_summary(month_data),
@@ -676,6 +678,22 @@ def add_report_tables(story, styles, data):
             styles["BodyTextClean"],
         )
     )
+
+    rent_buy = data["rent_vs_buy"]
+    story.append(Spacer(1, 0.22 * inch))
+    story.append(section(f"Rent vs Buy ({rent_buy['horizon_years']}-Year)", styles))
+    rent_buy_rows = [
+        ["Current Monthly Rent", money(rent_buy["current_monthly_rent"])],
+        [f"Total Rent ({rent_buy['horizon_years']} yrs)", money(rent_buy["rent_net_cost"])],
+        ["Buy: Upfront (down + closing)", money(rent_buy["buy_upfront"])],
+        [f"Buy: Total PITI ({rent_buy['horizon_years']} yrs)", money(rent_buy["buy_total_piti"])],
+        ["Buy: Home Equity at Horizon", money(rent_buy["buy_equity_at_horizon"])],
+        ["Buy: Net Cost", money(rent_buy["buy_net_cost"])],
+        ["Lower Net Cost", rent_buy["cheaper"]],
+    ]
+    story.append(styled_table(["Metric", "Value"], rent_buy_rows, styles, [3.2 * inch, 3.4 * inch]))
+    story.append(Spacer(1, 0.1 * inch))
+    story.append(Paragraph(clean_text(rent_buy["recommendation"]), styles["BodyTextClean"]))
 
     story.append(PageBreak())
     story.append(section("AI Action Items", styles))
