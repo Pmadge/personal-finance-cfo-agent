@@ -1,0 +1,6 @@
+pandas
+matplotlib
+pillow
+reportlab
+pymupdf
+pytest

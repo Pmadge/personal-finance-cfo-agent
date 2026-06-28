@@ -1,0 +1,5 @@
+Transaction Date,Description,Debit,Credit,Category,Account Name,Transaction ID
+2026-04-01,Fake Payroll Deposit,,2500.00,income,Fake Checking,fake_bank_txn_001
+2026-04-02,Fake Grocery Market,73.42,,groceries,Fake Credit Card,fake_bank_txn_002
+2026-04-03,Fake Coffee Shop,6.25,,dining,Fake Credit Card,fake_bank_txn_003
+2026-04-04,Fake Streaming Service,14.99,,subscriptions,Fake Credit Card,fake_bank_txn_004

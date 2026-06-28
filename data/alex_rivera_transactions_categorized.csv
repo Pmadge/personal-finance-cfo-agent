@@ -1,0 +1,105 @@
+date,vendor,amount,raw_category,assigned_category,classification_method
+2026-01-01,Parkside Rent Portal,-900.0,rent,Housing,exact_vendor_match
+2026-01-02,CityFit Gym,-45.0,gym,Subscriptions,exact_vendor_match
+2026-01-02,Netflix,-15.49,subscription,Subscriptions,exact_vendor_match
+2026-01-03,Trader Joe's,-82.34,groceries,Food & Dining,exact_vendor_match
+2026-01-03,Blue Bottle Coffee,-8.75,dining,Food & Dining,exact_vendor_match
+2026-01-04,Lyft,-18.2,transportation,Transport,exact_vendor_match
+2026-01-05,Payroll Deposit,2400.0,income,Income,exact_vendor_match
+2026-01-05,Sweetgreen,-16.8,dining,Food & Dining,exact_vendor_match
+2026-01-06,Spotify,-10.99,subscription,Subscriptions,exact_vendor_match
+2026-01-07,Verizon Wireless,-72.18,phone,Subscriptions,exact_vendor_match
+2026-01-08,Whole Foods Market,-96.42,groceries,Food & Dining,exact_vendor_match
+2026-01-09,Chipotle,-14.6,dining,Food & Dining,exact_vendor_match
+2026-01-10,Uber,-22.45,transportation,Transport,exact_vendor_match
+2026-01-11,Target,-54.32,household,Shopping,exact_vendor_match
+2026-01-12,Local Taqueria,-18.9,dining,Food & Dining,exact_vendor_match
+2026-01-13,Hulu,-17.99,subscription,Subscriptions,exact_vendor_match
+2026-01-14,Venmo from Jordan,85.0,transfer,Income,keyword_match
+2026-01-14,Safeway,-74.51,groceries,Food & Dining,exact_vendor_match
+2026-01-15,Ramen House,-24.25,dining,Food & Dining,exact_vendor_match
+2026-01-16,Federal Student Loan Servicer,-250.0,student_loan,Education,exact_vendor_match
+2026-01-17,Zara,-68.4,clothing,Shopping,exact_vendor_match
+2026-01-18,DoorDash Thai Garden,-38.72,dining,Food & Dining,exact_vendor_match
+2026-01-19,Payroll Deposit,2400.0,income,Income,exact_vendor_match
+2026-01-19,Philz Coffee,-9.6,dining,Food & Dining,exact_vendor_match
+2026-01-20,Lyft,-16.88,transportation,Transport,exact_vendor_match
+2026-01-21,Trader Joe's,-88.17,groceries,Food & Dining,exact_vendor_match
+2026-01-22,Neighborhood Pizza,-29.4,dining,Food & Dining,exact_vendor_match
+2026-01-23,Uber,-19.75,transportation,Transport,exact_vendor_match
+2026-01-24,Brunch Cafe,-41.8,dining,Food & Dining,exact_vendor_match
+2026-01-25,Apple Store Repair,-190.0,unusual,Shopping,exact_vendor_match
+2026-01-26,Sweetgreen,-17.35,dining,Food & Dining,exact_vendor_match
+2026-01-27,Walgreens,-22.18,health,Medical,exact_vendor_match
+2026-01-28,Whole Foods Market,-91.63,groceries,Food & Dining,exact_vendor_match
+2026-01-29,Sushi Spot,-36.2,dining,Food & Dining,exact_vendor_match
+2026-01-30,Uber Eats Burger Bar,-33.15,dining,Food & Dining,exact_vendor_match
+2026-01-31,Lyft,-21.1,transportation,Transport,exact_vendor_match
+2026-02-01,Parkside Rent Portal,-900.0,rent,Housing,exact_vendor_match
+2026-02-02,Netflix,-15.49,subscription,Subscriptions,exact_vendor_match
+2026-02-02,Trader Joe's,-79.26,groceries,Food & Dining,exact_vendor_match
+2026-02-03,Blue Bottle Coffee,-7.9,dining,Food & Dining,exact_vendor_match
+2026-02-04,Lyft,-15.35,transportation,Transport,exact_vendor_match
+2026-02-05,Payroll Deposit,2400.0,income,Income,exact_vendor_match
+2026-02-05,Sweetgreen,-15.75,dining,Food & Dining,exact_vendor_match
+2026-02-06,Spotify,-10.99,subscription,Subscriptions,exact_vendor_match
+2026-02-07,Verizon Wireless,-72.18,phone,Subscriptions,exact_vendor_match
+2026-02-08,Whole Foods Market,-83.64,groceries,Food & Dining,exact_vendor_match
+2026-02-09,Chipotle,-13.8,dining,Food & Dining,exact_vendor_match
+2026-02-10,Uber,-18.25,transportation,Transport,exact_vendor_match
+2026-02-11,Target,-47.15,household,Shopping,exact_vendor_match
+2026-02-12,Gap Flagship Store,-280.0,clothing,Shopping,exact_vendor_match
+2026-02-13,Hulu,-17.99,subscription,Subscriptions,exact_vendor_match
+2026-02-14,Venmo from Maya,60.0,transfer,Income,keyword_match
+2026-02-14,Safeway,-71.9,groceries,Food & Dining,exact_vendor_match
+2026-02-15,Local Taqueria,-16.45,dining,Food & Dining,exact_vendor_match
+2026-02-16,Federal Student Loan Servicer,-250.0,student_loan,Education,exact_vendor_match
+2026-02-17,Uniqlo,-52.3,clothing,Shopping,exact_vendor_match
+2026-02-18,DoorDash Thai Garden,-29.84,dining,Food & Dining,exact_vendor_match
+2026-02-19,Payroll Deposit,2400.0,income,Income,exact_vendor_match
+2026-02-19,Philz Coffee,-8.4,dining,Food & Dining,exact_vendor_match
+2026-02-20,Lyft,-14.95,transportation,Transport,exact_vendor_match
+2026-02-21,Trader Joe's,-86.22,groceries,Food & Dining,exact_vendor_match
+2026-02-22,Neighborhood Pizza,-25.1,dining,Food & Dining,exact_vendor_match
+2026-02-23,Uber,-17.6,transportation,Transport,exact_vendor_match
+2026-02-24,Dentist Copay,-160.0,unusual,Medical,exact_vendor_match
+2026-02-25,Sweetgreen,-15.95,dining,Food & Dining,exact_vendor_match
+2026-02-26,Walgreens,-19.72,health,Medical,exact_vendor_match
+2026-02-27,Whole Foods Market,-84.55,groceries,Food & Dining,exact_vendor_match
+2026-02-28,Lyft,-18.45,transportation,Transport,exact_vendor_match
+2026-03-01,Parkside Rent Portal,-900.0,rent,Housing,exact_vendor_match
+2026-03-02,CityFit Gym - February Catch-Up,-45.0,gym,Subscriptions,keyword_match
+2026-03-02,Netflix,-15.49,subscription,Subscriptions,exact_vendor_match
+2026-03-03,Trader Joe's,-84.1,groceries,Food & Dining,exact_vendor_match
+2026-03-04,Blue Bottle Coffee,-8.1,dining,Food & Dining,exact_vendor_match
+2026-03-05,Payroll Deposit,2400.0,income,Income,exact_vendor_match
+2026-03-05,CityFit Gym - March Membership,-45.0,gym,Subscriptions,keyword_match
+2026-03-05,Sweetgreen,-16.25,dining,Food & Dining,exact_vendor_match
+2026-03-06,Spotify,-10.99,subscription,Subscriptions,exact_vendor_match
+2026-03-07,Verizon Wireless,-72.18,phone,Subscriptions,exact_vendor_match
+2026-03-08,Whole Foods Market,-89.44,groceries,Food & Dining,exact_vendor_match
+2026-03-09,Chipotle,-14.2,dining,Food & Dining,exact_vendor_match
+2026-03-10,Uber,-19.25,transportation,Transport,exact_vendor_match
+2026-03-11,Target,-51.8,household,Shopping,exact_vendor_match
+2026-03-12,Local Taqueria,-17.95,dining,Food & Dining,exact_vendor_match
+2026-03-13,Hulu,-17.99,subscription,Subscriptions,exact_vendor_match
+2026-03-14,Venmo from Jordan,75.0,transfer,Income,keyword_match
+2026-03-14,Safeway,-78.25,groceries,Food & Dining,exact_vendor_match
+2026-03-15,Ramen House,-22.9,dining,Food & Dining,exact_vendor_match
+2026-03-16,Federal Student Loan Servicer,-250.0,student_loan,Education,exact_vendor_match
+2026-03-17,H&M,-61.25,clothing,Shopping,exact_vendor_match
+2026-03-18,DoorDash Thai Garden,-31.6,dining,Food & Dining,exact_vendor_match
+2026-03-19,Payroll Deposit,2400.0,income,Income,exact_vendor_match
+2026-03-19,Philz Coffee,-8.95,dining,Food & Dining,exact_vendor_match
+2026-03-20,Lyft,-15.8,transportation,Transport,exact_vendor_match
+2026-03-21,Trader Joe's,-87.35,groceries,Food & Dining,exact_vendor_match
+2026-03-22,Neighborhood Pizza,-26.75,dining,Food & Dining,exact_vendor_match
+2026-03-23,Uber,-17.95,transportation,Transport,exact_vendor_match
+2026-03-24,Auto Registration Renewal,-210.0,unusual,Transport,exact_vendor_match
+2026-03-25,Sweetgreen,-16.4,dining,Food & Dining,exact_vendor_match
+2026-03-26,Walgreens,-21.35,health,Medical,exact_vendor_match
+2026-03-27,Whole Foods Market,-92.7,groceries,Food & Dining,exact_vendor_match
+2026-03-28,Sushi Spot,-34.85,dining,Food & Dining,exact_vendor_match
+2026-03-29,Lyft,-20.15,transportation,Transport,exact_vendor_match
+2026-03-30,Trader Joe's,-76.8,groceries,Food & Dining,exact_vendor_match
+2026-03-31,Uber Eats Burger Bar,-28.65,dining,Food & Dining,exact_vendor_match

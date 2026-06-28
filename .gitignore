@@ -1,0 +1,37 @@
+.DS_Store
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+
+# Generated review renders
+outputs/pdf_review/
+outputs/trend_report_review/
+
+# Generated demo report artifacts. Regenerate on demand via the scripts
+# (main.py, scripts/generate_monthly_report.py, scripts/generate_trend_report.py)
+# instead of committing large binaries. Keep outputs/README.md tracked.
+outputs/*.pdf
+outputs/*.png
+
+# Generated multi-persona stress-test result folders. Regenerate on demand.
+outputs/stress_tests/
+
+# Local-only personal financial data. Keep sample/demo data separate.
+data/personal/*
+!data/personal/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+outputs/personal/*
+!outputs/personal/.gitkeep
+
+# Local categorization rules based on real spending vendors.
+config/personal_rules.*
+
+# Local AI-agent plugin/config caches. Root AGENTS.md and CLAUDE.md stay tracked.
+.claude/
+.codex/
+.hermes/
+
+# Local knowledge-graph cache. Review privacy before committing any graph output.
+graphify-out/
