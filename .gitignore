@@ -35,3 +35,6 @@ config/personal_rules.*
 
 # Local knowledge-graph cache. Review privacy before committing any graph output.
 graphify-out/
+
+# R history (stray, never commit)
+.Rhistory
