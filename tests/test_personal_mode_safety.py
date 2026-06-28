@@ -24,6 +24,7 @@ def test_private_local_paths_are_git_ignored_by_git_itself():
         "outputs/personal/report.pdf",
         "outputs/personal/charts/chart.png",
         "config/personal_rules.csv",
+        "config/personal_profile.json",
     }
 
 
