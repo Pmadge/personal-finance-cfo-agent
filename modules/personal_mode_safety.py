@@ -15,6 +15,7 @@ PRIVATE_PATH_CHECKS = [
     "outputs/personal/report.pdf",
     "outputs/personal/charts/chart.png",
     "config/personal_rules.csv",
+    "config/personal_profile.json",
 ]
 
 
