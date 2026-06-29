@@ -166,6 +166,9 @@ GENERAL_KEYWORD_MATCHES = [
     ("UTILITY", "Subscriptions"),
     ("WATER DISTRICT", "Subscriptions"),
     ("INTERNET", "Subscriptions"),
+    ("CHILDCARE", "Education"),
+    ("DAYCARE", "Education"),
+    ("529 PLAN", "Education"),
     # Housing
     ("MORTGAGE", "Housing"),
     ("APARTMENT", "Housing"),
@@ -175,6 +178,10 @@ GENERAL_KEYWORD_MATCHES = [
     ("LEASING", "Housing"),
     ("LANDLORD", "Housing"),
     ("HOA", "Housing"),
+    ("PROPERTY TAX", "Housing"),
+    ("ESCROW", "Housing"),
+    ("PLUMBING", "Housing"),
+    ("APPLIANCE", "Housing"),
     ("ZILLOW", "Housing"),
     # Transport (gas stations, transit, air, auto)
     ("SHELL", "Transport"),
@@ -196,6 +203,8 @@ GENERAL_KEYWORD_MATCHES = [
     ("AMTRAK", "Transport"),
     ("AIRLINE", "Transport"),
     ("AIR LINES", "Transport"),
+    ("SOUTHWEST", "Transport"),
+    ("TRAVEL", "Transport"),
     ("CAR WASH", "Transport"),
     ("JIFFY LUBE", "Transport"),
     ("AUTOZONE", "Transport"),
@@ -293,6 +302,17 @@ RAW_CATEGORY_TRUTH_MAP = {
     "household": "Shopping",
     "phone": "Subscriptions",
     "unusual": "Shopping",
+    "mortgage": "Housing",
+    "housing": "Housing",
+    "utilities": "Subscriptions",
+    "insurance": "Subscriptions",
+    "internet": "Subscriptions",
+    "childcare": "Education",
+    "auto_loan": "Transport",
+    "investment": "Savings Transfer",
+    "savings": "Savings Transfer",
+    "travel": "Transport",
+    "home_repair": "Housing",
 }
 
 EXPECTED_VENDOR_OVERRIDES = {

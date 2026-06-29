@@ -1,0 +1,129 @@
+date,vendor,amount,raw_category
+2026-01-01,Northstar Health Payroll,6500.00,income
+2026-01-15,Northstar Health Payroll,6500.00,income
+2026-01-07,BrightPath Consulting Invoice,4200.00,income
+2026-01-22,BrightPath Consulting Invoice,4200.00,income
+2026-01-25,Fidelity Brokerage Dividend,220.00,income
+2026-01-02,Wells Fargo Mortgage,-3450.00,mortgage
+2026-01-03,Maple HOA AutoPay,-385.00,housing
+2026-01-04,Pacific Gas and Electric,-245.00,utilities
+2026-01-04,East Bay Water District,-118.00,utilities
+2026-01-05,Comcast Xfinity Internet,-96.00,internet
+2026-01-06,State Farm Home Insurance,-185.00,insurance
+2026-01-06,State Farm Auto Insurance,-210.00,insurance
+2026-01-07,T-Mobile Family Plan,-168.00,phone
+2026-01-08,Little Oaks Childcare,-1650.00,childcare
+2026-01-10,Federal Student Loan Servicer,-720.00,student_loan
+2026-01-11,Toyota Financial Services,-520.00,auto_loan
+2026-01-12,Fidelity 529 Plan,-500.00,education
+2026-01-13,Vanguard Automatic Investment,-2200.00,investment
+2026-01-14,Transfer to High Yield Savings,-1800.00,savings
+2026-01-05,Costco Wholesale,-385.00,groceries
+2026-01-09,Trader Joe's,-165.00,groceries
+2026-01-16,Safeway,-205.00,groceries
+2026-01-23,Whole Foods Market,-190.00,groceries
+2026-01-27,Instacart Grocery,-145.00,groceries
+2026-01-06,Shell Oil Gas Station,-135.00,transportation
+2026-01-17,Bay Area Transit,-96.00,transportation
+2026-01-26,Chevron 0421,-122.00,transportation
+2026-01-09,Pediatrician Copay,-85.00,medical
+2026-01-18,CVS Pharmacy,-42.00,medical
+2026-01-12,Amazon Marketplace,-260.00,shopping
+2026-01-19,Target,-180.00,shopping
+2026-01-21,Home Depot,-240.00,household
+2026-01-24,Local Taqueria,-72.00,dining
+2026-01-28,Sushi Spot,-118.00,dining
+2026-01-29,Uber Eats Family Dinner,-92.00,dining
+2026-01-03,Netflix,-22.99,subscription
+2026-01-04,Spotify Family,-19.99,subscription
+2026-01-05,Apple.com/Bill iCloud,-9.99,subscription
+2026-01-06,Adobe Creative Cloud,-59.99,subscription
+2026-01-15,Peloton,-44.00,subscription
+2026-01-20,Family Movie Theater,-78.00,entertainment
+2026-02-01,Northstar Health Payroll,6500.00,income
+2026-02-15,Northstar Health Payroll,6500.00,income
+2026-02-07,BrightPath Consulting Invoice,3600.00,income
+2026-02-22,BrightPath Consulting Invoice,4200.00,income
+2026-02-25,Fidelity Brokerage Dividend,220.00,income
+2026-02-02,Wells Fargo Mortgage,-3450.00,mortgage
+2026-02-03,Maple HOA AutoPay,-385.00,housing
+2026-02-04,Pacific Gas and Electric,-254.80,utilities
+2026-02-04,East Bay Water District,-122.72,utilities
+2026-02-05,Comcast Xfinity Internet,-96.00,internet
+2026-02-06,State Farm Home Insurance,-185.00,insurance
+2026-02-06,State Farm Auto Insurance,-210.00,insurance
+2026-02-07,T-Mobile Family Plan,-168.00,phone
+2026-02-08,Little Oaks Childcare,-1650.00,childcare
+2026-02-10,Federal Student Loan Servicer,-720.00,student_loan
+2026-02-11,Toyota Financial Services,-520.00,auto_loan
+2026-02-12,Fidelity 529 Plan,-500.00,education
+2026-02-13,Vanguard Automatic Investment,-2200.00,investment
+2026-02-14,Transfer to High Yield Savings,-1800.00,savings
+2026-02-05,Costco Wholesale,-400.40,groceries
+2026-02-09,Trader Joe's,-171.60,groceries
+2026-02-16,Safeway,-213.20,groceries
+2026-02-23,Whole Foods Market,-197.60,groceries
+2026-02-27,Instacart Grocery,-150.80,groceries
+2026-02-06,Shell Oil Gas Station,-135.00,transportation
+2026-02-17,Bay Area Transit,-96.00,transportation
+2026-02-26,Chevron 0421,-122.00,transportation
+2026-02-09,Pediatrician Copay,-85.00,medical
+2026-02-18,CVS Pharmacy,-42.00,medical
+2026-02-12,Amazon Marketplace,-270.40,shopping
+2026-02-19,Target,-187.20,shopping
+2026-02-21,Home Depot,-240.00,household
+2026-02-24,Local Taqueria,-72.00,dining
+2026-02-28,Sushi Spot,-118.00,dining
+2026-02-28,Uber Eats Family Dinner,-92.00,dining
+2026-02-03,Netflix,-22.99,subscription
+2026-02-04,Spotify Family,-19.99,subscription
+2026-02-05,Apple.com/Bill iCloud,-9.99,subscription
+2026-02-06,Adobe Creative Cloud,-59.99,subscription
+2026-02-15,Peloton,-44.00,subscription
+2026-02-20,Family Movie Theater,-78.00,entertainment
+2026-03-01,Northstar Health Payroll,6500.00,income
+2026-03-15,Northstar Health Payroll,6500.00,income
+2026-03-07,BrightPath Consulting Invoice,4200.00,income
+2026-03-22,BrightPath Consulting Invoice,4200.00,income
+2026-03-25,Fidelity Brokerage Dividend,220.00,income
+2026-03-02,Wells Fargo Mortgage,-3450.00,mortgage
+2026-03-03,Maple HOA AutoPay,-385.00,housing
+2026-03-04,Pacific Gas and Electric,-264.60,utilities
+2026-03-04,East Bay Water District,-127.44,utilities
+2026-03-05,Comcast Xfinity Internet,-96.00,internet
+2026-03-06,State Farm Home Insurance,-185.00,insurance
+2026-03-06,State Farm Auto Insurance,-210.00,insurance
+2026-03-07,T-Mobile Family Plan,-168.00,phone
+2026-03-08,Little Oaks Childcare,-1650.00,childcare
+2026-03-10,Federal Student Loan Servicer,-720.00,student_loan
+2026-03-11,Toyota Financial Services,-520.00,auto_loan
+2026-03-12,Fidelity 529 Plan,-500.00,education
+2026-03-13,Vanguard Automatic Investment,-2200.00,investment
+2026-03-14,Transfer to High Yield Savings,-2500.00,savings
+2026-03-05,Costco Wholesale,-415.80,groceries
+2026-03-09,Trader Joe's,-178.20,groceries
+2026-03-16,Safeway,-221.40,groceries
+2026-03-23,Whole Foods Market,-205.20,groceries
+2026-03-27,Instacart Grocery,-156.60,groceries
+2026-03-06,Shell Oil Gas Station,-135.00,transportation
+2026-03-17,Bay Area Transit,-96.00,transportation
+2026-03-26,Chevron 0421,-122.00,transportation
+2026-03-09,Pediatrician Copay,-85.00,medical
+2026-03-18,CVS Pharmacy,-42.00,medical
+2026-03-12,Amazon Marketplace,-280.80,shopping
+2026-03-19,Target,-194.40,shopping
+2026-03-21,Home Depot,-890.00,household
+2026-03-24,Local Taqueria,-72.00,dining
+2026-03-28,Sushi Spot,-118.00,dining
+2026-03-29,Uber Eats Family Dinner,-92.00,dining
+2026-03-03,Netflix,-22.99,subscription
+2026-03-04,Spotify Family,-19.99,subscription
+2026-03-05,Apple.com/Bill iCloud,-9.99,subscription
+2026-03-06,Adobe Creative Cloud,-59.99,subscription
+2026-03-15,Peloton,-44.00,subscription
+2026-03-20,Family Movie Theater,-78.00,entertainment
+2026-01-20,Orthodontist Deposit,-1200.00,medical
+2026-02-14,Southwest Airlines Family Trip,-1450.00,travel
+2026-02-18,Emergency Plumbing Repair,-1850.00,home_repair
+2026-03-14,Used Appliance Replacement,-1350.00,home_repair
+2026-03-18,Annual Property Tax Escrow Catch-Up,-2400.00,housing

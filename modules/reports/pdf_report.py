@@ -47,6 +47,18 @@ from modules.config import (
     ALEX_SCENARIOS,
     APPROVED_CATEGORIES,
     MODEL_VERSION,
+    PORTFOLIO_DEMO_ASSETS,
+    PORTFOLIO_DEMO_BUDGET,
+    PORTFOLIO_DEMO_CATEGORIZED,
+    PORTFOLIO_DEMO_FICTIONAL_DATA_NOTICE,
+    PORTFOLIO_DEMO_GOALS,
+    PORTFOLIO_DEMO_HOME_TARGET,
+    PORTFOLIO_DEMO_LIABILITIES,
+    PORTFOLIO_DEMO_MAJOR_PURCHASE,
+    PORTFOLIO_DEMO_PDF,
+    PORTFOLIO_DEMO_PERSONA_NAME,
+    PORTFOLIO_DEMO_SCENARIOS,
+    PORTFOLIO_DEMO_TRANSACTIONS,
     REPORT_MONTH,
     REPORT_MONTH_LABEL,
 )
@@ -67,6 +79,59 @@ MONTH_LABEL = REPORT_MONTH_LABEL
 PDF_PATH = PROJECT_ROOT / "outputs" / "alex_rivera_monthly_cfo_report_2026_03.pdf"
 REVIEW_DIR = PROJECT_ROOT / "outputs" / "pdf_review"
 FOOTER = f"{MODEL_VERSION} | Fictional Alex Rivera data only | Generated for {MONTH_LABEL}"
+
+
+def default_report_config():
+    """Return the default fictional Alex Rivera report configuration."""
+    return {
+        "persona_name": "Alex Rivera",
+        "fictional_notice": "Fictional Alex Rivera data only",
+        "raw_path": PROJECT_ROOT / "data" / "alex_rivera_transactions.csv",
+        "categorized_path": PROJECT_ROOT / "data" / "alex_rivera_transactions_categorized.csv",
+        "pdf_path": PDF_PATH,
+        "budget": ALEX_BUDGET,
+        "assets": ALEX_ASSETS,
+        "liabilities": ALEX_LIABILITIES,
+        "goals": ALEX_GOALS,
+        "scenarios": ALEX_SCENARIOS,
+        "home_target": ALEX_HOME_TARGET,
+        "major_purchase": ALEX_MAJOR_PURCHASE,
+        "dashboard_note": (
+            "One-page CFO answer: Alex has strong monthly cash generation, but the dashboard highlights the "
+            "thin emergency runway, debt load, goal progress, and capital-event readiness before the detailed pages."
+        ),
+    }
+
+
+def portfolio_demo_report_config():
+    """Return the richer fictional household configuration used for portfolio screenshots."""
+    return {
+        "persona_name": PORTFOLIO_DEMO_PERSONA_NAME,
+        "fictional_notice": f"{PORTFOLIO_DEMO_FICTIONAL_DATA_NOTICE} only",
+        "raw_path": PROJECT_ROOT / PORTFOLIO_DEMO_TRANSACTIONS,
+        "categorized_path": PROJECT_ROOT / PORTFOLIO_DEMO_CATEGORIZED,
+        "pdf_path": PROJECT_ROOT / PORTFOLIO_DEMO_PDF,
+        "budget": PORTFOLIO_DEMO_BUDGET,
+        "assets": PORTFOLIO_DEMO_ASSETS,
+        "liabilities": PORTFOLIO_DEMO_LIABILITIES,
+        "goals": PORTFOLIO_DEMO_GOALS,
+        "scenarios": PORTFOLIO_DEMO_SCENARIOS,
+        "home_target": PORTFOLIO_DEMO_HOME_TARGET,
+        "major_purchase": PORTFOLIO_DEMO_MAJOR_PURCHASE,
+        "dashboard_note": (
+            "One-page CFO answer: this richer fictional household combines dual income, mortgage-level housing, "
+            "childcare, debt payoff, savings transfers, home-buying goals, and surprise expenses so the report "
+            "shows more real-life financial complexity than a simple starter persona."
+        ),
+    }
+
+
+def resolve_report_config(report_config=None):
+    """Merge a custom report configuration with the default report settings."""
+    config = default_report_config()
+    if report_config:
+        config.update(report_config)
+    return config
 
 
 def money(value):
@@ -218,24 +283,38 @@ def chart_image(path, width=6.8 * inch):
     return image
 
 
-def footer(canvas, doc):
-    """Draw footer on content pages."""
-    if doc.page == 1:
-        return
-    canvas.saveState()
-    canvas.setFont("Helvetica", 8)
-    canvas.setFillColor(colors.HexColor("#6b7280"))
-    canvas.drawString(doc.leftMargin, 0.42 * inch, FOOTER)
-    canvas.drawRightString(letter[0] - doc.rightMargin, 0.42 * inch, f"Page {doc.page}")
-    canvas.restoreState()
+def footer_for(report_config):
+    """Create a PDF footer function for the selected fictional report persona."""
+    footer_text = f"{MODEL_VERSION} | {report_config['fictional_notice']} | Generated for {MONTH_LABEL}"
+
+    def _footer(canvas, doc):
+        if doc.page == 1:
+            return
+        canvas.saveState()
+        canvas.setFont("Helvetica", 8)
+        canvas.setFillColor(colors.HexColor("#6b7280"))
+        canvas.drawString(doc.leftMargin, 0.42 * inch, footer_text)
+        canvas.drawRightString(letter[0] - doc.rightMargin, 0.42 * inch, f"Page {doc.page}")
+        canvas.restoreState()
+
+    return _footer
 
 
-def collect_report_data(output_dir=None):
+def collect_report_data(output_dir=None, report_config=None):
     """Collect all computed data used by the PDF."""
-    raw_path = PROJECT_ROOT / "data" / "alex_rivera_transactions.csv"
-    categorized_path = PROJECT_ROOT / "data" / "alex_rivera_transactions_categorized.csv"
+    report_config = resolve_report_config(report_config)
+    raw_path = Path(report_config["raw_path"])
+    categorized_path = Path(report_config["categorized_path"])
     output_dir = Path(output_dir) if output_dir is not None else PROJECT_ROOT / "outputs"
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    budget = report_config["budget"]
+    assets = report_config["assets"]
+    liabilities = report_config["liabilities"]
+    goals = report_config["goals"]
+    scenarios = report_config["scenarios"]
+    home_target = report_config["home_target"]
+    major_purchase_amount = report_config["major_purchase"]
 
     df, accuracy_rate = categorize_file(raw_path, categorized_path)
     assert_pipeline_self_checks(
@@ -243,33 +322,33 @@ def collect_report_data(output_dir=None):
         report_month=MONTH,
         approved_categories=APPROVED_CATEGORIES,
     )
-    chart_metadata = generate_all_charts(df, ALEX_BUDGET, output_dir)
+    chart_metadata = generate_all_charts(df, budget, output_dir)
 
     summary = monthly_summary(df, MONTH)
-    budget_df = budget_vs_actual(df, MONTH, ALEX_BUDGET)
-    cumulative_budget_df = cumulative_budget_vs_actual(df, ALEX_BUDGET)
+    budget_df = budget_vs_actual(df, MONTH, budget)
+    cumulative_budget_df = cumulative_budget_vs_actual(df, budget)
     upcoming_df = upcoming_obligations(df)
     recurring_df = detect_recurring(df)
     unusual_df = detect_unusual(df)
     unusual_df = unusual_df[unusual_df["Transaction Date"].str.startswith(MONTH)]
     forecast_df = forecast_cash_flow(df)
-    liquid_cash = ALEX_ASSETS["Checking"] + ALEX_ASSETS["Savings"]
+    liquid_cash = assets["Checking"] + assets["Savings"]
     runway = cash_runway(df, liquid_cash)
     projection_df = project_cash_flow(
         df, starting_cash=liquid_cash, months=12, start_month=str(pd.Period(MONTH, freq="M") + 1)
     )
-    scenario_df = compare_scenarios(df, liquid_cash, ALEX_SCENARIOS)
+    scenario_df = compare_scenarios(df, liquid_cash, scenarios)
     audit_df = build_audit_log(df, accuracy_rate, raw_path, PROJECT_ROOT)
     debts = [
         {"name": name, "balance": details["balance"], "interest_rate": details["interest_rate"]}
-        for name, details in ALEX_LIABILITIES.items()
+        for name, details in liabilities.items()
     ]
-    net_worth = net_worth_snapshot(ALEX_ASSETS, ALEX_LIABILITIES)
+    net_worth = net_worth_snapshot(assets, liabilities)
     debt_df = debt_payoff_comparison(debts)
-    action_df = generate_action_items(df, MONTH, ALEX_BUDGET)
+    action_df = generate_action_items(df, MONTH, budget)
 
     # Goal tracker: fill the live net-worth and savings-rate values for this month.
-    live_goals = [dict(goal) for goal in ALEX_GOALS]
+    live_goals = [dict(goal) for goal in goals]
     for goal in live_goals:
         if goal["type"] == "net_worth":
             goal["current_amount"] = net_worth["Net Worth"]
@@ -280,11 +359,11 @@ def collect_report_data(output_dir=None):
         as_of_date=f"{MONTH}-28",
         default_monthly=summary["Net Cash Flow"],
     )
-    risk_df = build_risk_register(df, ALEX_ASSETS, ALEX_LIABILITIES, liquid_cash)
+    risk_df = build_risk_register(df, assets, liabilities, liquid_cash)
     _, risk_overall = risk_summary(risk_df)
-    home_readiness = home_purchase_readiness(df, ALEX_ASSETS, **ALEX_HOME_TARGET)
-    major_purchase = major_purchase_check(df, ALEX_ASSETS, ALEX_MAJOR_PURCHASE, liquid_cash=liquid_cash)
-    rent_buy = rent_vs_buy(df, **ALEX_HOME_TARGET)
+    home_readiness = home_purchase_readiness(df, assets, **home_target)
+    major_purchase = major_purchase_check(df, assets, major_purchase_amount, liquid_cash=liquid_cash)
+    rent_buy = rent_vs_buy(df, **home_target)
     scorecard_df = outcomes_scorecard(df, MONTH, str(pd.Period(MONTH, freq="M") - 1))
 
     biggest_budget_miss = budget_df.sort_values("Variance ($)").iloc[0].to_dict()
@@ -321,16 +400,18 @@ def collect_report_data(output_dir=None):
         "executive_summary": executive_summary(month_data),
         "cfo_commentary": cfo_commentary(month_data),
         "chart_metadata": chart_metadata,
+        "report_config": report_config,
     }
 
 
-def add_cover(story, styles):
+def add_cover(story, styles, report_config=None):
     """Add the report cover page."""
+    report_config = resolve_report_config(report_config)
     story.append(Spacer(1, 2.2 * inch))
-    story.append(Paragraph(f"Alex Rivera - Monthly CFO Report: {MONTH_LABEL}", styles["CoverTitle"]))
+    story.append(Paragraph(f"{report_config['persona_name']} - Monthly CFO Report: {MONTH_LABEL}", styles["CoverTitle"]))
     story.append(Paragraph("Prepared by: CFO Agent", styles["Title"]))
     story.append(Spacer(1, 0.4 * inch))
-    story.append(Paragraph("Fictional Alex Rivera data only - no real personal financial data.", styles["BodyTextClean"]))
+    story.append(Paragraph(f"{report_config['fictional_notice']} - no real personal financial data.", styles["BodyTextClean"]))
     story.append(PageBreak())
 
 
@@ -414,16 +495,18 @@ def add_executive_dashboard(story, styles, data):
     story.append(section("Executive Dashboard", styles))
     story.append(
         Paragraph(
-            clean_text(
-                "One-page CFO answer: Alex has strong monthly cash generation, but the dashboard highlights the "
-                "thin emergency runway, debt load, goal progress, and capital-event readiness before the detailed pages."
-            ),
+            clean_text(data["report_config"]["dashboard_note"]),
             styles["BodyTextClean"],
         )
     )
+    savings_note = (
+        "Above the target savings rate for the month."
+        if summary["Savings Rate"] >= 20 else
+        "Below the target savings rate; review the drivers before adding new commitments."
+    )
     rows = [
         ["Net Cash Flow", money(summary["Net Cash Flow"]), "Core monthly surplus available for goals and risk reduction."],
-        ["Savings Rate", percent(summary["Savings Rate"]), "High savings rate, but runway still needs attention."],
+        ["Savings Rate", percent(summary["Savings Rate"]), savings_note],
         [
             "Emergency Runway",
             f"{runway['Emergency Runway (months)']} months" if runway["Emergency Runway (months)"] is not None else "n/a",
@@ -795,19 +878,20 @@ def add_report_tables(story, styles, data):
     )
     story.append(
         Paragraph(
-            f"{MODEL_VERSION} - deterministic Python pipeline using fictional Alex Rivera data only. "
+            f"{MODEL_VERSION} - deterministic Python pipeline using {data['report_config']['fictional_notice']}. "
             "Fixed obligations are separated from discretionary recurring behavior; forecasts are scenario estimates, not financial advice.",
             styles["BodyTextClean"],
         )
     )
 
 
-def build_pdf(output_path=None, output_dir=None):
+def build_pdf(output_path=None, output_dir=None, report_config=None):
     """Build the full Monthly CFO Report PDF."""
-    pdf_path = Path(output_path) if output_path is not None else PDF_PATH
+    report_config = resolve_report_config(report_config)
+    pdf_path = Path(output_path) if output_path is not None else Path(report_config["pdf_path"])
     pdf_path.parent.mkdir(parents=True, exist_ok=True)
     styles = build_styles()
-    data = collect_report_data(output_dir=output_dir)
+    data = collect_report_data(output_dir=output_dir, report_config=report_config)
     chart_paths = {
         row["Chart"]: Path(row["Path"])
         for _, row in data["chart_metadata"].iterrows()
@@ -823,7 +907,7 @@ def build_pdf(output_path=None, output_dir=None):
     )
 
     story = []
-    add_cover(story, styles)
+    add_cover(story, styles, report_config)
     story.append(section("Executive Summary", styles))
     story.append(Paragraph(clean_text(data["executive_summary"]), styles["BodyTextClean"]))
     add_executive_dashboard(story, styles, data)
@@ -841,6 +925,7 @@ def build_pdf(output_path=None, output_dir=None):
     add_report_tables(story, styles, data)
     add_engagement(story, styles)
 
+    footer = footer_for(report_config)
     doc.build(story, onFirstPage=footer, onLaterPages=footer)
     return pdf_path
 

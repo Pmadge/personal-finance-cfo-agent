@@ -4,14 +4,14 @@ A local-first Python system that turns fictional transaction data into a family 
 
 It is not a budgeting app. It is an FP&A reporting system designed to explain what happened, why it matters, what comes next, and what action to take.
 
-All examples use a fully fictional persona, Alex Rivera. No real financial data is used anywhere in this project.
+All examples use fully fictional sample personas. The core board pack uses Alex Rivera, while the GitHub/portfolio screenshots use a richer fictional Morgan Patel household to show dual-income household complexity. No real financial data is used anywhere in this project.
 
 ## Current status
 
 ```text
 Repository: private GitHub repo
 CI: GitHub Actions passing
-Local tests: 189 passing
+Local tests: 190 passing
 Data posture: fictional/sample only
 Real personal data: disabled until explicit safety approval
 ```
@@ -29,7 +29,7 @@ A run generates:
 - a draft personal report from reviewed fake personal rows
 - stress-test outputs for fictional personas
 
-Generated PDFs and PNGs are intentionally not committed. Portfolio screenshots live under `docs/screenshots/` so GitHub renders the walkthrough without requiring a local run.
+Generated PDFs and PNGs are intentionally not committed. Portfolio screenshots live under `docs/screenshots/` so GitHub renders the walkthrough without requiring a local run. The selected README screenshots are regenerated from `data/portfolio_demo_morgan_patel_household.csv` with `scripts/generate_portfolio_demo_screenshots.py`.
 
 ## Representative report pages
 
@@ -41,7 +41,7 @@ Generated PDFs and PNGs are intentionally not committed. Portfolio screenshots l
 
 ### Executive dashboard
 
-The first content page now consolidates the board pack into a one-page CFO readout: net cash flow, savings rate, emergency runway, risk count, top goal, capital-event readiness, rent-vs-buy answer, and next action.
+The first content page now consolidates the board pack into a one-page CFO readout: net cash flow, savings rate, emergency runway, risk count, top goal, capital-event readiness, rent-vs-buy answer, and next action. The screenshot below uses the richer fictional Morgan Patel household demo, not real data.
 
 ![One-page Executive Dashboard](screenshots/report_executive_dashboard.png)
 
