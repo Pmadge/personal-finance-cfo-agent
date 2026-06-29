@@ -3,7 +3,7 @@ date,vendor,amount,raw_category
 2026-01-15,Northstar Health Payroll,6500.00,income
 2026-01-07,BrightPath Consulting Invoice,4200.00,income
 2026-01-22,BrightPath Consulting Invoice,4200.00,income
-2026-01-25,Fidelity Brokerage Dividend,220.00,income
+2026-01-25,Quarterly Dividend Payout,220.00,income
 2026-01-02,Wells Fargo Mortgage,-3450.00,mortgage
 2026-01-03,Maple HOA AutoPay,-385.00,housing
 2026-01-04,Pacific Gas and Electric,-245.00,utilities
@@ -15,7 +15,7 @@ date,vendor,amount,raw_category
 2026-01-08,Little Oaks Childcare,-1650.00,childcare
 2026-01-10,Federal Student Loan Servicer,-720.00,student_loan
 2026-01-11,Toyota Financial Services,-520.00,auto_loan
-2026-01-12,Fidelity 529 Plan,-500.00,education
+2026-01-12,529 College Plan Contribution,-500.00,education
 2026-01-13,Vanguard Automatic Investment,-2200.00,investment
 2026-01-14,Transfer to High Yield Savings,-1800.00,savings
 2026-01-05,Costco Wholesale,-385.00,groceries
@@ -44,7 +44,7 @@ date,vendor,amount,raw_category
 2026-02-15,Northstar Health Payroll,6500.00,income
 2026-02-07,BrightPath Consulting Invoice,3600.00,income
 2026-02-22,BrightPath Consulting Invoice,4200.00,income
-2026-02-25,Fidelity Brokerage Dividend,220.00,income
+2026-02-25,Quarterly Dividend Payout,220.00,income
 2026-02-02,Wells Fargo Mortgage,-3450.00,mortgage
 2026-02-03,Maple HOA AutoPay,-385.00,housing
 2026-02-04,Pacific Gas and Electric,-254.80,utilities
@@ -56,7 +56,7 @@ date,vendor,amount,raw_category
 2026-02-08,Little Oaks Childcare,-1650.00,childcare
 2026-02-10,Federal Student Loan Servicer,-720.00,student_loan
 2026-02-11,Toyota Financial Services,-520.00,auto_loan
-2026-02-12,Fidelity 529 Plan,-500.00,education
+2026-02-12,529 College Plan Contribution,-500.00,education
 2026-02-13,Vanguard Automatic Investment,-2200.00,investment
 2026-02-14,Transfer to High Yield Savings,-1800.00,savings
 2026-02-05,Costco Wholesale,-400.40,groceries
@@ -85,7 +85,7 @@ date,vendor,amount,raw_category
 2026-03-15,Northstar Health Payroll,6500.00,income
 2026-03-07,BrightPath Consulting Invoice,4200.00,income
 2026-03-22,BrightPath Consulting Invoice,4200.00,income
-2026-03-25,Fidelity Brokerage Dividend,220.00,income
+2026-03-25,Quarterly Dividend Payout,220.00,income
 2026-03-02,Wells Fargo Mortgage,-3450.00,mortgage
 2026-03-03,Maple HOA AutoPay,-385.00,housing
 2026-03-04,Pacific Gas and Electric,-264.60,utilities
@@ -97,7 +97,7 @@ date,vendor,amount,raw_category
 2026-03-08,Little Oaks Childcare,-1650.00,childcare
 2026-03-10,Federal Student Loan Servicer,-720.00,student_loan
 2026-03-11,Toyota Financial Services,-520.00,auto_loan
-2026-03-12,Fidelity 529 Plan,-500.00,education
+2026-03-12,529 College Plan Contribution,-500.00,education
 2026-03-13,Vanguard Automatic Investment,-2200.00,investment
 2026-03-14,Transfer to High Yield Savings,-2500.00,savings
 2026-03-05,Costco Wholesale,-415.80,groceries
