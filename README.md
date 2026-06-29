@@ -77,11 +77,26 @@ To regenerate the richer GitHub README screenshots from the fictional Morgan Pat
 python3 scripts/generate_portfolio_demo_screenshots.py
 ```
 
-To regenerate the UI report JSON contract (what a future local app binds to):
+To regenerate the UI report JSON contract (what the local Read & Trust app binds to):
 
 ```bash
 python3 scripts/generate_report_json.py
 ```
+
+### Local Read & Trust app
+
+The first local app screen is a read-only Streamlit dashboard over the verified report JSON contract. It does not calculate new numbers, call AI, connect to banks, or use real financial data.
+
+```bash
+python3 -m pip install -r requirements.txt
+python3 scripts/generate_report_json.py
+streamlit run streamlit_app.py
+```
+
+Current screens:
+
+1. Home Dashboard — the 10-second CFO verdict and headline metrics.
+2. Settings / Privacy — sample/local-only trust settings and self-check status.
 
 ### Personalize the report (optional)
 
