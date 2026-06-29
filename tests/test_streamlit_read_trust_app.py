@@ -7,6 +7,7 @@ from modules.ui.report_reader import (
     ContractTrustError,
     build_category_review_model,
     build_home_dashboard_model,
+    build_local_ai_memo_model,
     build_monthly_report_model,
     build_privacy_settings_model,
     build_stress_test_model,
@@ -148,6 +149,30 @@ def test_stress_test_loader_rejects_failed_sample_run(tmp_path):
 
     with pytest.raises(ContractTrustError, match="not fully passing"):
         load_stress_test_summary(run_dir)
+
+
+def test_local_ai_memo_model_is_disabled_placeholder_with_verified_sources():
+    model = build_local_ai_memo_model(_sample_contract())
+
+    assert model["title"] == "Local AI Memo"
+    assert model["enabled"] is False
+    assert model["generation_status"] == "Disabled by default"
+    assert model["memo_text"] is None
+    assert model["local_only_statement"] == "No AI model was called. Cloud AI is off and there is no cloud fallback."
+    assert model["number_source_statement"] == "Numbers remain owned by the deterministic Python engine."
+    assert model["source_label"] == "Would be based on verified artifacts"
+    assert model["verified_artifacts"] == [
+        "report_2026-03.json",
+        "portfolio_demo_morgan_patel_monthly_cfo_report_2026_03.pdf",
+    ]
+
+
+def test_local_ai_memo_model_rejects_enabled_ai_flag():
+    contract = _sample_contract()
+    contract["privacy"]["local_ai_enabled"] = True
+
+    with pytest.raises(ContractTrustError, match="privacy flags"):
+        build_local_ai_memo_model(contract)
 
 
 def test_privacy_settings_model_locks_unsafe_modes_off():

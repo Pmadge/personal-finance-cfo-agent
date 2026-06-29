@@ -219,6 +219,21 @@ def build_stress_test_model(run: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def build_local_ai_memo_model(data: dict[str, Any]) -> dict[str, Any]:
+    """Build the disabled Local AI Memo placeholder model without calling AI."""
+    validate_report_contract(data)
+    return {
+        "title": "Local AI Memo",
+        "enabled": False,
+        "generation_status": "Disabled by default",
+        "memo_text": None,
+        "local_only_statement": "No AI model was called. Cloud AI is off and there is no cloud fallback.",
+        "number_source_statement": "Numbers remain owned by the deterministic Python engine.",
+        "source_label": "Would be based on verified artifacts",
+        "verified_artifacts": data.get("sources", {}).get("artifacts", []),
+    }
+
+
 def _validate_category_review_rows(rows: list[dict[str, str]]) -> None:
     for index, row in enumerate(rows, start=1):
         missing = [column for column in REVIEW_COLUMNS if column not in row]

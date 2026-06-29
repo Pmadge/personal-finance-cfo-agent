@@ -36,7 +36,7 @@ The Personal Finance CFO Agent turns fictional transaction data into a family of
 Current verification status:
 
 ```text
-202 local tests passing
+204 local tests passing
 GitHub Actions passing
 100-persona fictional stress harness available
 Real personal data disabled until explicit safety approval
@@ -100,6 +100,7 @@ Current screens:
 3. Monthly Report — section navigation over the verified report JSON sections.
 4. Category Review — read-only Workbench table over the local sample review CSV.
 5. Stress Test Explorer — read-only Workbench grid over generated fictional stress-test results.
+6. Local AI Memo — disabled placeholder only; no AI call, no cloud fallback, no generated memo.
 
 ### Personalize the report (optional)
 

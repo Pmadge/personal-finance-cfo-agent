@@ -22,6 +22,7 @@ from modules.ui.report_reader import (
     ContractTrustError,
     build_category_review_model,
     build_home_dashboard_model,
+    build_local_ai_memo_model,
     build_monthly_report_model,
     build_privacy_settings_model,
     build_stress_test_model,
@@ -45,7 +46,10 @@ def main() -> None:
     report_path = Path(st.sidebar.text_input("Report JSON", str(DEFAULT_REPORT_JSON)))
     category_review_path = Path(st.sidebar.text_input("Category review CSV", str(DEFAULT_CATEGORY_REVIEW)))
     stress_test_path = Path(st.sidebar.text_input("Stress test run", str(DEFAULT_STRESS_TEST_RUN)))
-    page = st.sidebar.radio("Screen", ["Home Dashboard", "Monthly Report", "Category Review", "Stress Test Explorer", "Settings / Privacy"])
+    page = st.sidebar.radio(
+        "Screen",
+        ["Home Dashboard", "Monthly Report", "Category Review", "Stress Test Explorer", "Local AI Memo", "Settings / Privacy"],
+    )
 
     try:
         contract = load_report_contract(report_path)
@@ -73,6 +77,8 @@ def main() -> None:
             st.error(f"Stress test run is not trusted: {error}")
             return
         render_stress_test_explorer(build_stress_test_model(run))
+    elif page == "Local AI Memo":
+        render_local_ai_memo(build_local_ai_memo_model(contract))
     else:
         render_privacy_settings(build_privacy_settings_model(contract))
 
@@ -166,6 +172,20 @@ def render_stress_test_explorer(model: dict) -> None:
 
     st.markdown("#### Source artifacts")
     st.write(", ".join(model["source_artifacts"]))
+
+
+def render_local_ai_memo(model: dict) -> None:
+    st.subheader(model["title"])
+    st.warning(model["generation_status"])
+    st.write(model["local_only_statement"])
+    st.write(model["number_source_statement"])
+
+    st.markdown("#### Memo preview")
+    st.info("Local AI memo is intentionally unavailable in MVP v0.1 until a local-only model path is explicitly approved.")
+
+    st.markdown("#### Source label")
+    st.caption(model["source_label"])
+    st.write(", ".join(model["verified_artifacts"]))
 
 
 def _render_section(key: str, data: object) -> None:
