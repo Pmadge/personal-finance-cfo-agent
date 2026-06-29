@@ -9,8 +9,10 @@ from modules.ui.report_reader import (
     build_home_dashboard_model,
     build_monthly_report_model,
     build_privacy_settings_model,
+    build_stress_test_model,
     load_category_review_rows,
     load_report_contract,
+    load_stress_test_summary,
 )
 
 
@@ -113,6 +115,39 @@ def test_category_review_model_rejects_source_path_leak():
 
     with pytest.raises(ContractTrustError, match="source_file"):
         build_category_review_model(_sample_contract(), rows)
+
+
+def test_stress_test_model_summarizes_verified_sample_run():
+    run = load_stress_test_summary("outputs/stress_tests/review_smoke_12_personas")
+    model = build_stress_test_model(run)
+
+    assert model["title"] == "Stress Test Explorer"
+    assert model["workbench_badge"] == "Workbench mode · read-only"
+    assert model["run_name"] == "review_smoke_12_personas"
+    assert model["metrics"] == [
+        {"label": "Personas", "value": "12"},
+        {"label": "Passed", "value": "12"},
+        {"label": "Failed", "value": "0"},
+        {"label": "Seed", "value": "20260628"},
+    ]
+    assert model["coverage_counts"]["life_stages"] == 8
+    assert model["coverage_counts"]["wealth_profiles"] == 7
+    assert len(model["persona_rows"]) == 12
+    assert model["persona_rows"][0]["persona_id"] == "persona_001_late_career_professional_medical_heavy"
+    assert model["source_artifacts"] == ["summary.csv", "summary.json", "README.md"]
+
+
+def test_stress_test_loader_rejects_failed_sample_run(tmp_path):
+    run_dir = tmp_path / "bad_run"
+    run_dir.mkdir()
+    (run_dir / "summary.csv").write_text("persona_id,status\npersona_001,FAIL\n", encoding="utf-8")
+    (run_dir / "summary.json").write_text(
+        json.dumps({"persona_count": 1, "passed": 0, "failed": 1, "seed": 123, "coverage": {}}),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ContractTrustError, match="not fully passing"):
+        load_stress_test_summary(run_dir)
 
 
 def test_privacy_settings_model_locks_unsafe_modes_off():

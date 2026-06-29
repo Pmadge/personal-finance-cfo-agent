@@ -46,6 +46,19 @@ def load_category_review_rows(path: str | Path) -> list[dict[str, str]]:
     return rows
 
 
+def load_stress_test_summary(run_dir: str | Path) -> dict[str, Any]:
+    """Load a generated sample stress-test run for read-only UI rendering."""
+    run_path = Path(run_dir)
+    summary_csv = run_path / "summary.csv"
+    summary_json = run_path / "summary.json"
+    with summary_csv.open(newline="", encoding="utf-8") as handle:
+        rows = list(csv.DictReader(handle))
+    aggregate = json.loads(summary_json.read_text(encoding="utf-8"))
+    if aggregate.get("failed") != 0 or any(row.get("status") != "PASS" for row in rows):
+        raise ContractTrustError("stress-test run is not fully passing.")
+    return {"run_name": run_path.name, "aggregate": aggregate, "rows": rows}
+
+
 def validate_report_contract(data: dict[str, Any]) -> None:
     """Fail closed unless the report is verified, sample-only, and local-only."""
     if data.get("schema_version") != EXPECTED_SCHEMA_VERSION:
@@ -182,6 +195,27 @@ def build_category_review_model(data: dict[str, Any], rows: list[dict[str, str]]
         "status_counts": counts,
         "categories": categories,
         "rows": rows,
+    }
+
+
+def build_stress_test_model(run: dict[str, Any]) -> dict[str, Any]:
+    """Build the read-only Stress Test Explorer model."""
+    aggregate = run["aggregate"]
+    coverage = aggregate.get("coverage", {})
+    return {
+        "title": "Stress Test Explorer",
+        "workbench_badge": "Workbench mode · read-only",
+        "run_name": run["run_name"],
+        "metrics": [
+            {"label": "Personas", "value": str(aggregate["persona_count"])},
+            {"label": "Passed", "value": str(aggregate["passed"])},
+            {"label": "Failed", "value": str(aggregate["failed"])},
+            {"label": "Seed", "value": str(aggregate["seed"])},
+        ],
+        "coverage_counts": {key: len(value) for key, value in coverage.items()},
+        "coverage": coverage,
+        "persona_rows": run["rows"],
+        "source_artifacts": ["summary.csv", "summary.json", "README.md"],
     }
 
 

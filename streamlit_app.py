@@ -24,12 +24,15 @@ from modules.ui.report_reader import (
     build_home_dashboard_model,
     build_monthly_report_model,
     build_privacy_settings_model,
+    build_stress_test_model,
     load_category_review_rows,
     load_report_contract,
+    load_stress_test_summary,
 )
 
 DEFAULT_REPORT_JSON = Path("outputs/report_json/portfolio_demo_2026-03.json")
 DEFAULT_CATEGORY_REVIEW = Path("data/processed/category_review.csv")
+DEFAULT_STRESS_TEST_RUN = Path("outputs/stress_tests/review_smoke_12_personas")
 
 
 st.set_page_config(page_title="Personal Finance CFO Agent", page_icon="📊", layout="wide")
@@ -41,7 +44,8 @@ def main() -> None:
 
     report_path = Path(st.sidebar.text_input("Report JSON", str(DEFAULT_REPORT_JSON)))
     category_review_path = Path(st.sidebar.text_input("Category review CSV", str(DEFAULT_CATEGORY_REVIEW)))
-    page = st.sidebar.radio("Screen", ["Home Dashboard", "Monthly Report", "Category Review", "Settings / Privacy"])
+    stress_test_path = Path(st.sidebar.text_input("Stress test run", str(DEFAULT_STRESS_TEST_RUN)))
+    page = st.sidebar.radio("Screen", ["Home Dashboard", "Monthly Report", "Category Review", "Stress Test Explorer", "Settings / Privacy"])
 
     try:
         contract = load_report_contract(report_path)
@@ -62,6 +66,13 @@ def main() -> None:
             st.error(f"Category review CSV is not trusted: {error}")
             return
         render_category_review(build_category_review_model(contract, rows))
+    elif page == "Stress Test Explorer":
+        try:
+            run = load_stress_test_summary(stress_test_path)
+        except (OSError, ValueError, ContractTrustError) as error:
+            st.error(f"Stress test run is not trusted: {error}")
+            return
+        render_stress_test_explorer(build_stress_test_model(run))
     else:
         render_privacy_settings(build_privacy_settings_model(contract))
 
@@ -124,6 +135,37 @@ def render_category_review(model: dict) -> None:
 
     st.markdown("#### Review workbench")
     st.dataframe(pd.DataFrame(model["rows"]), use_container_width=True, hide_index=True)
+
+
+def render_stress_test_explorer(model: dict) -> None:
+    st.subheader(f"{model['title']} · {model['run_name']}")
+    st.caption(model["workbench_badge"])
+    st.info("Read-only sample stress results. The deterministic engine generated all persona outputs.")
+
+    cols = st.columns(len(model["metrics"]))
+    for column, metric in zip(cols, model["metrics"]):
+        column.metric(metric["label"], metric["value"])
+
+    st.markdown("#### Coverage")
+    st.dataframe(pd.DataFrame([model["coverage_counts"]]), use_container_width=True, hide_index=True)
+
+    st.markdown("#### Persona grid")
+    grid_columns = [
+        "persona_id",
+        "status",
+        "life_stage",
+        "wealth_profile",
+        "spending_style",
+        "net_cash_flow",
+        "savings_rate",
+        "emergency_runway_months",
+        "high_risks",
+    ]
+    df = pd.DataFrame(model["persona_rows"])
+    st.dataframe(df[[column for column in grid_columns if column in df.columns]], use_container_width=True, hide_index=True)
+
+    st.markdown("#### Source artifacts")
+    st.write(", ".join(model["source_artifacts"]))
 
 
 def _render_section(key: str, data: object) -> None:
