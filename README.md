@@ -9,7 +9,16 @@ For a visual walkthrough with sample report screenshots, see the
 
 ## What This Project Does
 
-The Personal Finance CFO Agent turns fictional transaction data into a family office-style monthly reporting packet. It analyzes cash flow, spending categories, budget variance, recurring vendors, fixed obligations, unusual expenses, forecasts, net worth, debt payoff options, stress scenarios, risk flags, goals, and prioritized action items. This is not a budgeting app; it is a CFO/FP&A reporting system designed to explain what happened, why it matters, what comes next, and what action the fictional sample persona should take.
+The Personal Finance CFO Agent turns fictional transaction data into a family office-style monthly reporting packet. It analyzes cash flow, spending categories, budget variance, recurring vendors, fixed obligations, unusual expenses, forecasts, net worth, debt payoff options, stress scenarios, risk flags, goals, capital-event readiness, rent-vs-buy tradeoffs, and prioritized action items. This is not a budgeting app; it is a CFO/FP&A reporting system designed to explain what happened, why it matters, what comes next, and what action the fictional sample persona should take.
+
+Current verification status:
+
+```text
+189 local tests passing
+GitHub Actions passing
+100-persona fictional stress harness available
+Real personal data disabled until explicit safety approval
+```
 
 ## What It Produces
 
@@ -25,13 +34,13 @@ The Personal Finance CFO Agent turns fictional transaction data into a family of
 Beginner-friendly setup with a local virtual environment:
 
 ```bash
-git clone <your-repo-url>
-cd Personal_Finance_CFO_Agent
+git clone https://github.com/Pmadge/personal-finance-cfo-agent.git
+cd personal-finance-cfo-agent
 python3 -m venv .venv
 source .venv/bin/activate
 python3 -m pip install -r requirements.txt
 python3 -m py_compile main.py modules/*.py modules/reports/*.py modules/importers/*.py scripts/*.py
-python3 -m pytest
+python3 -m pytest -q
 python3 main.py
 python3 scripts/generate_monthly_report.py
 python3 scripts/generate_trend_report.py

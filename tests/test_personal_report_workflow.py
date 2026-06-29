@@ -13,7 +13,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from modules.config import APPROVED_CATEGORIES
+from modules.config import APPROVED_CATEGORIES, SAMPLE_PERSONAL_PROFILE
 
 SCRIPT = PROJECT_ROOT / "scripts" / "generate_personal_report.py"
 
@@ -196,6 +196,7 @@ def test_personal_report_includes_full_pillar_suite(tmp_path):
 
     text, _ = extract_pdf_text(output_path)
     for section in [
+        "Executive Dashboard",
         "Cash Runway",
         "12-Month Cash Projection",
         "Goal Tracker",
@@ -206,6 +207,24 @@ def test_personal_report_includes_full_pillar_suite(tmp_path):
         assert section in text, section
     # Emoji are converted for the PDF font, not left as raw glyphs.
     assert "🟢" not in text and "🔴" not in text
+
+
+def test_personal_report_handles_empty_goal_profile(tmp_path):
+    """A valid local profile with no goals should render a dashboard fallback."""
+    from modules.personal_report_inputs import build_report_transactions_from_review
+    from scripts.generate_personal_report import build_draft_personal_report
+
+    report_df = build_report_transactions_from_review(reviewed_rows())
+    profile = {key: value for key, value in SAMPLE_PERSONAL_PROFILE.items()}
+    profile["goals"] = []
+    output_path = tmp_path / "no_goals_personal_report.pdf"
+    charts_dir = tmp_path / "no_goals_charts"
+
+    build_draft_personal_report(report_df, output_path, charts_dir, profile=profile)
+
+    text, _ = extract_pdf_text(output_path)
+    assert "Executive Dashboard" in text
+    assert "No goals configured" in text
 
 
 def test_personal_report_pdf_excludes_source_identity_fields(tmp_path):

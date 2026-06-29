@@ -1,70 +1,89 @@
-# Personal Finance CFO Agent — Portfolio Summary
+# Personal Finance CFO Agent Portfolio Summary
 
-A local Python system that turns raw transaction data into a family office-style
-monthly CFO reporting packet: categorized cash flow, budget variance analysis,
-risk flags, forecasts, net worth, prioritized action items, charts, and narrative
-commentary. It is not a budgeting app. It is an FP&A (Financial Planning and
-Analysis) reporting system designed to explain what happened, why it matters,
-what comes next, and what action to take.
+A local-first Python system that turns fictional transaction data into a family office-style monthly CFO reporting packet: categorized cash flow, budget variance analysis, cash runway, scenarios, goals, risk register, capital-event readiness, rent-vs-buy analysis, charts, and prioritized action items.
 
-All examples below use a fully fictional persona, "Alex Rivera." No real financial
-data is used anywhere in this project.
+It is not a budgeting app. It is an FP&A reporting system designed to explain what happened, why it matters, what comes next, and what action to take.
+
+All examples use a fully fictional persona, Alex Rivera. No real financial data is used anywhere in this project.
+
+## Current status
+
+```text
+Repository: private GitHub repo
+CI: GitHub Actions passing
+Local tests: 189 passing
+Data posture: fictional/sample only
+Real personal data: disabled until explicit safety approval
+```
+
+The project now has the full v1 CFO parity suite wired into both the fictional Alex board pack and the draft personal report path.
 
 ## What it produces
 
-A single run generates an 11-page monthly CFO report PDF, a 3-month trend summary,
-and a set of analysis charts. Representative pages:
+A run generates:
+
+- a comprehensive monthly CFO report PDF
+- a 3-month trend summary PDF
+- analysis charts
+- a sample-only monthly close workflow receipt
+- a draft personal report from reviewed fake personal rows
+- stress-test outputs for fictional personas
+
+Generated PDFs and PNGs are intentionally not committed. Portfolio screenshots live under `docs/screenshots/` so GitHub renders the walkthrough without requiring a local run.
+
+## Representative report pages
 
 ### Cover and executive summary
+
 ![Monthly CFO report cover](screenshots/report_01_cover.png)
 
 ![Executive summary with CFO commentary and budget variance notes](screenshots/report_02_executive_summary.png)
 
+### Executive dashboard
+
+The first content page now consolidates the board pack into a one-page CFO readout: net cash flow, savings rate, emergency runway, risk count, top goal, capital-event readiness, rent-vs-buy answer, and next action.
+
+![One-page Executive Dashboard](screenshots/report_executive_dashboard.png)
+
 ### Outcomes scorecard
-This month vs last month on the metrics that matter (income, expenses, net cash
-flow, savings rate), with the direction of travel - measuring success by outcomes,
-not effort.
+
+This month vs last month on the metrics that matter: income, expenses, net cash flow, and savings rate.
 
 ![Outcomes scorecard comparing this month to last month](screenshots/report_scorecard.png)
 
 ### Budget variance and prioritized action items
+
 ![Budget vs actual analysis](screenshots/report_04_budget_vs_actual.png)
 
 ![AI action items and the self-check model version log](screenshots/report_11_action_items.png)
 
 ### Cash runway and 12-month projection
-How long liquid cash would last if income stopped (in months and weeks), an
-essential-bills-only bare-bones runway, and a month-by-month projected ending-cash
-trajectory for the next year.
+
+How long liquid cash would last if income stopped, plus a month-by-month ending-cash trajectory.
 
 ![Cash runway metrics and a 12-month cash projection table](screenshots/report_cash_runway.png)
 
 ### What-if scenarios
-Side-by-side impact of life changes (job loss, a raise, a move, cutting spending,
-a big one-time purchase) on monthly net cash flow, runway, projected cash a year
-out, and cash-out risk.
+
+Side-by-side impact of life changes like job loss, a raise, moving costs, discretionary cuts, or a one-time purchase.
 
 ![What-if scenario comparison table](screenshots/report_scenarios.png)
 
 ### Goal tracker
-Progress toward each personal goal (savings, debt payoff, net worth, savings
-rate): how far along, how much remains, and whether the current pace keeps it on
-schedule for the target date.
+
+Progress toward savings, debt payoff, net worth, and savings-rate goals.
 
 ![Goal tracker showing progress and on-track status per goal](screenshots/report_goal_tracker.png)
 
 ### Risk register
-A "what could go wrong" view rating six personal risks (emergency fund, income
-concentration, debt load, cash flow, housing cost burden, insurance coverage) with
-a finding and recommendation for each.
+
+A personal risk register rating emergency fund, income concentration, debt load, cash flow, housing burden, and insurance coverage.
 
 ![Risk register rating six personal financial risks](screenshots/report_risk_register.png)
 
-### Capital-event playbook (home purchase readiness)
-A numbers-backed readiness verdict for a major money decision: down payment plus
-closing costs vs cash on hand, estimated monthly mortgage payment (PITI) vs income,
-whether buying preserves the emergency fund, and the specific gaps to close. Plus a
-quick affordability check for any large one-time purchase.
+### Capital-event playbook
+
+Home-purchase readiness, major-purchase affordability, and rent-vs-buy comparison.
 
 ![Home purchase readiness with verdict, metrics, and gaps](screenshots/report_capital_event.png)
 
@@ -75,88 +94,76 @@ quick affordability check for any large one-time purchase.
 | ![Spending by category](screenshots/chart_spending_by_category.png) | ![Monthly savings rate trend](screenshots/chart_monthly_savings_rate_trend.png) |
 | ![Budget vs actual](screenshots/chart_budget_vs_actual.png) | ![Month over month spending](screenshots/chart_month_over_month_spending.png) |
 
-## FP&A concepts demonstrated
+## CFO parity features
 
-- Budget vs actual variance analysis with root-cause driver, forward cash-flow
-  impact, and a recommended corrective action per category.
-- Rolling forecast scenarios (upside, base, downside) for expected cash flow,
-  savings rate, and ending cash from a 3-month history.
-- Separation of fixed obligations (rent, phone, gym, subscriptions, student loan)
-  from discretionary recurring behavior.
-- Recurring-charge detection with price-increase flags and projected next charge.
-- Unusual-expense detection using a category-relative threshold (above 2x the
-  category average and above a category minimum review floor).
-- Net worth snapshot and a debt-payoff comparison (avalanche vs snowball style).
-- Action-item prioritization with owner, due date, status, urgency, and estimated
-  dollar impact.
+The v1 engine now covers seven CFO-style pillars:
 
-## Key calculations
-
-- Savings rate: `(Income - Total Expenses) / Income x 100`
-- Budget variance: `Budget Amount - Actual Amount`
-- Unusual expense: amount above `2x` the category 3-month average and above the
-  category minimum review threshold
-- Forecast scenarios: 30-day and 90-day cash-flow estimates from 3-month history
+1. **Categorization generalization**: transparent merchant/category logic that keeps unknowns reviewable instead of silently hiding them.
+2. **Goals tracker**: savings, debt payoff, net worth, and savings-rate goals with progress and on-track status.
+3. **Forecasting depth**: emergency runway, bare-bones runway, 12-month cash projection, and scenario estimates.
+4. **What-if scenarios**: job loss, raise, move, discretionary cut, and large-purchase style scenarios.
+5. **Risk register**: six personal risk categories with level, finding, and recommendation.
+6. **Capital-event playbooks**: home-purchase readiness, major-purchase check, and rent-vs-buy analysis.
+7. **Service wrapper**: outcomes scorecard and defined CFO engagement scope/cadence.
 
 ## Data quality and trustworthiness
 
-The system is built to fail closed rather than report numbers it cannot defend:
+The system is built to fail closed before it reports numbers it cannot defend:
 
-- Fail-closed self-checks run before any report renders. They independently
-  recompute the monthly totals a second way and refuse to continue unless the
-  numbers reconcile to the source transactions.
-- A schema contract verifies required columns, non-null values, and no duplicate
-  transaction rows.
-- An approved-category contract catches category drift before reports or
-  commentary trust it.
-- The personal-import path stamps every row with traceability fields
-  (`source_file`, `source_row_number`, `import_batch_id`, optional
-  `transaction_id`) and escapes spreadsheet-formula text so a malicious vendor
-  name cannot execute when a CSV is opened in a spreadsheet app.
+- schema and category contracts verify report-ready data
+- monthly income, expenses, net cash flow, and savings rate reconcile back to source rows
+- duplicate source transaction IDs, source rows, and exact final-statement rows are checked before personal reports render
+- source-file SHA-256 hashes are captured in workflow audit artifacts
+- generated private paths stay under Git-ignored local folders
+- stress tests exercise many fictional personas and assert value invariants, not just crash-free execution
 
-The self-check results are printed in the report itself (the Model Version Log on
-the final page), so a reader can see the controls passed.
+The deterministic Python engine owns the numbers. Any future local AI layer should explain checked outputs, not invent financial results.
 
-## Privacy and safety design
+## Local-first privacy design
 
-- Local-first by default: no cloud hosting, no external AI APIs, no bank-login
-  integrations, no credential storage.
-- Real personal data is never used. Private local folders (`data/personal/`,
-  `data/processed/`, `outputs/personal/`, `config/personal_rules.*`) are
-  Git-ignored, and a safety gate verifies this with Git itself before any future
-  real-data workflow could run.
-- Portfolio screenshots use only fictional Alex Rivera data.
+- No bank-login integrations.
+- No external AI APIs.
+- No hosted database.
+- No real financial data in the repo.
+- Private folders such as `data/personal/`, `data/processed/`, `outputs/personal/`, and local profile/rules files are Git-ignored.
+- The one-command setup creates a local `config/personal_profile.json` and verifies private paths are ignored by Git.
 
 ## How to run and regenerate
 
 ```bash
-cd Personal_Finance_CFO_Agent
+git clone https://github.com/Pmadge/personal-finance-cfo-agent.git
+cd personal-finance-cfo-agent
 python3 -m venv .venv
 source .venv/bin/activate
 python3 -m pip install -r requirements.txt
-python3 -m pytest                      # full test suite
-python3 main.py                        # run the analysis pipeline
-python3 scripts/generate_monthly_report.py   # regenerate the monthly CFO report
-python3 scripts/generate_trend_report.py      # regenerate the 3-month trend summary
+python3 -m pytest -q
+python3 main.py
+python3 scripts/generate_monthly_report.py
+python3 scripts/generate_trend_report.py
+python3 scripts/monthly_close.py --sample
+python3 scripts/generate_personal_report.py
 ```
 
-Generated PDFs and PNGs are intentionally not committed; they are regenerated on
-demand by the scripts above. The screenshots in this summary live under
-`docs/screenshots/` so the portfolio renders without running anything.
+Optional local profile setup:
+
+```bash
+python3 scripts/setup_personal.py
+```
+
+This creates `config/personal_profile.json` from the committed example. The local file is ignored by Git. Transaction data remains fake/sample-only until a real-data workflow is explicitly approved.
 
 ## Tech stack
 
-Python, pandas (data and analytics), matplotlib (charts), reportlab (PDF), and
-PyMuPDF (PDF rendering). Tested with pytest.
+Python, pandas, matplotlib, reportlab, PyMuPDF, pytest, GitHub Actions.
 
 ## Limitations
 
-- Not investment, tax, accounting, or compliance advice.
+- Not investment, tax, accounting, legal, or compliance advice.
 - Does not connect to live accounts or real-time data.
-- Forecasts use only a 3-month fictional history and are directional estimates.
+- Does not process real personal data yet.
+- Forecasts and rent-vs-buy outputs are directional estimates, not decisions.
+- The board pack is intentionally comprehensive. The new Executive Dashboard gives readers the one-page answer first, while the detailed sections remain available for auditability.
 
-## Status
+## Next planned step
 
-Working, tested v1 (full suite passing). Demonstrates data quality control,
-variance analysis, financial modeling, executive communication, and client-ready
-PDF production. Next planned step is publishing as a standalone GitHub repository.
+Run the final public-release polish pass: visual README review, release hardening scan, GitHub visibility decision, and LinkedIn launch draft.

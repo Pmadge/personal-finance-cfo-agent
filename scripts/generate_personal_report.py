@@ -109,6 +109,18 @@ def _clean(text):
     return result.strip()
 
 
+def _risk_level_counts(risk_df):
+    """Count High/Medium/Low levels after removing visual status markers."""
+    counts = {"High": 0, "Medium": 0, "Low": 0}
+    for level in risk_df["Level"]:
+        clean_level = _clean(level)
+        for key in counts:
+            if key in clean_level:
+                counts[key] += 1
+                break
+    return counts
+
+
 def _para_table(headers, rows, col_widths, header_style, cell_style):
     """A wrapped-text table so long findings and status text never overflow."""
     data = [[Paragraph(_clean(h), header_style) for h in headers]]
@@ -156,8 +168,40 @@ def _add_pillar_sections(story, report_df, profile, styles):
     net_worth = net_worth_snapshot(assets, liabilities)
 
     story.append(PageBreak())
-    story.append(Paragraph("Cash Runway", styles["Heading2"]))
+    story.append(Paragraph("Executive Dashboard", styles["Heading2"]))
+    risk = build_risk_register(report_df, assets, liabilities, liquid_cash)
+    _, risk_overall = risk_summary(risk)
+    risk_counts = _risk_level_counts(risk)
     runway = cash_runway(report_df, liquid_cash)
+    live_dashboard_goals = [dict(goal) for goal in profile["goals"]]
+    for goal in live_dashboard_goals:
+        if goal["type"] == "net_worth":
+            goal["current_amount"] = net_worth["Net Worth"]
+        elif goal["type"] == "savings_rate":
+            goal["current_amount"] = summary["Savings Rate"]
+    goals = track_goals(live_dashboard_goals, as_of_date=f"{report_month}-28", default_monthly=summary["Net Cash Flow"])
+    if goals.empty:
+        top_goal = ["Top Goal", "No goals configured", "Add goals to config/personal_profile.json to track progress here."]
+    else:
+        top_goal = ["Top Goal", goals.iloc[0]["Goal"], goals.iloc[0]["Status"]]
+    home = home_purchase_readiness(report_df, assets, **profile["home_target"])
+    rent_buy = rent_vs_buy(report_df, **profile["home_target"])
+    dashboard_rows = [
+        ["Net Cash Flow", _money(summary["Net Cash Flow"]), "Core monthly surplus or deficit after expenses."],
+        ["Savings Rate", f"{summary['Savings Rate']:.2f}%", "Quick read on how much income is being kept."],
+        ["Emergency Runway", f"{runway['Emergency Runway (months)']} months" if runway["Emergency Runway (months)"] is not None else "n/a", runway["Status"]],
+        ["Risk Register", f"High {risk_counts.get('High', 0)} / Medium {risk_counts.get('Medium', 0)} / Low {risk_counts.get('Low', 0)}", risk_overall],
+        top_goal,
+        ["Capital Event", f"Home purchase: {home['verdict']}", "Review the readiness gaps before acting."],
+        ["Rent vs Buy", rent_buy["cheaper"], rent_buy["recommendation"]],
+    ]
+    story.append(_para_table(
+        ["Area", "Current Readout", "CFO Interpretation"], dashboard_rows,
+        [1.35 * inch, 1.65 * inch, 3.3 * inch], header_style, cell_style,
+    ))
+
+    story.append(PageBreak())
+    story.append(Paragraph("Cash Runway", styles["Heading2"]))
     runway_months = runway["Emergency Runway (months)"]
     runway_rows = [
         ["Liquid Cash", _money(runway["Liquid Cash"])],
