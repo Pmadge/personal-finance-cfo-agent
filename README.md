@@ -7,6 +7,10 @@ A local-first portfolio prototype that turns fictional transaction data into a f
 For a deeper visual walkthrough with sample report screenshots, see the
 [Portfolio Summary](docs/PORTFOLIO_SUMMARY.md).
 
+The local app/interface design direction and the engine's UI data contract are
+documented in [Design Direction](docs/DESIGN_DIRECTION.md) and
+[Report JSON Contract](docs/REPORT_JSON_CONTRACT.md).
+
 ## Preview
 
 ### One-page Executive Dashboard
@@ -32,7 +36,7 @@ The Personal Finance CFO Agent turns fictional transaction data into a family of
 Current verification status:
 
 ```text
-190 local tests passing
+193 local tests passing
 GitHub Actions passing
 100-persona fictional stress harness available
 Real personal data disabled until explicit safety approval
@@ -71,6 +75,12 @@ To regenerate the richer GitHub README screenshots from the fictional Morgan Pat
 
 ```bash
 python3 scripts/generate_portfolio_demo_screenshots.py
+```
+
+To regenerate the UI report JSON contract (what a future local app binds to):
+
+```bash
+python3 scripts/generate_report_json.py
 ```
 
 ### Personalize the report (optional)

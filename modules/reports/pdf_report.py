@@ -345,7 +345,7 @@ def collect_report_data(output_dir=None, report_config=None):
     ]
     net_worth = net_worth_snapshot(assets, liabilities)
     debt_df = debt_payoff_comparison(debts)
-    action_df = generate_action_items(df, MONTH, budget)
+    action_df = generate_action_items(df, MONTH, budget, owner=report_config["persona_name"])
 
     # Goal tracker: fill the live net-worth and savings-rate values for this month.
     live_goals = [dict(goal) for goal in goals]

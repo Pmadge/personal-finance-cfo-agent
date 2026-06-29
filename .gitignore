@@ -23,6 +23,16 @@ data/portfolio_demo_morgan_patel_household_categorized.csv
 outputs/portfolio_demo/
 outputs/portfolio_demo_review/
 
+# Generated report JSON contracts for the UI layer. Regenerate on demand with
+# scripts/generate_report_json.py. The schema is documented in docs/REPORT_JSON_CONTRACT.md.
+outputs/report_json/
+outputs/report_json_charts/
+
+# Local design-exploration exports from Claude Design (large, and the PDF export
+# clips columns). Re-export from Claude Design when a tracked copy is needed.
+CFO Agent - UI Directions.pdf
+*.UI-Directions.pdf
+
 # Local-only personal financial data. Keep sample/demo data separate.
 data/personal/*
 !data/personal/.gitkeep

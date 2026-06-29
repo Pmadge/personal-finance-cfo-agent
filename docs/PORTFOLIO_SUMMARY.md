@@ -11,7 +11,7 @@ All examples use fully fictional sample personas. The core board pack uses Alex 
 ```text
 Repository: private GitHub repo
 CI: GitHub Actions passing
-Local tests: 190 passing
+Local tests: 193 passing
 Data posture: fictional/sample only
 Real personal data: disabled until explicit safety approval
 ```
