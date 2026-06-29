@@ -4,8 +4,26 @@ A local-first portfolio prototype that turns fictional transaction data into a f
 
 > **Fictional data only:** this project does not connect to bank accounts, does not use real personal financial data, and is not financial advice.
 
-For a visual walkthrough with sample report screenshots, see the
+For a deeper visual walkthrough with sample report screenshots, see the
 [Portfolio Summary](docs/PORTFOLIO_SUMMARY.md).
+
+## Preview
+
+### One-page Executive Dashboard
+
+![One-page Executive Dashboard](docs/screenshots/report_executive_dashboard.png)
+
+### CFO Report Highlights
+
+| Cash Runway | Risk Register |
+|---|---|
+| ![Cash runway metrics and projection](docs/screenshots/report_cash_runway.png) | ![Risk register](docs/screenshots/report_risk_register.png) |
+
+| Goal Tracker | Capital Event Readiness |
+|---|---|
+| ![Goal tracker](docs/screenshots/report_goal_tracker.png) | ![Capital event readiness](docs/screenshots/report_capital_event.png) |
+
+All screenshots use the fictional Alex Rivera sample persona. No real financial data is shown.
 
 ## What This Project Does
 
