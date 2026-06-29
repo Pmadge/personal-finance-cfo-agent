@@ -122,6 +122,7 @@ def test_monthly_pdf_contains_required_sections():
     document.close()
     required_sections = [
         "Executive Summary",
+        "Executive Dashboard",
         "CFO Commentary",
         "Outcomes Scorecard",
         "Cash Flow Overview",
@@ -147,6 +148,7 @@ def test_monthly_pdf_contains_required_sections():
     ]
     for section in required_sections:
         assert section in text
+    assert "High 2 / Medium 2 / Low 2" in text
 
 
 def test_trend_pdf_is_one_page():

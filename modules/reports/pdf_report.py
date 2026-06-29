@@ -99,6 +99,18 @@ def clean_text(value):
     return escape(text)
 
 
+def risk_level_counts(risk_df):
+    """Count risk levels after stripping visual status prefixes."""
+    counts = {"High": 0, "Medium": 0, "Low": 0}
+    for level in risk_df["Level"]:
+        clean_level = clean_text(level)
+        for key in counts:
+            if key in clean_level:
+                counts[key] += 1
+                break
+    return counts
+
+
 def table_paragraph(value, styles):
     """Wrap table cells safely."""
     return Paragraph(clean_text(value), styles["TableCell"])
@@ -387,6 +399,55 @@ def add_scorecard(story, styles, scorecard_df):
             [1.5 * inch, 1.2 * inch, 1.2 * inch, 1.1 * inch, 1.6 * inch],
         )
     )
+
+
+def add_executive_dashboard(story, styles, data):
+    """Add a one-page dashboard that consolidates the board pack's key answer."""
+    summary = data["summary"]
+    runway = data["runway"]
+    risk_counts = risk_level_counts(data["risk_df"])
+    top_action = data["action_df"].sort_values("Rank").iloc[0]
+    top_goal = data["goal_df"].iloc[0]
+    home = data["home_readiness"]
+    rent_buy = data["rent_vs_buy"]
+
+    story.append(section("Executive Dashboard", styles))
+    story.append(
+        Paragraph(
+            clean_text(
+                "One-page CFO answer: Alex has strong monthly cash generation, but the dashboard highlights the "
+                "thin emergency runway, debt load, goal progress, and capital-event readiness before the detailed pages."
+            ),
+            styles["BodyTextClean"],
+        )
+    )
+    rows = [
+        ["Net Cash Flow", money(summary["Net Cash Flow"]), "Core monthly surplus available for goals and risk reduction."],
+        ["Savings Rate", percent(summary["Savings Rate"]), "High savings rate, but runway still needs attention."],
+        [
+            "Emergency Runway",
+            f"{runway['Emergency Runway (months)']} months" if runway["Emergency Runway (months)"] is not None else "n/a",
+            runway["Status"],
+        ],
+        [
+            "Risk Register",
+            f"High {risk_counts.get('High', 0)} / Medium {risk_counts.get('Medium', 0)} / Low {risk_counts.get('Low', 0)}",
+            clean_text(data["risk_overall"]),
+        ],
+        ["Top Goal", top_goal["Goal"], top_goal["Status"]],
+        ["Capital Event", f"Home purchase: {home['verdict']}", "Do not buy until cash and payment gaps close."],
+        ["Rent vs Buy", rent_buy["cheaper"], rent_buy["recommendation"]],
+        ["Next Action", top_action["Action Item"], f"Impact: {money(top_action['Estimated Dollar Impact'])}"],
+    ]
+    story.append(
+        styled_table(
+            ["Area", "Current Readout", "CFO Interpretation"],
+            rows,
+            styles,
+            [1.25 * inch, 1.75 * inch, 3.65 * inch],
+        )
+    )
+    story.append(PageBreak())
 
 
 def add_engagement(story, styles):
@@ -765,6 +826,7 @@ def build_pdf(output_path=None, output_dir=None):
     add_cover(story, styles)
     story.append(section("Executive Summary", styles))
     story.append(Paragraph(clean_text(data["executive_summary"]), styles["BodyTextClean"]))
+    add_executive_dashboard(story, styles, data)
     story.append(section("CFO Commentary", styles))
     story.append(Paragraph(clean_text(data["cfo_commentary"]), styles["ItalicCommentary"]))
     add_scorecard(story, styles, data["scorecard_df"])

@@ -2,216 +2,246 @@
 
 ## Product direction
 
-The long-term goal is a personal CFO product that Paul can run locally, either as a simple script or a small local app, so personal financial data stays private.
+The long-term goal is a personal CFO product that Paul can run locally as a script workflow first, then as a small local app/interface. Personal financial data should stay on the Mac unless Paul explicitly chooses otherwise.
 
-This means the default design should work without cloud accounts, hosted databases, external AI APIs, bank-login integrations, or automatic uploads.
+The default design should work without cloud accounts, hosted databases, external AI APIs, bank-login integrations, or automatic uploads.
 
 ## Privacy principles
 
-1. **Local by default** - all processing happens on Paul's Mac unless he explicitly chooses otherwise.
-2. **No credentials in the app** - do not store bank passwords, OAuth tokens, API keys, or brokerage credentials.
-3. **Manual import first** - use exported CSV files before considering bank integrations.
-4. **Fictional data until safety is ready** - keep using Alex Rivera sample data until the personal-data workflow is designed and reviewed.
-5. **Clear data folders** - separate sample data, personal local input data, generated reports, and backups.
-6. **No accidental sharing** - real personal data should be ignored by Git and never included in portfolio screenshots.
-7. **User review before automation** - the app should show categorization and assumptions before final reports are trusted.
+1. **Local by default**: all processing happens locally unless explicitly approved.
+2. **No credentials in the app**: no bank passwords, OAuth tokens, API keys, or brokerage credentials.
+3. **Manual import first**: exported CSV files before any bank integration is even considered.
+4. **Fictional data until safety is ready**: current repo data and screenshots stay fictional/sample-only.
+5. **Clear private folders**: real inputs, processed data, local rules, and personal outputs stay in Git-ignored folders.
+6. **No accidental sharing**: no portfolio screenshot or committed artifact may show real vendors, accounts, balances, or spending.
+7. **User review before automation**: categories, assumptions, and report outputs should be reviewable before trusted.
+8. **Deterministic engine owns the numbers**: AI may explain checked numbers later, but it must not invent them.
 
-## Recommended architecture
+## Current architecture
 
 ```text
 Personal_Finance_CFO_Agent/
   data/
-    sample/                  # fictional Alex Rivera data safe for GitHub/portfolio
-    personal/                # real local data, ignored by Git
-    processed/               # categorized local outputs, ignored if personal
+    alex_rivera_transactions.csv          # fictional demo input
+    sample/                               # safe templates and fake fixtures
+    personal/                             # future real local inputs, Git-ignored
+    processed/                            # reviewed/processed workflow outputs, Git-ignored
+  config/
+    personal_profile.example.json         # committed fictional template
+    personal_profile.json                 # local private profile, Git-ignored
+    personal_rules.csv                    # local category overrides, Git-ignored
   modules/
-    importers/               # CSV loading and normalization
-    categorization_review/   # review/override workflow
-    reports/                 # PDF and report builders
+    importers/                            # fake/sample CSV import profiles
+    reports/                              # PDF report builders
+    *_self_checks / workflow audit logic   # deterministic trust gates
   outputs/
-    sample/                  # generated demo reports safe to show
-    personal/                # private generated reports, ignored by Git
+    personal/                             # local private or fake personal reports, Git-ignored
+    stress_tests/                         # generated fictional stress outputs, Git-ignored
   scripts/
-    run_sample_demo.py
-    import_personal_csv.py
-    monthly_close.py
-    review_categories.py
-    generate_workflow_audit.py
-    generate_personal_report.py
+    setup_personal.py                     # one-command local profile setup
+    monthly_close.py                      # safe sample monthly close
+    generate_personal_report.py           # draft fake personal report
+    stress_test_personas.py               # fictional population stress harness
   docs/
+    PORTFOLIO_SUMMARY.md
     LOCAL_FIRST_PERSONAL_USE_ROADMAP.md
 ```
 
 ## Phase 1: Safe local demo product
 
-Goal: keep improving the current fictional-data project without risking personal data.
+Status: **complete**
 
 - [x] Keep report source code out of `outputs/`.
 - [x] Add repeatable dependency setup with `requirements.txt`.
 - [x] Add tests that regenerate reports into temporary folders.
 - [x] Add missing-category and incomplete-dataset guardrails.
 - [x] Separate sample output paths from future personal output paths.
-- [x] Add a clear privacy warning to the CLI and README.
+- [x] Add privacy warnings to the CLI and README.
 - [x] Add backend data-contract checks, category-contract checks, and monthly math reconciliation self-checks.
+- [x] Create a private GitHub repo.
+- [x] Add GitHub Actions CI.
+- [x] Keep generated PDFs/charts local or regenerated on demand.
 
-Definition of done:
+## Phase 2: Manual personal CSV import foundation
 
-- Sample demo runs fully offline.
-- Tests pass from a local virtual environment.
-- No real data is required.
-- README clearly says what is safe and not safe.
-
-## Phase 2: Manual personal CSV import
-
-Current status: **fake/sample fixtures only**. The importer shape exists, but real personal import mode is still disabled.
-
-Future goal: let Paul use exported CSV files locally without connecting bank accounts, after the safety gate, audit hashing, duplicate checks, and report self-check gate are complete.
+Status: **sample/fake fixtures complete, real personal import still disabled**
 
 - [x] Create `data/personal/` and add it to `.gitignore`.
-- [x] Create a CSV import template for personal transactions.
-- [x] Build an importer that normalizes columns into the app schema:
+- [x] Create personal CSV templates using fake data only.
+- [x] Build importer normalization into the internal schema:
   - `date`
   - `vendor`
   - `amount`
   - `raw_category`
-- [x] Add a source transaction identity layer before real personal data:
+- [x] Add source transaction identity:
   - `source_file`
   - `source_row_number`
   - `import_batch_id`
   - optional `transaction_id`
-- [x] Add validation errors that explain what is wrong in plain English.
-- [x] Add tests with fake personal-style CSV fixtures only, never real data.
+- [x] Add clear validation errors.
+- [x] Add fake bank-export profile coverage.
+- [x] Add tests with fake personal-style CSV fixtures only.
 
-Definition of done for the future real-data layer:
-
-- Paul can place a manually exported CSV in a local private folder.
-- The app validates it and either produces a clean normalized file or explains what needs fixing.
-- Real CSV files are ignored by Git.
-
-Current sample-only done criteria:
-
-- Fake personal-style fixtures import through the same deterministic schema.
-- Standalone import sample mode rejects non-`data/sample/` inputs.
-- Personal import mode exits before processing until explicitly approved.
+Real personal import remains disabled until Paul explicitly approves a real-data safety gate.
 
 ## Phase 3: Categorization review workflow
 
-Goal: avoid blindly trusting the model's categories.
+Status: **sample workflow complete**
 
-- [x] Generate a review file showing uncategorized or low-confidence transactions.
-- [x] Preserve source identity fields in the review file so corrections trace back to the original import row.
+- [x] Generate a review file showing suggested categories and low-confidence rows.
+- [x] Preserve source identity fields in review output.
 - [x] Allow manual category overrides using a local CSV file.
-- [x] Keep a local Git-ignored rules file for manual vendor/category corrections.
+- [x] Keep local vendor/category rules Git-ignored.
 - [x] Add tests for category overrides and unknown vendors.
+- [x] Add duplicate checks for source IDs, source rows, and exact final-statement rows before report rendering.
 - [ ] Promote repeat vendor overrides into a reusable local rules flow.
-
-Definition of done:
-
-- Paul can review and correct categories before reports are finalized.
-- The app remembers local vendor rules without exposing them publicly.
 
 ## Phase 4: Monthly close workflow
 
-Current status: **safe sample monthly close only**. The real-data flow below is a future target, not an enabled workflow.
+Status: **safe sample monthly close complete**
 
-Future goal: make the app useful as a repeatable monthly personal finance routine.
-
-Suggested flow:
-
-1. Export transactions from bank/credit card portals manually.
-2. Save CSVs into `data/personal/`.
-3. Run local import and validation.
-4. Review categories and overrides.
-5. Generate a workflow audit artifact that records inputs, row counts, overrides, self-check status, and output paths.
-6. Generate draft monthly CFO report.
-7. Review assumptions and action items.
-8. Save final report locally.
-
-Potential script:
+The current safe command is:
 
 ```bash
 python3 scripts/monthly_close.py --sample
 ```
 
-Definition of done for the current safe-script layer:
+It normalizes fake personal-style transactions, generates category review files, creates or applies local override rules, and writes workflow audit receipts with source input SHA-256 hashes.
 
-- One command can guide Paul through sample import, category review, override application, and workflow audit generation.
-- The process is understandable without needing to inspect Python code.
-- Intermediate workflow CSVs stay in `data/processed/`; private report outputs stay in `outputs/personal/`.
-- Draft report generation is available through `python3 scripts/generate_personal_report.py` after the safe sample close has run.
+Current safeguards:
 
-## Phase 5: Local app option
+- [x] sample mode only accepts files under `data/sample/`
+- [x] personal mode exits before processing real data
+- [x] workflow audit paths are validated project-relative paths
+- [x] self-check status defaults to `NOT_RUN` unless real checks ran
+- [x] private paths are verified with Git itself
+- [x] draft report generation runs deterministic self-checks before writing PDFs/charts
+- [x] draft personal report writes under `outputs/personal/`
 
-Goal: create a small local interface only after the script workflow is trustworthy.
+## Phase 5: CFO parity engine
 
-Good local app options:
+Status: **v1 complete**
 
-- **Streamlit local app** - easiest dashboard-style interface, runs at `localhost`.
-- **Tkinter desktop app** - fully local built-in Python UI, less polished but simple.
-- **FastAPI local app** - useful if a browser interface is wanted, but more engineering overhead.
+The project now contains seven CFO-style pillars:
 
-Recommended first app path:
+1. Categorizer generalization
+2. Goals tracker
+3. Forecasting depth and cash runway
+4. What-if scenarios
+5. Risk register
+6. Capital-event playbooks, including rent-vs-buy
+7. Service wrapper and outcomes scorecard
 
-1. Finish script workflow.
-2. Add Streamlit only as a local wrapper around tested modules.
-3. Do not add cloud hosting.
-4. Do not add accounts or login until there is a real need.
+These are wired into both:
+
+- the fictional Alex Rivera board pack
+- the draft personal report path using a local profile
+
+Current verification:
+
+```text
+189 local tests passing
+GitHub Actions passing
+100-persona stress harness available
+value-invariant checks added to the stress harness
+```
+
+## Phase 6: Local profile and onboarding
+
+Status: **v1 complete**
+
+- [x] Add `config/personal_profile.example.json`.
+- [x] Ignore `config/personal_profile.json`.
+- [x] Load local profile when present, otherwise fallback to fictional sample profile.
+- [x] Add `scripts/setup_personal.py` to create the local profile and verify private paths.
+- [x] Add tests for the setup flow and profile loader.
+
+This lets local assets, liabilities, goals, scenarios, home target, major purchase, and monthly debt payment be personalized without committing private values.
+
+## Phase 7: Consolidation and public-release polish
+
+Status: **current recommended phase**
+
+The engine is now broad enough. The next highest-value work is consolidation and presentation polish, not more analytical sections.
+
+Recommended tasks:
+
+- [x] Refresh stale README and portfolio roadmap language after the 4 merged PRs.
+- [x] Add a one-page Executive Dashboard to the board pack and draft personal report.
+- [x] Regenerate portfolio screenshot for the new Executive Dashboard.
+- [ ] Final README visual review.
+- [ ] Run public-release hardening scan:
+  - tests
+  - GitHub Actions
+  - secret scan
+  - absolute local path scan
+  - staged-file check
+  - private/generated path check
+- [ ] Decide whether to make the GitHub repo public.
+- [ ] Draft LinkedIn launch post.
+
+## Phase 8: Optional local AI layer
+
+Status: **planned, not implemented**
+
+Goal: add a local-only explanatory layer that can generate CFO memos or Q&A from verified report artifacts.
+
+Rules:
+
+- disabled by default
+- local endpoint only, such as llama.cpp or Ollama
+- no cloud fallback
+- deterministic engine remains source of truth
+- AI sees compact checked outputs before raw transaction data
+- AI outputs should cite which report artifacts they used
+
+The first safe feature should be a local AI CFO memo from generated fake/sample report artifacts.
+
+## Phase 9: Local app/interface
+
+Status: **planned, not implemented**
+
+Recommended path:
+
+1. Use Claude Design or sketch to create 2 to 3 UI concepts.
+2. Pick the strongest product direction.
+3. Build a Streamlit local prototype first.
+4. Use the app as a wrapper around tested modules, not a replacement for the engine.
+5. Later consider React/FastAPI/Tauri if the product direction justifies the extra architecture.
+
+Target screens:
+
+- Dashboard
+- Reports
+- Local AI memo
+- Settings and privacy
+- Category review
+- Stress-test explorer
+- Ask Local CFO later
+- Goal planner later
 
 ## What stays demo-only for now
 
-- Alex Rivera fictional sample reports.
-- Portfolio screenshots.
-- Public README examples.
-- Any generated artifacts committed to Git.
+- Alex Rivera fictional sample reports
+- Portfolio screenshots
+- Public README examples
+- Fake personal-style CSV fixtures
+- Generated stress-test outputs
 
 ## What must stay private later
 
-- Paul's real transaction CSVs.
-- Categorized personal transaction files.
-- Vendor override rules based on Paul's real spending.
-- Personal report PDFs.
-- Any screenshots showing real vendors, accounts, balances, or spending.
+- real transaction CSVs
+- categorized personal transaction files
+- personal profile values
+- vendor override rules based on real spending
+- personal report PDFs
+- screenshots showing real vendors, balances, accounts, or spending
 
 ## Next build task
 
-Build the real-data safety gate before enabling personal mode:
+Finish the consolidation/public-release polish pass:
 
-- [x] Verify private local paths with Git itself, not `.gitignore` string matching.
-- [x] Add a runnable safety check command: `python3 scripts/check_personal_mode_safety.py`.
-- [x] Add an audit gate for future real personal reports: `mode=personal`, `needs_review_count=0`, `self_check_status=PASS`, correct privacy status, and output paths under `outputs/personal/`.
-- [x] Keep this phase from importing or processing real financial data.
-- [x] Review architecture/cleanup findings before expanding into real statement import.
-- [x] Add standalone import guardrails so sample mode cannot process arbitrary or `data/personal/` inputs.
-- [x] Add traversal/symlink regression tests for the standalone import guard.
-- [x] Make audit path validators treat relative workflow paths as project-relative instead of current-working-directory-relative.
-- [x] Record the source input file SHA-256 in workflow audit JSON and Markdown.
-- [x] Add deterministic personal report pre-render self-checks before PDF/chart artifacts are written.
-- [x] Add duplicate checks so repeated source transaction IDs, imported source rows, or exact final-statement rows fail before PDF/chart artifacts.
-- [x] Build one fake bank-export importer profile using fake fixtures only.
-- [ ] Decide the next sample-only importer/reporting extension after reviewing fake-bank profile results.
-
-## Phase 6: Local AI coding-agent workflow
-
-Goal: make Claude Code, Codex, and Hermes safer and more useful when working on this project.
-
-- [x] Add project-local Graphify skills/instructions for Claude Code, Codex, and Hermes.
-- [x] Add Karpathy-style coding-agent behavior rules to `AGENTS.md` and `CLAUDE.md`.
-- [x] Run the first Graphify code-only pilot on `modules/` and generate `graphify-out/graph.json`.
-- [x] Export the local call-flow HTML: `graphify-out/Personal_Finance_CFO_Agent-callflow.html`.
-- [x] Keep `graphify-out/` ignored by Git until graph output privacy/reproducibility is reviewed.
-- [ ] Decide whether Graphify outputs should be committed, regenerated on demand, or kept local-only.
-- [ ] Decide whether future Graphify runs should include docs after an LLM backend is configured.
-
-Keep real financial data in `data/personal/`, processed personal outputs in `data/processed/`, and private reports in `outputs/personal/`; all are Git-ignored.
-
-Do not use Paul's real transaction files until the personal report adapter and draft report workflow are passing and reviewed.
-
-## Future Git repo direction
-
-Publishing this as a GitHub portfolio repo is a good eventual goal once the local product is cleaner. Before publishing:
-
-- Keep only fictional/sample data in tracked files.
-- Keep `data/personal/`, `data/processed/`, `outputs/personal/`, and personal rules ignored by Git.
-- Add a clean project README with screenshots generated from fictional data only.
-- Add setup, test, and report-generation commands that a reviewer can run from scratch.
-- Decide whether generated sample PDFs/PNGs should be committed as portfolio evidence or regenerated on demand.
+1. Visually review the new Executive Dashboard output.
+2. Refresh screenshots if the page looks good.
+3. Run final release hardening.
+4. Decide whether to publish the private repo publicly.
