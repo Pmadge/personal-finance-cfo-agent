@@ -20,13 +20,16 @@ from modules.ui.report_reader import (
     RISK_COLORS,
     VARIANCE_COLORS,
     ContractTrustError,
+    build_category_review_model,
     build_home_dashboard_model,
     build_monthly_report_model,
     build_privacy_settings_model,
+    load_category_review_rows,
     load_report_contract,
 )
 
 DEFAULT_REPORT_JSON = Path("outputs/report_json/portfolio_demo_2026-03.json")
+DEFAULT_CATEGORY_REVIEW = Path("data/processed/category_review.csv")
 
 
 st.set_page_config(page_title="Personal Finance CFO Agent", page_icon="📊", layout="wide")
@@ -37,7 +40,8 @@ def main() -> None:
     st.caption("Local-first Read & Trust app over verified sample report JSON.")
 
     report_path = Path(st.sidebar.text_input("Report JSON", str(DEFAULT_REPORT_JSON)))
-    page = st.sidebar.radio("Screen", ["Home Dashboard", "Monthly Report", "Settings / Privacy"])
+    category_review_path = Path(st.sidebar.text_input("Category review CSV", str(DEFAULT_CATEGORY_REVIEW)))
+    page = st.sidebar.radio("Screen", ["Home Dashboard", "Monthly Report", "Category Review", "Settings / Privacy"])
 
     try:
         contract = load_report_contract(report_path)
@@ -51,6 +55,13 @@ def main() -> None:
         render_home_dashboard(build_home_dashboard_model(contract))
     elif page == "Monthly Report":
         render_monthly_report(build_monthly_report_model(contract))
+    elif page == "Category Review":
+        try:
+            rows = load_category_review_rows(category_review_path)
+        except (OSError, ValueError, ContractTrustError) as error:
+            st.error(f"Category review CSV is not trusted: {error}")
+            return
+        render_category_review(build_category_review_model(contract, rows))
     else:
         render_privacy_settings(build_privacy_settings_model(contract))
 
@@ -94,6 +105,25 @@ def render_monthly_report(model: dict) -> None:
 
     st.markdown(f"#### {chosen}")
     _render_section(key, data)
+
+
+def render_category_review(model: dict) -> None:
+    st.subheader(f"{model['title']} · {model['period_label']}")
+    st.caption(f"{model['trust_badge']} · {model['workbench_badge']}")
+    st.info("Read-only review surface. Suggestions only suggest; reports trust final reviewed categories.")
+
+    counts = model["status_counts"]
+    cols = st.columns(4)
+    cols[0].metric("Rows", counts["total_rows"])
+    cols[1].metric("Needs review", counts["needs_review"])
+    cols[2].metric("Auto-suggested", counts["auto_suggested"])
+    cols[3].metric("Manual overrides", counts["manual_override"])
+
+    st.markdown("#### Approved categories present")
+    st.write(", ".join(model["categories"]) or "No final categories yet.")
+
+    st.markdown("#### Review workbench")
+    st.dataframe(pd.DataFrame(model["rows"]), use_container_width=True, hide_index=True)
 
 
 def _render_section(key: str, data: object) -> None:

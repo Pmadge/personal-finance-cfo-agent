@@ -5,9 +5,11 @@ import pytest
 
 from modules.ui.report_reader import (
     ContractTrustError,
+    build_category_review_model,
     build_home_dashboard_model,
     build_monthly_report_model,
     build_privacy_settings_model,
+    load_category_review_rows,
     load_report_contract,
 )
 
@@ -71,6 +73,46 @@ def test_monthly_report_model_sections_are_engine_verified():
     assert all("Level" in row for row in sections["risk_register"])
     # goals rows have Progress (%)
     assert all("Progress (%)" in row for row in sections["goals"])
+
+
+def test_category_review_model_summarizes_read_only_review_rows():
+    rows = load_category_review_rows("data/processed/category_review.csv")
+    model = build_category_review_model(_sample_contract(), rows)
+
+    assert model["title"] == "Category Review"
+    assert model["workbench_badge"] == "Workbench mode · read-only"
+    assert model["status_counts"] == {
+        "total_rows": 4,
+        "needs_review": 0,
+        "auto_suggested": 4,
+        "manual_override": 0,
+    }
+    assert model["categories"] == ["Food & Dining", "Housing", "Income"]
+    assert model["rows"][0]["source_file"] == "personal_transactions_template.csv"
+    assert model["rows"][0]["source_row_number"] == "2"
+
+
+def test_category_review_model_rejects_source_path_leak():
+    rows = [
+        {
+            "date": "2026-04-01",
+            "vendor": "Fake Payroll Deposit",
+            "amount": "2500.0",
+            "raw_category": "income",
+            "source_file": "/Users/paulmadgett/private.csv",
+            "source_row_number": "2",
+            "import_batch_id": "import_fake",
+            "transaction_id": "fake_txn_001",
+            "suggested_category": "Income",
+            "classification_method": "raw_category_map",
+            "review_status": "auto_suggested",
+            "final_category": "Income",
+            "override_note": "",
+        }
+    ]
+
+    with pytest.raises(ContractTrustError, match="source_file"):
+        build_category_review_model(_sample_contract(), rows)
 
 
 def test_privacy_settings_model_locks_unsafe_modes_off():

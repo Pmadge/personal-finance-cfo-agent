@@ -36,7 +36,7 @@ The Personal Finance CFO Agent turns fictional transaction data into a family of
 Current verification status:
 
 ```text
-193 local tests passing
+200 local tests passing
 GitHub Actions passing
 100-persona fictional stress harness available
 Real personal data disabled until explicit safety approval
@@ -97,6 +97,8 @@ Current screens:
 
 1. Home Dashboard — the 10-second CFO verdict and headline metrics.
 2. Settings / Privacy — sample/local-only trust settings and self-check status.
+3. Monthly Report — section navigation over the verified report JSON sections.
+4. Category Review — read-only Workbench table over the local sample review CSV.
 
 ### Personalize the report (optional)
 

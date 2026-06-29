@@ -7,9 +7,12 @@ new financial numbers.
 
 from __future__ import annotations
 
+import csv
 import json
 from pathlib import Path
 from typing import Any
+
+from modules.categorization_review import REVIEW_COLUMNS
 
 EXPECTED_SCHEMA_VERSION = "1.0.0"
 APPROVED_PRIVACY_FLAGS = {
@@ -33,6 +36,14 @@ def load_report_contract(path: str | Path) -> dict[str, Any]:
     data = json.loads(report_path.read_text(encoding="utf-8"))
     validate_report_contract(data)
     return data
+
+
+def load_category_review_rows(path: str | Path) -> list[dict[str, str]]:
+    """Load a local category-review CSV for read-only UI rendering."""
+    with Path(path).open(newline="", encoding="utf-8") as handle:
+        rows = list(csv.DictReader(handle))
+    _validate_category_review_rows(rows)
+    return rows
 
 
 def validate_report_contract(data: dict[str, Any]) -> None:
@@ -150,6 +161,38 @@ def build_monthly_report_model(data: dict[str, Any]) -> dict[str, Any]:
             (label, key) for label, key in MONTHLY_REPORT_SECTIONS if key in sections
         ],
     }
+
+
+def build_category_review_model(data: dict[str, Any], rows: list[dict[str, str]]) -> dict[str, Any]:
+    """Build the read-only Category Review workbench model."""
+    validate_report_contract(data)
+    _validate_category_review_rows(rows)
+    counts = {"total_rows": len(rows), "needs_review": 0, "auto_suggested": 0, "manual_override": 0}
+    for row in rows:
+        status = row["review_status"]
+        if status in counts:
+            counts[status] += 1
+
+    categories = sorted({row["final_category"] for row in rows if row["final_category"]})
+    return {
+        "title": "Category Review",
+        "period_label": data["period"]["label"],
+        "trust_badge": "Verified by engine",
+        "workbench_badge": "Workbench mode · read-only",
+        "status_counts": counts,
+        "categories": categories,
+        "rows": rows,
+    }
+
+
+def _validate_category_review_rows(rows: list[dict[str, str]]) -> None:
+    for index, row in enumerate(rows, start=1):
+        missing = [column for column in REVIEW_COLUMNS if column not in row]
+        if missing:
+            raise ContractTrustError(f"category review row {index} missing columns: {', '.join(missing)}")
+        source_file = row.get("source_file", "")
+        if Path(source_file).name != source_file:
+            raise ContractTrustError("category review source_file must be basename-only.")
 
 
 def _money(value: float | int) -> str:
