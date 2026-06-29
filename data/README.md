@@ -1,6 +1,6 @@
 # Data Folder
 
-This folder holds fictional Alex Rivera demo data and safe sample templates only.
+This folder holds fictional demo data and safe sample templates only.
 
 Important rule: do not place real bank statements, credit card exports, account numbers, names, addresses, or any other real personal financial data in the Git-tracked sample files.
 
@@ -8,6 +8,7 @@ Current safe files:
 
 - `alex_rivera_transactions.csv` - fictional raw demo input.
 - `alex_rivera_transactions_categorized.csv` - regenerated fictional categorized demo output.
+- `portfolio_demo_morgan_patel_household.csv` - richer fictional household input used to regenerate the README/portfolio screenshots.
 - `sample/personal_transactions_template.csv` - fake personal-style CSV template for testing the local importer.
 
 The local importer writes source identity fields into normalized outputs: `source_file`, `source_row_number`, `import_batch_id`, and optional `transaction_id`.

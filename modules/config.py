@@ -167,3 +167,86 @@ SAMPLE_PERSONAL_PROFILE = {
                     "mortgage_rate": 7.0, "term_years": 30},
     "major_purchase": 3000.00,
 }
+
+# Richer fictional household used for portfolio screenshots. This is still sample
+# data only, but it better demonstrates that the engine handles a more realistic
+# adult household than the simple Alex Rivera baseline.
+PORTFOLIO_DEMO_PERSONA_NAME = "Morgan Patel Household"
+PORTFOLIO_DEMO_FICTIONAL_DATA_NOTICE = "fictional Morgan Patel household data"
+PORTFOLIO_DEMO_TRANSACTIONS = "data/portfolio_demo_morgan_patel_household.csv"
+PORTFOLIO_DEMO_CATEGORIZED = "data/portfolio_demo_morgan_patel_household_categorized.csv"
+PORTFOLIO_DEMO_PDF = "outputs/portfolio_demo_morgan_patel_monthly_cfo_report_2026_03.pdf"
+
+PORTFOLIO_DEMO_BUDGET = {
+    "Housing": 3600,
+    "Food": 1450,
+    "Transport": 850,
+    "Subscriptions": 760,
+    "Entertainment": 650,
+    "Shopping": 900,
+    "Medical": 650,
+    "Education": 900,
+    "Savings Transfer": 2500,
+    "Misc": 550,
+}
+
+PORTFOLIO_DEMO_ASSETS = {
+    "Checking": 8500,
+    "Savings": 42000,
+    "Investments": 165000,
+}
+
+PORTFOLIO_DEMO_LIABILITIES = {
+    "Credit Card": {"balance": 6200, "interest_rate": 22.5},
+    "Student Loan": {"balance": 38000, "interest_rate": 5.8},
+    "Auto Loan": {"balance": 21000, "interest_rate": 6.9},
+}
+
+PORTFOLIO_DEMO_GOALS = [
+    {
+        "name": "First Home Down Payment",
+        "type": "savings",
+        "target_amount": 90000.00,
+        "current_amount": PORTFOLIO_DEMO_ASSETS["Savings"],
+        "target_date": "2027-12-31",
+    },
+    {
+        "name": "Pay Off Credit Card",
+        "type": "debt_payoff",
+        "target_amount": 0.00,
+        "current_amount": PORTFOLIO_DEMO_LIABILITIES["Credit Card"]["balance"],
+        "starting_amount": PORTFOLIO_DEMO_LIABILITIES["Credit Card"]["balance"],
+        "interest_rate": PORTFOLIO_DEMO_LIABILITIES["Credit Card"]["interest_rate"],
+        "monthly_contribution": 900.00,
+        "target_date": "2026-12-31",
+    },
+    {
+        "name": "Reach $250k Net Worth",
+        "type": "net_worth",
+        "target_amount": 250000.00,
+        "current_amount": 0.00,
+        "target_date": "2028-12-31",
+    },
+    {
+        "name": "Hold 22% Savings Rate",
+        "type": "savings_rate",
+        "target_amount": 22.00,
+        "current_amount": 0.00,
+    },
+]
+
+PORTFOLIO_DEMO_SCENARIOS = [
+    {"name": "One income paused for 3 months", "monthly_income_change": -6500.00},
+    {"name": "Childcare rises $600/mo", "monthly_expense_change": 600.00},
+    {"name": "Cut discretionary spending 20%", "variable_spend_pct": -0.20},
+    {"name": "$12,000 home repair", "one_time_cost": 12000.00},
+    {"name": "New role adds $1,500/mo", "monthly_income_change": 1500.00},
+]
+
+PORTFOLIO_DEMO_HOME_TARGET = {
+    "home_price": 875000.00,
+    "down_payment_pct": 15.0,
+    "mortgage_rate": 6.8,
+    "term_years": 30,
+}
+PORTFOLIO_DEMO_MAJOR_PURCHASE = 12000.00

@@ -23,7 +23,7 @@ For a deeper visual walkthrough with sample report screenshots, see the
 |---|---|
 | ![Goal tracker](docs/screenshots/report_goal_tracker.png) | ![Capital event readiness](docs/screenshots/report_capital_event.png) |
 
-All screenshots use the fictional Alex Rivera sample persona. No real financial data is shown.
+The README screenshots use the richer fictional Morgan Patel household demo so the portfolio preview shows dual income, mortgage-level housing, childcare, debt payoff, savings transfers, home-buying goals, and surprise expenses. No real financial data is shown.
 
 ## What This Project Does
 
@@ -32,7 +32,7 @@ The Personal Finance CFO Agent turns fictional transaction data into a family of
 Current verification status:
 
 ```text
-189 local tests passing
+190 local tests passing
 GitHub Actions passing
 100-persona fictional stress harness available
 Real personal data disabled until explicit safety approval
@@ -46,6 +46,7 @@ Real personal data disabled until explicit safety approval
 - Monthly Savings Rate Trend chart: `outputs/monthly_savings_rate_trend.png`
 - Budget vs. Actual chart: `outputs/budget_vs_actual.png`
 - Month-over-Month Spending chart: `outputs/month_over_month_spending.png`
+- Portfolio screenshot demo report: `outputs/portfolio_demo_morgan_patel_monthly_cfo_report_2026_03.pdf`
 
 ## How To Run It
 
@@ -64,6 +65,12 @@ python3 scripts/generate_monthly_report.py
 python3 scripts/generate_trend_report.py
 python3 scripts/monthly_close.py --sample
 python3 scripts/generate_personal_report.py
+```
+
+To regenerate the richer GitHub README screenshots from the fictional Morgan Patel household demo:
+
+```bash
+python3 scripts/generate_portfolio_demo_screenshots.py
 ```
 
 ### Personalize the report (optional)
