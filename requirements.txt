@@ -4,3 +4,4 @@ pillow
 reportlab
 pymupdf
 pytest
+streamlit

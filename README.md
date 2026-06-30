@@ -36,7 +36,7 @@ The Personal Finance CFO Agent turns fictional transaction data into a family of
 Current verification status:
 
 ```text
-193 local tests passing
+206 local tests passing
 GitHub Actions passing
 100-persona fictional stress harness available
 Real personal data disabled until explicit safety approval
@@ -77,11 +77,30 @@ To regenerate the richer GitHub README screenshots from the fictional Morgan Pat
 python3 scripts/generate_portfolio_demo_screenshots.py
 ```
 
-To regenerate the UI report JSON contract (what a future local app binds to):
+To regenerate the UI report JSON contract (what the local Read & Trust app binds to):
 
 ```bash
 python3 scripts/generate_report_json.py
 ```
+
+### Local Read & Trust app
+
+The first local app screen is a read-only Streamlit dashboard over the verified report JSON contract. It does not calculate new numbers, call AI, connect to banks, or use real financial data.
+
+```bash
+python3 -m pip install -r requirements.txt
+python3 scripts/generate_report_json.py
+streamlit run streamlit_app.py
+```
+
+Current screens:
+
+1. Home Dashboard — the 10-second CFO verdict and headline metrics.
+2. Settings / Privacy — sample/local-only trust settings and self-check status.
+3. Monthly Report — section navigation over the verified report JSON sections.
+4. Category Review — read-only Workbench table over the local sample review CSV.
+5. Stress Test Explorer — read-only Workbench grid over generated fictional stress-test results.
+6. Local AI Memo — disabled placeholder only; no AI call, no cloud fallback, no generated memo.
 
 ### Personalize the report (optional)
 
