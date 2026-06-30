@@ -11,7 +11,7 @@ All examples use fully fictional sample personas. The core board pack uses Alex 
 ```text
 Repository: private GitHub repo
 CI: GitHub Actions passing
-Local tests: 193 passing
+Local tests: 206 passing
 Data posture: fictional/sample only
 Real personal data: disabled until explicit safety approval
 ```
@@ -29,9 +29,15 @@ A run generates:
 - a draft personal report from reviewed fake personal rows
 - stress-test outputs for fictional personas
 
-Generated PDFs and PNGs are intentionally not committed. Portfolio screenshots live under `docs/screenshots/` so GitHub renders the walkthrough without requiring a local run. The selected README screenshots are regenerated from `data/portfolio_demo_morgan_patel_household.csv` with `scripts/generate_portfolio_demo_screenshots.py`.
+Generated PDFs and PNGs are intentionally not committed. Portfolio screenshots live under `docs/screenshots/` so GitHub renders the walkthrough without requiring a local run. Report screenshots are regenerated from `data/portfolio_demo_morgan_patel_household.csv` with `scripts/generate_portfolio_demo_screenshots.py`; the Streamlit screenshot is captured from the local Read & Trust app.
 
 ## Representative report pages
+
+### Local Read & Trust app
+
+The Streamlit app renders the verified report JSON, category review CSV, and fictional stress-test summaries without recalculating numbers or calling AI.
+
+![Local Read & Trust Streamlit Home Dashboard](screenshots/streamlit_home_dashboard.png)
 
 ### Cover and executive summary
 
@@ -154,7 +160,7 @@ This creates `config/personal_profile.json` from the committed example. The loca
 
 ## Tech stack
 
-Python, pandas, matplotlib, reportlab, PyMuPDF, pytest, GitHub Actions.
+Python, pandas, matplotlib, reportlab, PyMuPDF, Streamlit, pytest, GitHub Actions.
 
 ## Limitations
 
@@ -166,4 +172,4 @@ Python, pandas, matplotlib, reportlab, PyMuPDF, pytest, GitHub Actions.
 
 ## Next planned step
 
-Run the final public-release polish pass: visual README review, release hardening scan, GitHub visibility decision, and LinkedIn launch draft.
+Review the final screenshots, choose GitHub visibility, and draft the LinkedIn launch note.
