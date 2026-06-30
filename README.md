@@ -17,6 +17,10 @@ documented in [Design Direction](docs/DESIGN_DIRECTION.md) and
 
 ![One-page Executive Dashboard](docs/screenshots/report_executive_dashboard.png)
 
+### Local Read & Trust App
+
+![Local Read & Trust Streamlit Home Dashboard](docs/screenshots/streamlit_home_dashboard.png)
+
 ### CFO Report Highlights
 
 | Cash Runway | Risk Register |
@@ -85,7 +89,7 @@ python3 scripts/generate_report_json.py
 
 ### Local Read & Trust app
 
-The first local app screen is a read-only Streamlit dashboard over the verified report JSON contract. It does not calculate new numbers, call AI, connect to banks, or use real financial data.
+The local app is a read-only Streamlit dashboard over the verified report JSON contract. It does not calculate new numbers, call AI, connect to banks, or use real financial data.
 
 ```bash
 python3 -m pip install -r requirements.txt
