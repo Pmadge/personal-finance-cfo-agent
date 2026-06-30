@@ -57,8 +57,9 @@ Screens in build order:
    must be architectural, not bolted on later.
 3. **Monthly Report Reader** — section nav over `sections.*`.
 
-Shared from day one: the privacy banner, the verified marker, the month switcher,
-and export.
+MVP shared elements: the privacy banner, verified markers, read-only artifact
+loading, and fail-closed sample-mode trust checks. Month switching and export are
+deferred; the current app reads the approved March 2026 sample artifacts only.
 
 ### Build order (revised from the original guess)
 
@@ -91,15 +92,16 @@ Full order:
 **Straight into code** (logic, not look):
 
 - Report-JSON → UI binding (done: `modules/reports/report_json.py`).
-- Month switching, table rendering, export.
+- Table rendering and sample-mode/safety gating.
 - Sample-mode / safety gating and chart data.
 
 **Back to Codex / Claude Code:**
 
 - Use the artifact HTML as the visual spec + this JSON contract as the data spec.
-- Scaffold Streamlit screen-by-screen in the build order above.
-- Implement the CSS theme and the privacy/verified/AI-label pieces as reusable
-  functions/components.
+- The Streamlit Read & Trust MVP is scaffolded screen-by-screen in the build order
+  above.
+- A custom CSS theme, reusable visual components, month switching, and export are
+  later polish items, not current MVP behavior.
 
 ## 5. Figma handoff (student access)
 

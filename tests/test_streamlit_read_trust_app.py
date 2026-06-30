@@ -21,6 +21,7 @@ from modules.ui.report_reader import (
     load_report_contract,
     load_stress_test_summary,
 )
+from streamlit_app import _escape_streamlit_markdown
 
 
 def _sample_contract():
@@ -162,6 +163,12 @@ def test_home_dashboard_model_is_read_only_engine_verified():
         "report_2026-03.json",
         "portfolio_demo_morgan_patel_monthly_cfo_report_2026_03.pdf",
     ]
+
+
+def test_streamlit_markdown_escape_keeps_money_text_literal():
+    text = "Review $890.00 charge versus the $900.00 budget."
+
+    assert _escape_streamlit_markdown(text) == r"Review \$890.00 charge versus the \$900.00 budget."
 
 
 def test_monthly_report_model_returns_all_key_sections():

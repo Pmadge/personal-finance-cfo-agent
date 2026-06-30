@@ -140,7 +140,7 @@ These are wired into both:
 Current verification:
 
 ```text
-193 local tests passing
+207 local tests passing
 GitHub Actions passing
 100-persona stress harness available
 value-invariant checks added to the stress harness
@@ -160,7 +160,7 @@ This lets local assets, liabilities, goals, scenarios, home target, major purcha
 
 ## Phase 7: Consolidation and public-release polish
 
-Status: **current recommended phase**
+Status: **complete except repo visibility**
 
 The engine is now broad enough. The next highest-value work is consolidation and presentation polish, not more analytical sections.
 
@@ -169,8 +169,8 @@ Recommended tasks:
 - [x] Refresh stale README and portfolio roadmap language after the 4 merged PRs.
 - [x] Add a one-page Executive Dashboard to the board pack and draft personal report.
 - [x] Regenerate portfolio screenshot for the new Executive Dashboard.
-- [ ] Final README visual review.
-- [ ] Run public-release hardening scan:
+- [x] Final README visual review.
+- [x] Run public-release hardening scan:
   - tests
   - GitHub Actions
   - secret scan
@@ -178,7 +178,7 @@ Recommended tasks:
   - staged-file check
   - private/generated path check
 - [ ] Decide whether to make the GitHub repo public.
-- [ ] Draft LinkedIn launch post.
+- [x] Draft LinkedIn launch post.
 
 ## Phase 8: Optional local AI layer
 
@@ -199,26 +199,24 @@ The first safe feature should be a local AI CFO memo from generated fake/sample 
 
 ## Phase 9: Local app/interface
 
-Status: **planned, not implemented**
+Status: **Streamlit Read & Trust MVP complete**
 
-Recommended path:
+The app is a read-only wrapper around tested modules and approved sample artifacts. It renders verified report JSON, the local sample category review CSV, and the fictional stress-test summary. It does not replace the deterministic engine.
 
-1. Use Claude Design or sketch to create 2 to 3 UI concepts.
-2. Pick the strongest product direction.
-3. Build a Streamlit local prototype first.
-4. Use the app as a wrapper around tested modules, not a replacement for the engine.
-5. Later consider React/FastAPI/Tauri if the product direction justifies the extra architecture.
+Current screens:
 
-Target screens:
+- Home Dashboard
+- Monthly Report
+- Category Review
+- Stress Test Explorer
+- Local AI Memo placeholder, disabled by default
+- Settings / Privacy
 
-- Dashboard
-- Reports
-- Local AI memo
-- Settings and privacy
-- Category review
-- Stress-test explorer
-- Ask Local CFO later
-- Goal planner later
+Deferred until the product direction justifies more architecture:
+
+- React/FastAPI/Tauri
+- Ask Local CFO
+- Goal planner
 
 ## What stays demo-only for now
 
@@ -239,9 +237,4 @@ Target screens:
 
 ## Next build task
 
-Finish the consolidation/public-release polish pass:
-
-1. Visually review the new Executive Dashboard output.
-2. Refresh screenshots if the page looks good.
-3. Run final release hardening.
-4. Decide whether to publish the private repo publicly.
+Decide whether to publish the private repo publicly. If yes, update the LinkedIn launch draft with the public repo URL and do one final public README check.
