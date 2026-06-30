@@ -172,4 +172,4 @@ Python, pandas, matplotlib, reportlab, PyMuPDF, Streamlit, pytest, GitHub Action
 
 ## Next planned step
 
-Review the final screenshots, choose GitHub visibility, and draft the LinkedIn launch note.
+Review the final GitHub README screenshots, choose repo visibility, then use `docs/LINKEDIN_LAUNCH_DRAFT.md` for the launch post.
