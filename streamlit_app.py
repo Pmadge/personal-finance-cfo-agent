@@ -36,7 +36,7 @@ DEFAULT_CATEGORY_REVIEW = Path("data/processed/category_review.csv")
 DEFAULT_STRESS_TEST_RUN = Path("outputs/stress_tests/review_smoke_12_personas")
 
 
-st.set_page_config(page_title="Personal Finance CFO Agent", page_icon="📊", layout="wide")
+st.set_page_config(page_title="Personal Finance CFO Agent", page_icon="📊", layout="wide", initial_sidebar_state="collapsed")
 
 
 def main() -> None:
