@@ -36,7 +36,7 @@ The Personal Finance CFO Agent turns fictional transaction data into a family of
 Current verification status:
 
 ```text
-204 local tests passing
+206 local tests passing
 GitHub Actions passing
 100-persona fictional stress harness available
 Real personal data disabled until explicit safety approval

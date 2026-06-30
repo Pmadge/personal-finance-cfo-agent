@@ -43,9 +43,10 @@ def main() -> None:
     st.title("Personal Finance CFO Agent")
     st.caption("Local-first Read & Trust app over verified sample report JSON.")
 
-    report_path = Path(st.sidebar.text_input("Report JSON", str(DEFAULT_REPORT_JSON)))
-    category_review_path = Path(st.sidebar.text_input("Category review CSV", str(DEFAULT_CATEGORY_REVIEW)))
-    stress_test_path = Path(st.sidebar.text_input("Stress test run", str(DEFAULT_STRESS_TEST_RUN)))
+    st.sidebar.caption("MVP v0.1 reads approved sample artifacts only.")
+    report_path = DEFAULT_REPORT_JSON
+    category_review_path = DEFAULT_CATEGORY_REVIEW
+    stress_test_path = DEFAULT_STRESS_TEST_RUN
     page = st.sidebar.radio(
         "Screen",
         ["Home Dashboard", "Monthly Report", "Category Review", "Stress Test Explorer", "Local AI Memo", "Settings / Privacy"],

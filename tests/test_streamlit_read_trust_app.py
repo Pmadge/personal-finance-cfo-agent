@@ -1,7 +1,13 @@
+import copy
 import json
+from functools import lru_cache
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 import pytest
+
+from modules.reports.pdf_report import portfolio_demo_report_config
+from modules.reports.report_json import build_report_json
 
 from modules.ui.report_reader import (
     ContractTrustError,
@@ -18,7 +24,112 @@ from modules.ui.report_reader import (
 
 
 def _sample_contract():
-    return json.loads(Path("outputs/report_json/portfolio_demo_2026-03.json").read_text(encoding="utf-8"))
+    return copy.deepcopy(_cached_sample_contract())
+
+
+@lru_cache(maxsize=1)
+def _cached_sample_contract():
+    with TemporaryDirectory() as tmp_dir:
+        return build_report_json(
+            output_dir=Path(tmp_dir) / "charts",
+            report_config=portfolio_demo_report_config(),
+        )
+
+
+def _category_review_rows():
+    return [
+        {
+            "date": "2026-03-01",
+            "vendor": "Acme Payroll",
+            "amount": "8500.0",
+            "raw_category": "income",
+            "source_file": "personal_transactions_template.csv",
+            "source_row_number": "2",
+            "import_batch_id": "sample_batch",
+            "transaction_id": "sample_txn_001",
+            "suggested_category": "Income",
+            "classification_method": "raw_category_map",
+            "review_status": "auto_suggested",
+            "final_category": "Income",
+            "override_note": "",
+        },
+        {
+            "date": "2026-03-02",
+            "vendor": "Parkside Rent Portal",
+            "amount": "-3200.0",
+            "raw_category": "rent",
+            "source_file": "personal_transactions_template.csv",
+            "source_row_number": "3",
+            "import_batch_id": "sample_batch",
+            "transaction_id": "sample_txn_002",
+            "suggested_category": "Housing",
+            "classification_method": "raw_category_map",
+            "review_status": "auto_suggested",
+            "final_category": "Housing",
+            "override_note": "",
+        },
+        {
+            "date": "2026-03-03",
+            "vendor": "Trader Joe's",
+            "amount": "-125.5",
+            "raw_category": "groceries",
+            "source_file": "personal_transactions_template.csv",
+            "source_row_number": "4",
+            "import_batch_id": "sample_batch",
+            "transaction_id": "sample_txn_003",
+            "suggested_category": "Food & Dining",
+            "classification_method": "raw_category_map",
+            "review_status": "auto_suggested",
+            "final_category": "Food & Dining",
+            "override_note": "",
+        },
+        {
+            "date": "2026-03-04",
+            "vendor": "Chipotle",
+            "amount": "-18.75",
+            "raw_category": "dining",
+            "source_file": "personal_transactions_template.csv",
+            "source_row_number": "5",
+            "import_batch_id": "sample_batch",
+            "transaction_id": "sample_txn_004",
+            "suggested_category": "Food & Dining",
+            "classification_method": "raw_category_map",
+            "review_status": "auto_suggested",
+            "final_category": "Food & Dining",
+            "override_note": "",
+        },
+    ]
+
+
+def _write_stress_run(run_dir: Path, *, failed: int = 0) -> Path:
+    run_dir.mkdir(parents=True)
+    status = "FAIL" if failed else "PASS"
+    (run_dir / "summary.csv").write_text(
+        "persona_id,display_name,status,failed_steps,step_count,transaction_count,life_stage,career,wealth_profile,spending_style,plan_type,accuracy_rate,misc_rate,income,expenses,net_cash_flow,savings_rate,net_worth,debt_to_asset_ratio,emergency_runway_months,risk_overall,high_risks\n"
+        f"persona_001_late_career_professional_medical_heavy,Fictional Persona 001,{status},,24,36,late-career professional,consultant,high income high spend,medical-heavy,spending reset,91.67,8.33,9759.95,7209.56,2550.39,26.13,-741188.08,762.64,5.0,Attention needed,2\n",
+        encoding="utf-8",
+    )
+    (run_dir / "summary.json").write_text(
+        json.dumps(
+            {
+                "generated_at": "2026-06-28T16:37:39",
+                "seed": 20260628,
+                "persona_count": 1,
+                "passed": 0 if failed else 1,
+                "failed": failed,
+                "coverage": {
+                    "life_stages": ["late-career professional"],
+                    "careers": ["consultant"],
+                    "wealth_profiles": ["high income high spend"],
+                    "spending_styles": ["medical-heavy"],
+                    "plan_types": ["spending reset"],
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    (run_dir / "README.md").write_text("Fictional/sample data only.\n", encoding="utf-8")
+    return run_dir
 
 
 def test_load_report_contract_rejects_untrusted_flags(tmp_path):
@@ -79,7 +190,7 @@ def test_monthly_report_model_sections_are_engine_verified():
 
 
 def test_category_review_model_summarizes_read_only_review_rows():
-    rows = load_category_review_rows("data/processed/category_review.csv")
+    rows = _category_review_rows()
     model = build_category_review_model(_sample_contract(), rows)
 
     assert model["title"] == "Category Review"
@@ -118,36 +229,46 @@ def test_category_review_model_rejects_source_path_leak():
         build_category_review_model(_sample_contract(), rows)
 
 
-def test_stress_test_model_summarizes_verified_sample_run():
-    run = load_stress_test_summary("outputs/stress_tests/review_smoke_12_personas")
+def test_category_review_loader_rejects_unapproved_local_paths(tmp_path):
+    review_path = tmp_path / "category_review.csv"
+    review_path.write_text("date,vendor,amount\n2026-03-01,Fake Vendor,-1\n", encoding="utf-8")
+
+    with pytest.raises(ContractTrustError, match="approved sample artifact"):
+        load_category_review_rows(review_path)
+
+
+def test_stress_test_model_summarizes_verified_sample_run(tmp_path):
+    run_dir = _write_stress_run(tmp_path / "review_smoke_12_personas")
+    run = load_stress_test_summary(run_dir, approved_paths={run_dir})
     model = build_stress_test_model(run)
 
     assert model["title"] == "Stress Test Explorer"
     assert model["workbench_badge"] == "Workbench mode · read-only"
     assert model["run_name"] == "review_smoke_12_personas"
     assert model["metrics"] == [
-        {"label": "Personas", "value": "12"},
-        {"label": "Passed", "value": "12"},
+        {"label": "Personas", "value": "1"},
+        {"label": "Passed", "value": "1"},
         {"label": "Failed", "value": "0"},
         {"label": "Seed", "value": "20260628"},
     ]
-    assert model["coverage_counts"]["life_stages"] == 8
-    assert model["coverage_counts"]["wealth_profiles"] == 7
-    assert len(model["persona_rows"]) == 12
+    assert model["coverage_counts"]["life_stages"] == 1
+    assert model["coverage_counts"]["wealth_profiles"] == 1
+    assert len(model["persona_rows"]) == 1
     assert model["persona_rows"][0]["persona_id"] == "persona_001_late_career_professional_medical_heavy"
     assert model["source_artifacts"] == ["summary.csv", "summary.json", "README.md"]
 
 
 def test_stress_test_loader_rejects_failed_sample_run(tmp_path):
-    run_dir = tmp_path / "bad_run"
-    run_dir.mkdir()
-    (run_dir / "summary.csv").write_text("persona_id,status\npersona_001,FAIL\n", encoding="utf-8")
-    (run_dir / "summary.json").write_text(
-        json.dumps({"persona_count": 1, "passed": 0, "failed": 1, "seed": 123, "coverage": {}}),
-        encoding="utf-8",
-    )
+    run_dir = _write_stress_run(tmp_path / "bad_run", failed=1)
 
     with pytest.raises(ContractTrustError, match="not fully passing"):
+        load_stress_test_summary(run_dir, approved_paths={run_dir})
+
+
+def test_stress_test_loader_rejects_unapproved_local_paths(tmp_path):
+    run_dir = _write_stress_run(tmp_path / "unapproved_run")
+
+    with pytest.raises(ContractTrustError, match="approved sample artifact"):
         load_stress_test_summary(run_dir)
 
 

@@ -15,6 +15,9 @@ from typing import Any
 from modules.categorization_review import REVIEW_COLUMNS
 
 EXPECTED_SCHEMA_VERSION = "1.0.0"
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+APPROVED_CATEGORY_REVIEW_PATHS = {PROJECT_ROOT / "data" / "processed" / "category_review.csv"}
+APPROVED_STRESS_TEST_RUNS = {PROJECT_ROOT / "outputs" / "stress_tests" / "review_smoke_12_personas"}
 APPROVED_PRIVACY_FLAGS = {
     "mode": "sample",
     "real_data_enabled": False,
@@ -38,22 +41,34 @@ def load_report_contract(path: str | Path) -> dict[str, Any]:
     return data
 
 
-def load_category_review_rows(path: str | Path) -> list[dict[str, str]]:
-    """Load a local category-review CSV for read-only UI rendering."""
-    with Path(path).open(newline="", encoding="utf-8") as handle:
+def load_category_review_rows(
+    path: str | Path,
+    *,
+    approved_paths: set[Path] | None = None,
+) -> list[dict[str, str]]:
+    """Load an approved local category-review CSV for read-only UI rendering."""
+    review_path = _require_approved_path(path, approved_paths or APPROVED_CATEGORY_REVIEW_PATHS, "category review CSV")
+    with review_path.open(newline="", encoding="utf-8") as handle:
         rows = list(csv.DictReader(handle))
     _validate_category_review_rows(rows)
     return rows
 
 
-def load_stress_test_summary(run_dir: str | Path) -> dict[str, Any]:
-    """Load a generated sample stress-test run for read-only UI rendering."""
-    run_path = Path(run_dir)
+def load_stress_test_summary(
+    run_dir: str | Path,
+    *,
+    approved_paths: set[Path] | None = None,
+) -> dict[str, Any]:
+    """Load an approved generated sample stress-test run for read-only UI rendering."""
+    run_path = _require_approved_path(run_dir, approved_paths or APPROVED_STRESS_TEST_RUNS, "stress-test run")
     summary_csv = run_path / "summary.csv"
     summary_json = run_path / "summary.json"
+    readme = run_path / "README.md"
     with summary_csv.open(newline="", encoding="utf-8") as handle:
         rows = list(csv.DictReader(handle))
     aggregate = json.loads(summary_json.read_text(encoding="utf-8"))
+    if "Fictional/sample data only" not in readme.read_text(encoding="utf-8"):
+        raise ContractTrustError("stress-test run is missing sample-data provenance.")
     if aggregate.get("failed") != 0 or any(row.get("status") != "PASS" for row in rows):
         raise ContractTrustError("stress-test run is not fully passing.")
     return {"run_name": run_path.name, "aggregate": aggregate, "rows": rows}
@@ -242,6 +257,16 @@ def _validate_category_review_rows(rows: list[dict[str, str]]) -> None:
         source_file = row.get("source_file", "")
         if Path(source_file).name != source_file:
             raise ContractTrustError("category review source_file must be basename-only.")
+
+
+def _require_approved_path(path: str | Path, approved_paths: set[Path], label: str) -> Path:
+    """Reject arbitrary local paths; MVP UI reads only approved sample artifacts."""
+    candidate = Path(path)
+    resolved_candidate = (PROJECT_ROOT / candidate).resolve() if not candidate.is_absolute() else candidate.resolve()
+    approved_resolved = {approved.resolve() for approved in approved_paths}
+    if resolved_candidate not in approved_resolved:
+        raise ContractTrustError(f"{label} must be an approved sample artifact.")
+    return resolved_candidate
 
 
 def _money(value: float | int) -> str:
