@@ -56,14 +56,13 @@ def main() -> None:
     st.title("Personal Finance CFO Agent")
     st.caption("Local-first Read & Trust app over verified sample report JSON.")
 
-    st.sidebar.caption("Local-first MVP: sample reports plus upload preview.")
+    st.sidebar.caption("Local-first MVP: sample reports plus local upload/review.")
     report_path = DEFAULT_REPORT_JSON
     category_review_path = DEFAULT_CATEGORY_REVIEW
     stress_test_path = DEFAULT_STRESS_TEST_RUN
-    page = st.sidebar.radio(
-        "Screen",
-        ["Home Dashboard", "Upload Transactions", "Monthly Report", "Category Review", "Stress Test Explorer", "Local AI Memo", "Settings / Privacy"],
-    )
+    screens = ["Home Dashboard", "Upload Transactions", "Monthly Report", "Category Review", "Stress Test Explorer", "Local AI Memo", "Settings / Privacy"]
+    requested_screen = st.query_params.get("screen", "")
+    page = st.sidebar.radio("Screen", screens, index=screens.index(requested_screen) if requested_screen in screens else 0)
 
     try:
         contract = load_report_contract(report_path)
@@ -349,7 +348,7 @@ def render_privacy_settings(model: dict) -> None:
 
 def _privacy_banner() -> None:
     st.warning(
-        "Upload preview active. Reports still use sample artifacts until review/report generation is wired. "
+        "Local upload/review active. Reports require saved final categories first. "
         "No bank login. No cloud sync. No cloud AI. Local AI memo off by default."
     )
 
