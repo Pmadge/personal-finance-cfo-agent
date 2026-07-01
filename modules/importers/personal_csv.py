@@ -232,6 +232,32 @@ def normalize_uploaded_statement_file(file_obj, source_file="uploaded"):
     return normalize_uploaded_transactions(pd.read_csv(file_obj), source_file=source_name)
 
 
+def normalize_uploaded_files(file_items):
+    """Normalize one upload or merge multiple CoastHills Visa PDF uploads."""
+    file_items = list(file_items)
+    if not file_items:
+        raise ValueError("Upload at least one file")
+    source_names = [Path(str(source_file)).name for _, source_file in file_items]
+    if len(file_items) == 1:
+        profile, normalized = normalize_uploaded_statement_file(file_items[0][0], source_file=source_names[0])
+        return source_names[0], profile, normalized
+    if any(not source_name.lower().endswith(".pdf") for source_name in source_names):
+        raise ValueError("Multiple uploads currently supports PDF statements only")
+    raw = pd.concat(
+        [
+            parse_coasthills_visa_pdf(file_obj, source_file=source_name)
+            for (file_obj, _), source_name in zip(file_items, source_names)
+        ],
+        ignore_index=True,
+    )
+    source_label = " + ".join(source_names)
+    return " + ".join(source_names), "coasthills-visa-pdf-batch", normalize_personal_transactions(
+        raw,
+        source_file=source_label,
+        import_batch_id="upload_preview",
+    )
+
+
 def normalize_uploaded_transactions(df, source_file="uploaded.csv"):
     """Detect a supported uploaded CSV profile and normalize it for preview."""
     columns = set(df.columns)

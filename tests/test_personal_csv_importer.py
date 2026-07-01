@@ -18,6 +18,7 @@ from modules.importers.personal_csv import (
     normalize_fake_bank_export,
     normalize_personal_csv,
     normalize_personal_transactions,
+    normalize_uploaded_files,
     normalize_uploaded_statement_file,
     normalize_uploaded_transactions,
     parse_coasthills_visa_pdf,
@@ -284,6 +285,26 @@ def test_normalize_uploaded_statement_file_accepts_pdf_upload_bytes():
     assert round(normalized["amount"].sum(), 2) == -497.23
     assert normalized.loc[0, "source_file"] == "May 2026 Statement.pdf"
     assert normalized.loc[0, "vendor"] == "BEVERAGES & MORE #144 GOLETA CA"
+
+
+def test_normalize_uploaded_files_merges_multiple_pdf_statements():
+    uploads = [(statement.read_bytes(), statement.name) for statement in COASTHILLS_STATEMENTS]
+
+    source_label, profile, normalized = normalize_uploaded_files(uploads)
+
+    assert profile == "coasthills-visa-pdf-batch"
+    assert source_label == "February 2026 Statement.pdf + March 2026 Statement.pdf + April 2026 Statement.pdf + May 2026 Statement.pdf"
+    assert len(normalized) == 122
+    assert round(normalized["amount"].sum(), 2) == -1767.36
+    assert normalized.loc[0, "vendor"] == "GITHUB, INC. GITHUB.COM CA"
+    assert normalized.loc[len(normalized) - 1, "vendor"] == "CHEVRON 0092580 GOLETA CA"
+
+
+def test_normalize_uploaded_files_rejects_multiple_csv_uploads():
+    csv_upload = b"posted_date,description,amount,source_category\n2026-04-01,Store,-1,misc\n"
+
+    with pytest.raises(ValueError, match="Multiple uploads currently supports PDF statements only"):
+        normalize_uploaded_files([(csv_upload, "one.csv"), (csv_upload, "two.csv")])
 
 
 def test_write_uploaded_transactions_writes_only_safe_processed_output():

@@ -98,6 +98,28 @@ def test_reviewed_rows_fail_closed_on_invalid_final_category():
         build_report_transactions_from_review(review_df)
 
 
+def test_personal_report_self_checks_allow_distinct_transactions_with_same_visible_fields():
+    """Two same-date/same-vendor/same-amount card charges can be valid when transaction IDs differ."""
+    from modules.personal_report_inputs import build_report_transactions_from_review
+    from modules.self_checks import assert_personal_report_self_checks
+
+    review_df = reviewed_rows()
+    review_df.loc[1, ["date", "vendor", "amount", "raw_category", "final_category"]] = [
+        review_df.loc[0, "date"],
+        review_df.loc[0, "vendor"],
+        review_df.loc[0, "amount"],
+        review_df.loc[0, "raw_category"],
+        review_df.loc[0, "final_category"],
+    ]
+    review_df.loc[0, "transaction_id"] = "same_visible_001"
+    review_df.loc[1, "transaction_id"] = "same_visible_002"
+
+    report_df = build_report_transactions_from_review(review_df)
+
+    checks = assert_personal_report_self_checks(review_df, report_df, APPROVED_CATEGORIES)
+    assert checks["Status"].eq("PASS").all()
+
+
 def test_personal_report_script_writes_draft_pdf_to_private_output(tmp_path):
     """The draft personal report script should create an inspectable PDF from reviewed fake data."""
     review_path = tmp_path / "category_review_applied.csv"

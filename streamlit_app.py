@@ -126,19 +126,38 @@ def render_home_dashboard(model: dict) -> None:
 def render_upload_transactions() -> None:
     st.subheader("Upload Transactions")
     st.info("Local preview only. Files are not sent anywhere and report generation stays locked until review is wired in.")
-    uploaded = st.file_uploader("CSV or PDF statement/transaction history", type=["csv", "pdf"])
-    if uploaded is None:
-        st.caption("Supported now: personal template CSV, Debit/Credit CSV, or CoastHills FCU Visa PDF statements.")
+    uploaded_files = st.file_uploader(
+        "CSV or PDF statement/transaction history",
+        type=["csv", "pdf"],
+        accept_multiple_files=True,
+    )
+    if not uploaded_files:
+        st.caption("Supported now: one CSV, one PDF, or multiple CoastHills FCU Visa PDF statements.")
         _render_uploaded_report_action()
         return
 
     try:
-        if uploaded.name.lower().endswith(".pdf"):
-            raw = parse_coasthills_visa_pdf(uploaded.read(), source_file=uploaded.name)
+        source_names = [uploaded.name for uploaded in uploaded_files]
+        if len(uploaded_files) > 1:
+            if any(not name.lower().endswith(".pdf") for name in source_names):
+                raise ValueError("Multiple uploads currently supports PDF statements only")
+            raw = pd.concat(
+                [
+                    parse_coasthills_visa_pdf(uploaded.read(), source_file=uploaded.name)
+                    for uploaded in uploaded_files
+                ],
+                ignore_index=True,
+            )
+            source_label = " + ".join(source_names)
         else:
-            raw = pd.read_csv(uploaded)
-        model = build_upload_preview_model(raw.to_dict("records"), source_file=uploaded.name)
-        review_model = build_uploaded_category_review_model(raw.to_dict("records"), source_file=uploaded.name)
+            uploaded = uploaded_files[0]
+            source_label = uploaded.name
+            if uploaded.name.lower().endswith(".pdf"):
+                raw = parse_coasthills_visa_pdf(uploaded.read(), source_file=uploaded.name)
+            else:
+                raw = pd.read_csv(uploaded)
+        model = build_upload_preview_model(raw.to_dict("records"), source_file=source_label)
+        review_model = build_uploaded_category_review_model(raw.to_dict("records"), source_file=source_label)
     except Exception as error:  # Streamlit boundary: show parser errors instead of crashing.
         st.error(f"Upload could not be parsed: {error}")
         return
@@ -162,7 +181,7 @@ def render_upload_transactions() -> None:
         disabled=[column for column in review_df.columns if column not in {"final_category", "override_note"}],
     )
     if st.button("Save normalized CSV locally"):
-        write_uploaded_transactions(raw, DEFAULT_UPLOAD_NORMALIZED, source_file=uploaded.name)
+        write_uploaded_transactions(raw, DEFAULT_UPLOAD_NORMALIZED, source_file=source_label)
         st.success(f"Saved to {DEFAULT_UPLOAD_NORMALIZED}")
     if st.button("Save category review CSV locally"):
         save_uploaded_category_review_edits(edited_review.to_dict("records"), DEFAULT_UPLOAD_CATEGORY_REVIEW)
