@@ -76,7 +76,7 @@ from modules.validation import build_audit_log
 
 MONTH = REPORT_MONTH
 MONTH_LABEL = REPORT_MONTH_LABEL
-PDF_PATH = PROJECT_ROOT / "outputs" / "alex_rivera_monthly_cfo_report_2026_03.pdf"
+PDF_PATH = PROJECT_ROOT / "test_personas" / "starter_person" / "outputs" / "monthly_cfo_report.pdf"
 REVIEW_DIR = PROJECT_ROOT / "outputs" / "pdf_review"
 FOOTER = f"{MODEL_VERSION} | Fictional Alex Rivera data only | Generated for {MONTH_LABEL}"
 
@@ -86,8 +86,8 @@ def default_report_config():
     return {
         "persona_name": "Alex Rivera",
         "fictional_notice": "Fictional Alex Rivera data only",
-        "raw_path": PROJECT_ROOT / "data" / "alex_rivera_transactions.csv",
-        "categorized_path": PROJECT_ROOT / "data" / "alex_rivera_transactions_categorized.csv",
+        "raw_path": PROJECT_ROOT / "test_personas" / "starter_person" / "transactions.csv",
+        "categorized_path": PROJECT_ROOT / "test_personas" / "starter_person" / "transactions_categorized.csv",
         "pdf_path": PDF_PATH,
         "budget": ALEX_BUDGET,
         "assets": ALEX_ASSETS,

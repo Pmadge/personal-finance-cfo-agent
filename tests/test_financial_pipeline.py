@@ -22,7 +22,7 @@ from modules.reports.trend_report import main as generate_trend_pdf
 
 
 def load_categorized():
-    return pd.read_csv(PROJECT_ROOT / "data" / "alex_rivera_transactions_categorized.csv")
+    return pd.read_csv(PROJECT_ROOT / "test_personas" / "starter_person" / "transactions_categorized.csv")
 
 
 def test_categorization_accuracy_is_above_target():
@@ -116,7 +116,7 @@ def test_forecast_returns_three_scenarios_for_30_and_90_days():
 
 def test_monthly_pdf_contains_required_sections():
     generate_monthly_pdf()
-    pdf_path = PROJECT_ROOT / "outputs" / "alex_rivera_monthly_cfo_report_2026_03.pdf"
+    pdf_path = PROJECT_ROOT / "test_personas" / "starter_person" / "outputs" / "monthly_cfo_report.pdf"
     document = fitz.open(pdf_path)
     text = "\n".join(page.get_text() for page in document)
     document.close()
@@ -153,7 +153,7 @@ def test_monthly_pdf_contains_required_sections():
 
 def test_trend_pdf_is_one_page():
     generate_trend_pdf()
-    pdf_path = PROJECT_ROOT / "outputs" / "alex_rivera_3_month_trend_summary_2026_q1.pdf"
+    pdf_path = PROJECT_ROOT / "test_personas" / "starter_person" / "outputs" / "three_month_trend_summary.pdf"
     document = fitz.open(pdf_path)
     page_count = document.page_count
     document.close()

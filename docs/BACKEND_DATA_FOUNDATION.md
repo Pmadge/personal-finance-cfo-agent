@@ -6,9 +6,10 @@ This project should treat the backend/data layer as the source of truth. Reports
 
 ```text
 Personal_Finance_CFO_Agent/
+├── test_personas/
+│   ├── starter_person/                           # simple fixture + full outputs
+│   ├── complex_household/                        # richer fixture + full outputs
 ├── data/
-│   ├── alex_rivera_transactions.csv              # fictional raw demo input
-│   ├── alex_rivera_transactions_categorized.csv  # regenerated demo output
 │   ├── personal/                                 # Git-ignored real local inputs
 │   ├── processed/                                # Git-ignored reviewed/processed upload outputs
 │   └── sample/                                   # safe templates/fixtures

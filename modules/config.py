@@ -173,9 +173,9 @@ SAMPLE_PERSONAL_PROFILE = {
 # adult household than the simple Alex Rivera baseline.
 PORTFOLIO_DEMO_PERSONA_NAME = "Morgan Patel Household"
 PORTFOLIO_DEMO_FICTIONAL_DATA_NOTICE = "fictional Morgan Patel household data"
-PORTFOLIO_DEMO_TRANSACTIONS = "data/portfolio_demo_morgan_patel_household.csv"
-PORTFOLIO_DEMO_CATEGORIZED = "data/portfolio_demo_morgan_patel_household_categorized.csv"
-PORTFOLIO_DEMO_PDF = "outputs/portfolio_demo_morgan_patel_monthly_cfo_report_2026_03.pdf"
+PORTFOLIO_DEMO_TRANSACTIONS = "test_personas/complex_household/transactions.csv"
+PORTFOLIO_DEMO_CATEGORIZED = "test_personas/complex_household/transactions_categorized.csv"
+PORTFOLIO_DEMO_PDF = "test_personas/complex_household/outputs/monthly_cfo_report.pdf"
 
 PORTFOLIO_DEMO_BUDGET = {
     "Housing": 3600,

@@ -52,7 +52,7 @@ Most finance demos stop at spending charts. This project adds CFO-style variance
 |---|---|
 | ![Goal tracker](docs/screenshots/report_goal_tracker.png) | ![Capital event readiness](docs/screenshots/report_capital_event.png) |
 
-The README screenshots use the richer fictional Morgan Patel household demo so the portfolio preview shows dual income, mortgage-level housing, childcare, debt payoff, savings transfers, home-buying goals, and surprise expenses. No real financial data is shown.
+The README screenshots use the richer fictional complex-household fixture so the portfolio preview shows dual income, mortgage-level housing, childcare, debt payoff, savings transfers, home-buying goals, and surprise expenses. No real financial data is shown.
 
 ## What This Project Does
 
@@ -61,7 +61,7 @@ The Personal Finance CFO Agent turns fictional transaction data into a family of
 Current verification status:
 
 ```text
-231 local tests passing
+233 local tests passing
 GitHub Actions passing
 100-persona fictional stress harness available
 Local CSV upload, CoastHills Visa PDF upload, multi-PDF merge, category review, and gated personal report generation verified
@@ -69,15 +69,18 @@ Local CSV upload, CoastHills Visa PDF upload, multi-PDF merge, category review, 
 
 ## What It Produces
 
-Generated locally under `outputs/`:
+Each committed test persona under `test_personas/` includes a full local run:
 
-- Monthly CFO report PDF
-- 3-month trend summary PDF
-- Spending, savings-rate, budget, and month-over-month charts
-- Portfolio demo report generated from fictional Morgan Patel household data
-- Uploaded-statement report after categories are reviewed and saved
+- source `transactions.csv`
+- categorized `transactions_categorized.csv`
+- verified `outputs/report.json`
+- `outputs/monthly_cfo_report.pdf`
+- report charts under `outputs/charts/`
+- starter fixture only: `outputs/three_month_trend_summary.pdf`
 
-Selected screenshots are committed under `docs/screenshots/`; generated PDFs/charts stay local unless regenerated.
+Private uploaded-statement reports still generate under Git-ignored local folders after categories are reviewed and saved.
+
+Selected screenshots are committed under `docs/screenshots/` for GitHub display.
 
 ## How It Works
 
@@ -110,7 +113,7 @@ python3 scripts/monthly_close.py --sample
 python3 scripts/generate_personal_report.py
 ```
 
-To regenerate the richer GitHub README screenshots from the fictional Morgan Patel household demo:
+To regenerate the richer GitHub README screenshots from the fictional complex-household fixture:
 
 ```bash
 python3 scripts/generate_portfolio_demo_screenshots.py
@@ -195,7 +198,7 @@ Fictional data only.
 The sample CSV is already included at:
 
 ```text
-data/alex_rivera_transactions.csv
+test_personas/starter_person/transactions.csv
 ```
 
 To use a different fictional dataset, replace that file with a CSV using the same schema below.
@@ -227,12 +230,13 @@ Important: do not run graph tools or AI workflows on real personal financial dat
 ## Project Structure
 
 ```text
+test_personas/           # Reusable fictional personas with full run outputs
 main.py                 # Runs the core analysis pipeline and prints CFO outputs
 modules/                # Reusable analysis, forecasting, chart, and report logic
 modules/importers/      # Local CSV import and normalization helpers
 modules/reports/        # Source code for PDF report builders
-data/                   # Fictional demo data plus safe sample templates
-outputs/                # Generated PDFs, charts, and rendered review images
+data/                   # Local workflow folders plus safe templates
+outputs/                # Git-ignored review renders and private/local generated outputs
 scripts/                # Beginner-friendly commands for generating reports/imports
 requirements.txt        # Python packages needed for setup and testing
 ```

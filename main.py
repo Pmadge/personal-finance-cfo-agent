@@ -48,8 +48,8 @@ from modules.validation import build_audit_log
 def main():
     """Start the CFO Agent scaffold."""
     project_root = Path(__file__).parent
-    input_path = project_root / "data" / "alex_rivera_transactions.csv"
-    output_path = project_root / "data" / "alex_rivera_transactions_categorized.csv"
+    input_path = project_root / "test_personas" / "starter_person" / "transactions.csv"
+    output_path = project_root / "test_personas" / "starter_person" / "transactions_categorized.csv"
     charts_output_dir = project_root / "outputs"
     month_2 = "2026-02"
     month_3 = REPORT_MONTH

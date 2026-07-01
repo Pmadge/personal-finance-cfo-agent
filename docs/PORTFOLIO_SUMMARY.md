@@ -4,14 +4,14 @@ A local-first Python system that turns fictional transaction data into a family 
 
 It is not a budgeting app. It is an FP&A reporting system designed to explain what happened, why it matters, what comes next, and what action to take.
 
-All examples and committed screenshots use fully fictional sample personas. The core board pack uses Alex Rivera, while the GitHub/portfolio screenshots use a richer fictional Morgan Patel household to show dual-income household complexity. The local app can now process explicitly provided local statement uploads, but no real financial data is committed or shown in portfolio assets.
+All examples and committed screenshots use fully fictional sample personas. Public fixture paths are generic: `test_personas/starter_person/` for the simple board pack and `test_personas/complex_household/` for the richer GitHub/portfolio screenshots. The local app can now process explicitly provided local statement uploads, but no real financial data is committed or shown in portfolio assets.
 
 ## Current status
 
 ```text
 Repository: private GitHub repo
 CI: GitHub Actions passing
-Local tests: 231 passing
+Local tests: 233 passing
 Data posture: committed assets fictional/sample only
 Local real uploads: CSV and CoastHills Visa PDF statements supported in Git-ignored folders
 ```
@@ -29,7 +29,7 @@ A run generates:
 - a draft personal report from reviewed fake personal rows or explicitly uploaded local CSV/PDF statements
 - stress-test outputs for fictional personas
 
-Generated PDFs and PNGs are intentionally not committed. Portfolio screenshots live under `docs/screenshots/` so GitHub renders the walkthrough without requiring a local run. Selected report screenshots are regenerated from `data/portfolio_demo_morgan_patel_household.csv` with `scripts/generate_portfolio_demo_screenshots.py`; the Streamlit screenshot is captured from the local Read & Trust app.
+Committed test-persona outputs now live under `test_personas/<persona>/outputs/` so GitHub visitors can inspect a full run without generating files locally. Portfolio screenshots live under `docs/screenshots/` so GitHub renders the walkthrough immediately. Selected report screenshots are regenerated from `test_personas/complex_household/transactions.csv` with `scripts/generate_portfolio_demo_screenshots.py`; the Streamlit screenshot is captured from the local Read & Trust app.
 
 ## Representative report pages
 

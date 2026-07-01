@@ -98,6 +98,7 @@ def validate_fictional_data_notice(project_root):
     project_root = Path(project_root)
     docs = [
         project_root / "README.md",
+        project_root / "test_personas" / "README.md",
         project_root / "data" / "README.md",
         project_root / "outputs" / "README.md",
     ]

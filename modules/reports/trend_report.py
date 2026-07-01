@@ -32,7 +32,7 @@ from modules.detectors import detect_unusual
 from modules.self_checks import assert_pipeline_self_checks
 
 
-PDF_PATH = PROJECT_ROOT / "outputs" / "alex_rivera_3_month_trend_summary_2026_q1.pdf"
+PDF_PATH = PROJECT_ROOT / "test_personas" / "starter_person" / "outputs" / "three_month_trend_summary.pdf"
 REVIEW_DIR = PROJECT_ROOT / "outputs" / "trend_report_review"
 FOOTER = f"{MODEL_VERSION} | Fictional Alex Rivera data only | 3-Month Trend Summary"
 MONTHS = TREND_MONTHS
@@ -163,8 +163,8 @@ def trend_arrow(current, previous):
 
 def collect_trend_data():
     """Compute all data used by the 3-month trend report."""
-    raw_path = PROJECT_ROOT / "data" / "alex_rivera_transactions.csv"
-    categorized_path = PROJECT_ROOT / "data" / "alex_rivera_transactions_categorized.csv"
+    raw_path = PROJECT_ROOT / "test_personas" / "starter_person" / "transactions.csv"
+    categorized_path = PROJECT_ROOT / "test_personas" / "starter_person" / "transactions_categorized.csv"
     df, _ = categorize_file(raw_path, categorized_path)
     for month in MONTHS:
         assert_pipeline_self_checks(

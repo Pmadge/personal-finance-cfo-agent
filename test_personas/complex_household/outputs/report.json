@@ -1,0 +1,993 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-07-01T07:10:41.266748+00:00",
+  "engine": {
+    "model_version": "CFO Agent v1.1",
+    "deterministic": true,
+    "ai_generated": false,
+    "note": "All numbers are calculated by the deterministic Python engine. No AI wrote these values."
+  },
+  "persona": {
+    "name": "Morgan Patel Household",
+    "fictional_notice": "fictional Morgan Patel household data only",
+    "sample_data_only": true
+  },
+  "period": {
+    "month": "2026-03",
+    "label": "March 2026"
+  },
+  "privacy": {
+    "mode": "sample",
+    "real_data_enabled": false,
+    "local_only": true,
+    "bank_login": false,
+    "cloud_sync": false,
+    "cloud_ai": false,
+    "local_ai_enabled": false
+  },
+  "self_check": {
+    "checks_passed": 10,
+    "checks_total": 11,
+    "all_passed": false
+  },
+  "headline": {
+    "verdict": "On track",
+    "net_cash_flow": 1354.6,
+    "savings_rate": 6.27,
+    "emergency_runway_months": 3.6,
+    "runway_status": "🟡 Adequate: 3 to 6 months of expenses covered",
+    "net_worth": 150300.0,
+    "risk_counts": {
+      "high": 0,
+      "medium": 2,
+      "low": 4
+    },
+    "top_risk": {
+      "Risk": "Emergency Fund",
+      "Level": "🟡 Medium",
+      "Finding": "Liquid cash covers 3.6 months of expenses (target 3 to 6).",
+      "Recommendation": "Build the cushion toward 6 months of expenses."
+    },
+    "top_goal": {
+      "Goal": "First Home Down Payment",
+      "Type": "savings",
+      "Target": 90000.0,
+      "Current": 42000.0,
+      "Remaining": 48000.0,
+      "Progress (%)": 46.7,
+      "Monthly Needed": 2285.71,
+      "Status": "🔴 Behind: need $2,285.71/mo, have $1,354.60/mo"
+    },
+    "next_action": {
+      "Rank": 1,
+      "Action Item": "Review Home Depot charge of $890.00 by March 29 because Shopping spend was $1,365.20 versus the $900.00 budget, creating a $465.20 overage. Expected impact: up to $890.00 cash recovered or reclassified.",
+      "Owner": "Morgan Patel Household",
+      "Due Date": "2026-03-29",
+      "Status": "Open",
+      "Urgency Score": 3,
+      "Estimated Dollar Impact": 890.0,
+      "Evaluation": "PASS"
+    },
+    "rent_vs_buy": {
+      "recommendation": "Over 5 years, buying looks about $160,607.83 cheaper (estimate; excludes investment returns on the down payment and assumes 3% rent growth and 3% home appreciation).",
+      "cheaper": "Buying",
+      "horizon_years": 5
+    }
+  },
+  "sections": {
+    "summary": {
+      "Income": 21620.0,
+      "Total Expenses": 20265.4,
+      "Net Cash Flow": 1354.6,
+      "Savings Rate": 6.27
+    },
+    "cash_flow": {
+      "income": 21620.0,
+      "total_expenses": 20265.4,
+      "net_cash_flow": 1354.6,
+      "savings_rate": 6.27
+    },
+    "runway": {
+      "Liquid Cash": 50500.0,
+      "Monthly Expenses": 14056.35,
+      "Essential Monthly Bills": 9765.15,
+      "Monthly Net Cash Flow": 7363.65,
+      "Emergency Runway (months)": 3.6,
+      "Emergency Runway (weeks)": 16,
+      "Bare-Bones Runway (months)": 5.2,
+      "Months Until Cash Runs Out": null,
+      "Status": "🟡 Adequate: 3 to 6 months of expenses covered"
+    },
+    "projection": [
+      {
+        "Month": "2026-04",
+        "Projected Income": 21420.0,
+        "Projected Expenses": 14056.35,
+        "Net Cash Flow": 7363.65,
+        "Ending Cash": 57863.65
+      },
+      {
+        "Month": "2026-05",
+        "Projected Income": 21420.0,
+        "Projected Expenses": 14056.35,
+        "Net Cash Flow": 7363.65,
+        "Ending Cash": 65227.31
+      },
+      {
+        "Month": "2026-06",
+        "Projected Income": 21420.0,
+        "Projected Expenses": 14056.35,
+        "Net Cash Flow": 7363.65,
+        "Ending Cash": 72590.96
+      },
+      {
+        "Month": "2026-07",
+        "Projected Income": 21420.0,
+        "Projected Expenses": 14056.35,
+        "Net Cash Flow": 7363.65,
+        "Ending Cash": 79954.61
+      },
+      {
+        "Month": "2026-08",
+        "Projected Income": 21420.0,
+        "Projected Expenses": 14056.35,
+        "Net Cash Flow": 7363.65,
+        "Ending Cash": 87318.27
+      },
+      {
+        "Month": "2026-09",
+        "Projected Income": 21420.0,
+        "Projected Expenses": 14056.35,
+        "Net Cash Flow": 7363.65,
+        "Ending Cash": 94681.92
+      },
+      {
+        "Month": "2026-10",
+        "Projected Income": 21420.0,
+        "Projected Expenses": 14056.35,
+        "Net Cash Flow": 7363.65,
+        "Ending Cash": 102045.57
+      },
+      {
+        "Month": "2026-11",
+        "Projected Income": 21420.0,
+        "Projected Expenses": 14056.35,
+        "Net Cash Flow": 7363.65,
+        "Ending Cash": 109409.23
+      },
+      {
+        "Month": "2026-12",
+        "Projected Income": 21420.0,
+        "Projected Expenses": 14056.35,
+        "Net Cash Flow": 7363.65,
+        "Ending Cash": 116772.88
+      },
+      {
+        "Month": "2027-01",
+        "Projected Income": 21420.0,
+        "Projected Expenses": 14056.35,
+        "Net Cash Flow": 7363.65,
+        "Ending Cash": 124136.53
+      },
+      {
+        "Month": "2027-02",
+        "Projected Income": 21420.0,
+        "Projected Expenses": 14056.35,
+        "Net Cash Flow": 7363.65,
+        "Ending Cash": 131500.19
+      },
+      {
+        "Month": "2027-03",
+        "Projected Income": 21420.0,
+        "Projected Expenses": 14056.35,
+        "Net Cash Flow": 7363.65,
+        "Ending Cash": 138863.84
+      }
+    ],
+    "budget_vs_actual": [
+      {
+        "Category": "Housing",
+        "Budget Amount": 3600.0,
+        "Actual Amount": 7585.0,
+        "Variance ($)": -3985.0,
+        "Variance (%)": -110.69,
+        "Color Flag": "🔴 over budget",
+        "Variance Driver": "Housing spend exceeded the fixed rent assumption.",
+        "Forward Impact": "If repeated next month, Housing would reduce net cash flow by $3,985.00 versus budget.",
+        "Recommended Action": "Reset Housing spend to the $3,600.00 monthly plan."
+      },
+      {
+        "Category": "Food & Dining",
+        "Budget Amount": 1450.0,
+        "Actual Amount": 1459.2,
+        "Variance ($)": -9.2,
+        "Variance (%)": -0.63,
+        "Color Flag": "🟡 within 10%",
+        "Variance Driver": "Dining frequency and grocery basket size exceeded plan.",
+        "Forward Impact": "If repeated next month, Food & Dining would reduce net cash flow by $9.20 versus budget.",
+        "Recommended Action": "Reset Food & Dining spend to the $1,450.00 monthly plan."
+      },
+      {
+        "Category": "Transport",
+        "Budget Amount": 850.0,
+        "Actual Amount": 873.0,
+        "Variance ($)": -23.0,
+        "Variance (%)": -2.71,
+        "Color Flag": "🟡 within 10%",
+        "Variance Driver": "Ride-share activity and one-time transport costs exceeded plan.",
+        "Forward Impact": "If repeated next month, Transport would reduce net cash flow by $23.00 versus budget.",
+        "Recommended Action": "Reset Transport spend to the $850.00 monthly plan."
+      },
+      {
+        "Category": "Subscriptions",
+        "Budget Amount": 760.0,
+        "Actual Amount": 1208.0,
+        "Variance ($)": -448.0,
+        "Variance (%)": -58.95,
+        "Color Flag": "🔴 over budget",
+        "Variance Driver": "Recurring bills and gym charges exceeded the subscription budget.",
+        "Forward Impact": "If repeated next month, Subscriptions would reduce net cash flow by $448.00 versus budget.",
+        "Recommended Action": "Reset Subscriptions spend to the $760.00 monthly plan."
+      },
+      {
+        "Category": "Entertainment",
+        "Budget Amount": 650.0,
+        "Actual Amount": 78.0,
+        "Variance ($)": 572.0,
+        "Variance (%)": 88.0,
+        "Color Flag": "🟢 under budget",
+        "Variance Driver": "Actual spend stayed at or below budget.",
+        "Forward Impact": "No negative forward cash-flow impact if current behavior continues.",
+        "Recommended Action": "Maintain Entertainment spend at or below the $650.00 plan."
+      },
+      {
+        "Category": "Shopping",
+        "Budget Amount": 900.0,
+        "Actual Amount": 1365.2,
+        "Variance ($)": -465.2,
+        "Variance (%)": -51.69,
+        "Color Flag": "🔴 over budget",
+        "Variance Driver": "Retail and household purchases exceeded the shopping allowance.",
+        "Forward Impact": "If repeated next month, Shopping would reduce net cash flow by $465.20 versus budget.",
+        "Recommended Action": "Reset Shopping spend to the $900.00 monthly plan."
+      },
+      {
+        "Category": "Medical",
+        "Budget Amount": 650.0,
+        "Actual Amount": 127.0,
+        "Variance ($)": 523.0,
+        "Variance (%)": 80.46,
+        "Color Flag": "🟢 under budget",
+        "Variance Driver": "Actual spend stayed at or below budget.",
+        "Forward Impact": "No negative forward cash-flow impact if current behavior continues.",
+        "Recommended Action": "Maintain Medical spend at or below the $650.00 plan."
+      },
+      {
+        "Category": "Education",
+        "Budget Amount": 900.0,
+        "Actual Amount": 2870.0,
+        "Variance ($)": -1970.0,
+        "Variance (%)": -218.89,
+        "Color Flag": "🔴 over budget",
+        "Variance Driver": "Education or student-loan costs exceeded plan.",
+        "Forward Impact": "If repeated next month, Education would reduce net cash flow by $1,970.00 versus budget.",
+        "Recommended Action": "Reset Education spend to the $900.00 monthly plan."
+      },
+      {
+        "Category": "Savings Transfer",
+        "Budget Amount": 2500.0,
+        "Actual Amount": 4700.0,
+        "Variance ($)": -2200.0,
+        "Variance (%)": -88.0,
+        "Color Flag": "🔴 over budget",
+        "Variance Driver": "Actual spend exceeded the category plan.",
+        "Forward Impact": "If repeated next month, Savings Transfer would reduce net cash flow by $2,200.00 versus budget.",
+        "Recommended Action": "Reset Savings Transfer spend to the $2,500.00 monthly plan."
+      },
+      {
+        "Category": "Misc",
+        "Budget Amount": 550.0,
+        "Actual Amount": 0.0,
+        "Variance ($)": 550.0,
+        "Variance (%)": 100.0,
+        "Color Flag": "🟢 under budget",
+        "Variance Driver": "Actual spend stayed at or below budget.",
+        "Forward Impact": "No negative forward cash-flow impact if current behavior continues.",
+        "Recommended Action": "Maintain Misc spend at or below the $550.00 plan."
+      }
+    ],
+    "cumulative_budget": [
+      {
+        "Category": "Housing",
+        "3-Month Budget": 10800.0,
+        "3-Month Actual": 17105.0,
+        "Variance ($)": -6305.0,
+        "Variance (%)": -58.38
+      },
+      {
+        "Category": "Food & Dining",
+        "3-Month Budget": 4350.0,
+        "3-Month Actual": 4246.8,
+        "Variance ($)": 103.2,
+        "Variance (%)": 2.37
+      },
+      {
+        "Category": "Transport",
+        "3-Month Budget": 2550.0,
+        "3-Month Actual": 4069.0,
+        "Variance ($)": -1519.0,
+        "Variance (%)": -59.57
+      },
+      {
+        "Category": "Subscriptions",
+        "3-Month Budget": 2280.0,
+        "3-Month Actual": 3580.44,
+        "Variance ($)": -1300.44,
+        "Variance (%)": -57.04
+      },
+      {
+        "Category": "Entertainment",
+        "3-Month Budget": 1950.0,
+        "3-Month Actual": 234.0,
+        "Variance ($)": 1716.0,
+        "Variance (%)": 88.0
+      },
+      {
+        "Category": "Shopping",
+        "3-Month Budget": 2700.0,
+        "3-Month Actual": 2742.8,
+        "Variance ($)": -42.8,
+        "Variance (%)": -1.59
+      },
+      {
+        "Category": "Medical",
+        "3-Month Budget": 1950.0,
+        "3-Month Actual": 1581.0,
+        "Variance ($)": 369.0,
+        "Variance (%)": 18.92
+      },
+      {
+        "Category": "Education",
+        "3-Month Budget": 2700.0,
+        "3-Month Actual": 8610.0,
+        "Variance ($)": -5910.0,
+        "Variance (%)": -218.89
+      },
+      {
+        "Category": "Savings Transfer",
+        "3-Month Budget": 7500.0,
+        "3-Month Actual": 12700.0,
+        "Variance ($)": -5200.0,
+        "Variance (%)": -69.33
+      },
+      {
+        "Category": "Misc",
+        "3-Month Budget": 1650.0,
+        "3-Month Actual": 0.0,
+        "Variance ($)": 1650.0,
+        "Variance (%)": 100.0
+      }
+    ],
+    "recurring_vendors": [
+      {
+        "Vendor": "529 College Plan Contribution",
+        "Avg Monthly Amount": 500.0,
+        "Occurrences": 3,
+        "Next Expected Date": "2026-04-11",
+        "Flag": ""
+      },
+      {
+        "Vendor": "Adobe Creative Cloud",
+        "Avg Monthly Amount": 59.99,
+        "Occurrences": 3,
+        "Next Expected Date": "2026-04-05",
+        "Flag": ""
+      },
+      {
+        "Vendor": "Amazon Marketplace",
+        "Avg Monthly Amount": 270.4,
+        "Occurrences": 3,
+        "Next Expected Date": "2026-04-11",
+        "Flag": "⚠️ Price increase detected"
+      },
+      {
+        "Vendor": "Apple.com/Bill iCloud",
+        "Avg Monthly Amount": 9.99,
+        "Occurrences": 3,
+        "Next Expected Date": "2026-04-04",
+        "Flag": ""
+      },
+      {
+        "Vendor": "Bay Area Transit",
+        "Avg Monthly Amount": 96.0,
+        "Occurrences": 3,
+        "Next Expected Date": "2026-04-16",
+        "Flag": ""
+      },
+      {
+        "Vendor": "CVS Pharmacy",
+        "Avg Monthly Amount": 42.0,
+        "Occurrences": 3,
+        "Next Expected Date": "2026-04-17",
+        "Flag": ""
+      },
+      {
+        "Vendor": "Chevron 0421",
+        "Avg Monthly Amount": 122.0,
+        "Occurrences": 3,
+        "Next Expected Date": "2026-04-25",
+        "Flag": ""
+      },
+      {
+        "Vendor": "Comcast Xfinity Internet",
+        "Avg Monthly Amount": 96.0,
+        "Occurrences": 3,
+        "Next Expected Date": "2026-04-04",
+        "Flag": ""
+      },
+      {
+        "Vendor": "Costco Wholesale",
+        "Avg Monthly Amount": 400.4,
+        "Occurrences": 3,
+        "Next Expected Date": "2026-04-04",
+        "Flag": "⚠️ Price increase detected"
+      },
+      {
+        "Vendor": "East Bay Water District",
+        "Avg Monthly Amount": 122.72,
+        "Occurrences": 3,
+        "Next Expected Date": "2026-04-03",
+        "Flag": "⚠️ Price increase detected"
+      },
+      {
+        "Vendor": "Family Movie Theater",
+        "Avg Monthly Amount": 78.0,
+        "Occurrences": 3,
+        "Next Expected Date": "2026-04-19",
+        "Flag": ""
+      },
+      {
+        "Vendor": "Federal Student Loan Servicer",
+        "Avg Monthly Amount": 720.0,
+        "Occurrences": 3,
+        "Next Expected Date": "2026-04-09",
+        "Flag": ""
+      },
+      {
+        "Vendor": "Instacart Grocery",
+        "Avg Monthly Amount": 150.8,
+        "Occurrences": 3,
+        "Next Expected Date": "2026-04-26",
+        "Flag": "⚠️ Price increase detected"
+      },
+      {
+        "Vendor": "Little Oaks Childcare",
+        "Avg Monthly Amount": 1650.0,
+        "Occurrences": 3,
+        "Next Expected Date": "2026-04-07",
+        "Flag": ""
+      },
+      {
+        "Vendor": "Local Taqueria",
+        "Avg Monthly Amount": 72.0,
+        "Occurrences": 3,
+        "Next Expected Date": "2026-04-23",
+        "Flag": ""
+      },
+      {
+        "Vendor": "Maple HOA AutoPay",
+        "Avg Monthly Amount": 385.0,
+        "Occurrences": 3,
+        "Next Expected Date": "2026-04-02",
+        "Flag": ""
+      },
+      {
+        "Vendor": "Netflix",
+        "Avg Monthly Amount": 22.99,
+        "Occurrences": 3,
+        "Next Expected Date": "2026-04-02",
+        "Flag": ""
+      },
+      {
+        "Vendor": "Pacific Gas and Electric",
+        "Avg Monthly Amount": 254.8,
+        "Occurrences": 3,
+        "Next Expected Date": "2026-04-03",
+        "Flag": "⚠️ Price increase detected"
+      },
+      {
+        "Vendor": "Pediatrician Copay",
+        "Avg Monthly Amount": 85.0,
+        "Occurrences": 3,
+        "Next Expected Date": "2026-04-08",
+        "Flag": ""
+      },
+      {
+        "Vendor": "Peloton",
+        "Avg Monthly Amount": 44.0,
+        "Occurrences": 3,
+        "Next Expected Date": "2026-04-14",
+        "Flag": ""
+      },
+      {
+        "Vendor": "Safeway",
+        "Avg Monthly Amount": 213.2,
+        "Occurrences": 3,
+        "Next Expected Date": "2026-04-15",
+        "Flag": "⚠️ Price increase detected"
+      },
+      {
+        "Vendor": "Shell Oil Gas Station",
+        "Avg Monthly Amount": 135.0,
+        "Occurrences": 3,
+        "Next Expected Date": "2026-04-05",
+        "Flag": ""
+      },
+      {
+        "Vendor": "Spotify Family",
+        "Avg Monthly Amount": 19.99,
+        "Occurrences": 3,
+        "Next Expected Date": "2026-04-03",
+        "Flag": ""
+      },
+      {
+        "Vendor": "State Farm Auto Insurance",
+        "Avg Monthly Amount": 210.0,
+        "Occurrences": 3,
+        "Next Expected Date": "2026-04-05",
+        "Flag": ""
+      },
+      {
+        "Vendor": "State Farm Home Insurance",
+        "Avg Monthly Amount": 185.0,
+        "Occurrences": 3,
+        "Next Expected Date": "2026-04-05",
+        "Flag": ""
+      },
+      {
+        "Vendor": "Sushi Spot",
+        "Avg Monthly Amount": 118.0,
+        "Occurrences": 3,
+        "Next Expected Date": "2026-04-27",
+        "Flag": ""
+      },
+      {
+        "Vendor": "T-Mobile Family Plan",
+        "Avg Monthly Amount": 168.0,
+        "Occurrences": 3,
+        "Next Expected Date": "2026-04-06",
+        "Flag": ""
+      },
+      {
+        "Vendor": "Target",
+        "Avg Monthly Amount": 187.2,
+        "Occurrences": 3,
+        "Next Expected Date": "2026-04-18",
+        "Flag": "⚠️ Price increase detected"
+      },
+      {
+        "Vendor": "Toyota Financial Services",
+        "Avg Monthly Amount": 520.0,
+        "Occurrences": 3,
+        "Next Expected Date": "2026-04-10",
+        "Flag": ""
+      },
+      {
+        "Vendor": "Trader Joe's",
+        "Avg Monthly Amount": 171.6,
+        "Occurrences": 3,
+        "Next Expected Date": "2026-04-08",
+        "Flag": "⚠️ Price increase detected"
+      },
+      {
+        "Vendor": "Uber Eats Family Dinner",
+        "Avg Monthly Amount": 92.0,
+        "Occurrences": 3,
+        "Next Expected Date": "2026-04-28",
+        "Flag": ""
+      },
+      {
+        "Vendor": "Wells Fargo Mortgage",
+        "Avg Monthly Amount": 3450.0,
+        "Occurrences": 3,
+        "Next Expected Date": "2026-04-01",
+        "Flag": ""
+      },
+      {
+        "Vendor": "Whole Foods Market",
+        "Avg Monthly Amount": 197.6,
+        "Occurrences": 3,
+        "Next Expected Date": "2026-04-22",
+        "Flag": "⚠️ Price increase detected"
+      }
+    ],
+    "unusual_expenses": [
+      {
+        "Transaction Date": "2026-03-04",
+        "Vendor": "Pacific Gas and Electric",
+        "Amount": 264.6,
+        "Category Average": 108.5,
+        "Flag Type": "Large Category Exception",
+        "Flag Message": "Pacific Gas and Electric charge of $264.60 is 2.4× your 3-month Subscriptions average of $108.50. Review this charge."
+      },
+      {
+        "Transaction Date": "2026-03-05",
+        "Vendor": "Costco Wholesale",
+        "Amount": 415.8,
+        "Category Average": 176.95,
+        "Flag Type": "Large Category Exception",
+        "Flag Message": "Costco Wholesale charge of $415.80 is 2.3× your 3-month Food & Dining average of $176.95. Review this charge."
+      },
+      {
+        "Transaction Date": "2026-03-21",
+        "Vendor": "Home Depot",
+        "Amount": 890.0,
+        "Category Average": 304.76,
+        "Flag Type": "Large One-Time Charge",
+        "Flag Message": "Home Depot charge of $890.00 is 2.9× your 3-month Shopping average of $304.76. Review this charge."
+      }
+    ],
+    "upcoming_obligations": [
+      {
+        "Vendor": "Federal Student Loan Servicer",
+        "Expected Date": "2026-04-10",
+        "Expected Amount": 720.0
+      },
+      {
+        "Vendor": "Netflix",
+        "Expected Date": "2026-04-03",
+        "Expected Amount": 22.99
+      }
+    ],
+    "net_worth": {
+      "Total Assets": 215500.0,
+      "Total Liabilities": 65200.0,
+      "Net Worth": 150300.0,
+      "Debt-to-Asset Ratio": 30.26
+    },
+    "debt_payoff": [
+      {
+        "Method": "Avalanche",
+        "Total Interest Paid": 420.67,
+        "Months to Payoff": 1200,
+        "Recommended Method": "Increase Payment",
+        "Recommendation Explanation": "At $300.00 per month the debt does not amortize because monthly interest meets or exceeds the payment. Increase the monthly payment above the total monthly interest before comparing avalanche and snowball."
+      },
+      {
+        "Method": "Snowball",
+        "Total Interest Paid": 420.67,
+        "Months to Payoff": 1200,
+        "Recommended Method": "Increase Payment",
+        "Recommendation Explanation": "At $300.00 per month the debt does not amortize because monthly interest meets or exceeds the payment. Increase the monthly payment above the total monthly interest before comparing avalanche and snowball."
+      }
+    ],
+    "goals": [
+      {
+        "Goal": "First Home Down Payment",
+        "Type": "savings",
+        "Target": 90000.0,
+        "Current": 42000.0,
+        "Remaining": 48000.0,
+        "Progress (%)": 46.7,
+        "Monthly Needed": 2285.71,
+        "Status": "🔴 Behind: need $2,285.71/mo, have $1,354.60/mo"
+      },
+      {
+        "Goal": "Pay Off Credit Card",
+        "Type": "debt_payoff",
+        "Target": 0.0,
+        "Current": 6200.0,
+        "Remaining": 6200.0,
+        "Progress (%)": 0.0,
+        "Monthly Needed": 688.89,
+        "Status": "🟢 On track: about 8 months at $900.00/mo (estimate)"
+      },
+      {
+        "Goal": "Reach $250k Net Worth",
+        "Type": "net_worth",
+        "Target": 250000.0,
+        "Current": 150300.0,
+        "Remaining": 99700.0,
+        "Progress (%)": 60.1,
+        "Monthly Needed": 3021.21,
+        "Status": "🔴 Behind: need $3,021.21/mo, have $1,354.60/mo"
+      },
+      {
+        "Goal": "Hold 22% Savings Rate",
+        "Type": "savings_rate",
+        "Target": 22.0,
+        "Current": 6.27,
+        "Remaining": 15.73,
+        "Progress (%)": 28.5,
+        "Monthly Needed": null,
+        "Status": "🔴 Below target: 6.3% vs 22.0% goal"
+      }
+    ],
+    "risk_register": [
+      {
+        "Risk": "Emergency Fund",
+        "Level": "🟡 Medium",
+        "Finding": "Liquid cash covers 3.6 months of expenses (target 3 to 6).",
+        "Recommendation": "Build the cushion toward 6 months of expenses."
+      },
+      {
+        "Risk": "Income Concentration",
+        "Level": "🟢 Low",
+        "Finding": "Income is spread across sources (largest is 61%).",
+        "Recommendation": "Diversified income lowers job-loss risk."
+      },
+      {
+        "Risk": "Debt Load",
+        "Level": "🟡 Medium",
+        "Finding": "Debt is 30% of assets. High-interest debt: Credit Card.",
+        "Recommendation": "Pay down high-interest debt first and keep total debt well below assets."
+      },
+      {
+        "Risk": "Cash Flow",
+        "Level": "🟢 Low",
+        "Finding": "Positive cash flow with a 34.4% savings rate.",
+        "Recommendation": "Keep directing the surplus to goals and the emergency fund."
+      },
+      {
+        "Risk": "Housing Cost Burden",
+        "Level": "🟢 Low",
+        "Finding": "Housing is 27% of income ($5,701.67 of $21,420.00).",
+        "Recommendation": "Housing cost is within a comfortable share of income."
+      },
+      {
+        "Risk": "Insurance Coverage",
+        "Level": "🟢 Low",
+        "Finding": "Insurance payments were detected in the period.",
+        "Recommendation": "Review coverage levels annually."
+      }
+    ],
+    "risk_overall": "Generally healthy with 2 medium risks to watch.",
+    "home_purchase_readiness": {
+      "home_price": 875000.0,
+      "down_payment": 131250.0,
+      "closing_costs": 26250.0,
+      "cash_needed": 157500.0,
+      "liquid_cash": 50500.0,
+      "cash_after_purchase": -107000.0,
+      "loan_amount": 743750.0,
+      "monthly_payment_piti": 6015.36,
+      "income_monthly": 21420.0,
+      "payment_to_income": 28.1,
+      "emergency_buffer_required": 42169.04,
+      "verdict": "🔴 Not yet",
+      "gaps": [
+        "Short $107,000.00 for down payment + closing costs.",
+        "Estimated payment is 28% of income, above the 28% target."
+      ]
+    },
+    "major_purchase": {
+      "amount": 12000.0,
+      "liquid_cash": 50500,
+      "cash_after": 38500.0,
+      "runway_before_months": 3.6,
+      "runway_after_months": 2.7,
+      "verdict": "🟡 Close",
+      "note": "Affordable, but it drops the emergency runway below 3 months."
+    },
+    "rent_vs_buy": {
+      "horizon_years": 5,
+      "current_monthly_rent": 5701.67,
+      "rent_net_cost": 363251.07,
+      "buy_upfront": 157500.0,
+      "buy_total_piti": 360921.62,
+      "buy_equity_at_horizon": 315778.37,
+      "buy_net_cost": 202643.24,
+      "cheaper": "Buying",
+      "recommendation": "Over 5 years, buying looks about $160,607.83 cheaper (estimate; excludes investment returns on the down payment and assumes 3% rent growth and 3% home appreciation)."
+    },
+    "scorecard": [
+      {
+        "Metric": "Income",
+        "This Month": 21620.0,
+        "Last Month": 21020.0,
+        "Change": 600.0,
+        "Trend": "🟢 Improved"
+      },
+      {
+        "Metric": "Total Expenses",
+        "This Month": 20265.4,
+        "Last Month": 18389.68,
+        "Change": 1875.72,
+        "Trend": "🔴 Worsened"
+      },
+      {
+        "Metric": "Net Cash Flow",
+        "This Month": 1354.6,
+        "Last Month": 2630.32,
+        "Change": -1275.72,
+        "Trend": "🔴 Worsened"
+      },
+      {
+        "Metric": "Savings Rate",
+        "This Month": 6.27,
+        "Last Month": 12.51,
+        "Change": -6.24,
+        "Trend": "🔴 Worsened"
+      }
+    ],
+    "action_items": [
+      {
+        "Rank": 1,
+        "Action Item": "Review Home Depot charge of $890.00 by March 29 because Shopping spend was $1,365.20 versus the $900.00 budget, creating a $465.20 overage. Expected impact: up to $890.00 cash recovered or reclassified.",
+        "Owner": "Morgan Patel Household",
+        "Due Date": "2026-03-29",
+        "Status": "Open",
+        "Urgency Score": 3,
+        "Estimated Dollar Impact": 890.0,
+        "Evaluation": "PASS"
+      },
+      {
+        "Rank": 2,
+        "Action Item": "Cap Food & Dining spend at $1,450.00 by April 30 because March Food & Dining spend was $1,459.20 versus the $1,450.00 budget, creating a $9.20 overage. Expected impact: $9.20 cash flow preserved and savings rate improves from 6.27% to 6.31%.",
+        "Owner": "Morgan Patel Household",
+        "Due Date": "2026-04-30",
+        "Status": "Open",
+        "Urgency Score": 2,
+        "Estimated Dollar Impact": 9.2,
+        "Evaluation": "PASS"
+      },
+      {
+        "Rank": 3,
+        "Action Item": "Audit Pacific Gas and Electric charge of $264.60 by April 1 because Subscriptions spend was $1,208.00 versus the $760.00 budget, and Pacific was the largest recurring charge in that category. Expected impact: identify at least $264.60 of monthly subscription pressure for reduction or budget approval.",
+        "Owner": "Morgan Patel Household",
+        "Due Date": "2026-04-01",
+        "Status": "Open",
+        "Urgency Score": 1,
+        "Estimated Dollar Impact": 264.6,
+        "Evaluation": "PASS"
+      }
+    ],
+    "forecast": [
+      {
+        "Scenario": "Upside",
+        "Period Days": 30,
+        "Forecast Income": 21420.0,
+        "Fixed Obligations": 9765.15,
+        "Variable Spending": 3862.08,
+        "Unusual Reserve": 0.0,
+        "Net Cash Flow": 7792.77,
+        "Savings Rate": 36.38,
+        "Ending Cash": 8992.77
+      },
+      {
+        "Scenario": "Upside",
+        "Period Days": 90,
+        "Forecast Income": 64260.0,
+        "Fixed Obligations": 29295.44,
+        "Variable Spending": 11586.24,
+        "Unusual Reserve": 0.0,
+        "Net Cash Flow": 23378.32,
+        "Savings Rate": 36.38,
+        "Ending Cash": 24578.32
+      },
+      {
+        "Scenario": "Base",
+        "Period Days": 30,
+        "Forecast Income": 21420.0,
+        "Fixed Obligations": 9765.15,
+        "Variable Spending": 4291.2,
+        "Unusual Reserve": 0.0,
+        "Net Cash Flow": 7363.65,
+        "Savings Rate": 34.38,
+        "Ending Cash": 8563.65
+      },
+      {
+        "Scenario": "Base",
+        "Period Days": 90,
+        "Forecast Income": 64260.0,
+        "Fixed Obligations": 29295.44,
+        "Variable Spending": 12873.6,
+        "Unusual Reserve": 0.0,
+        "Net Cash Flow": 22090.96,
+        "Savings Rate": 34.38,
+        "Ending Cash": 23290.96
+      },
+      {
+        "Scenario": "Downside",
+        "Period Days": 30,
+        "Forecast Income": 21420.0,
+        "Fixed Obligations": 9765.15,
+        "Variable Spending": 4720.32,
+        "Unusual Reserve": 300.0,
+        "Net Cash Flow": 6634.53,
+        "Savings Rate": 30.97,
+        "Ending Cash": 7834.53
+      },
+      {
+        "Scenario": "Downside",
+        "Period Days": 90,
+        "Forecast Income": 64260.0,
+        "Fixed Obligations": 29295.44,
+        "Variable Spending": 14160.96,
+        "Unusual Reserve": 300.0,
+        "Net Cash Flow": 20503.6,
+        "Savings Rate": 31.91,
+        "Ending Cash": 21703.6
+      }
+    ],
+    "self_checks": [
+      {
+        "Check": "Input file",
+        "Status": "INFO",
+        "Detail": "test_personas/complex_household/transactions.csv"
+      },
+      {
+        "Check": "Row count",
+        "Status": "INFO",
+        "Detail": "128"
+      },
+      {
+        "Check": "Months covered",
+        "Status": "INFO",
+        "Detail": "2026-01, 2026-02, 2026-03"
+      },
+      {
+        "Check": "Categorization accuracy",
+        "Status": "PASS",
+        "Detail": "100.00%"
+      },
+      {
+        "Check": "Required columns",
+        "Status": "PASS",
+        "Detail": "All required columns present"
+      },
+      {
+        "Check": "Valid dates",
+        "Status": "PASS",
+        "Detail": "Every date uses a valid YYYY-MM-DD value"
+      },
+      {
+        "Check": "Numeric amounts",
+        "Status": "PASS",
+        "Detail": "Every amount is numeric"
+      },
+      {
+        "Check": "No blank vendors",
+        "Status": "PASS",
+        "Detail": "Every row has a vendor or income source"
+      },
+      {
+        "Check": "Expected month coverage",
+        "Status": "PASS",
+        "Detail": "Months found: 2026-01, 2026-02, 2026-03"
+      },
+      {
+        "Check": "Transaction schema contract",
+        "Status": "PASS",
+        "Detail": "Required columns present: date, vendor, amount, raw_category, assigned_category, classification_method"
+      },
+      {
+        "Check": "Duplicate transaction check",
+        "Status": "PASS",
+        "Detail": "No identical transaction rows"
+      },
+      {
+        "Check": "Approved category contract",
+        "Status": "PASS",
+        "Detail": "All assigned categories are approved: 10 observed"
+      },
+      {
+        "Check": "Monthly summary reconciliation",
+        "Status": "PASS",
+        "Detail": "Income, expenses, net cash flow, and savings rate reconcile to source transactions"
+      },
+      {
+        "Check": "Fictional data notice",
+        "Status": "FAIL",
+        "Detail": "Fictional data notice not found"
+      }
+    ]
+  },
+  "sources": {
+    "artifacts": [
+      "report.json",
+      "monthly_cfo_report.pdf"
+    ],
+    "note": "Source artifacts are referenced by basename only; no local paths are exposed."
+  }
+}

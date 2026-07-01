@@ -24,7 +24,7 @@ from modules.self_checks import (
 from modules.validation import build_audit_log
 
 def load_categorized():
-    return pd.read_csv(PROJECT_ROOT / "data" / "alex_rivera_transactions_categorized.csv")
+    return pd.read_csv(PROJECT_ROOT / "test_personas" / "starter_person" / "transactions_categorized.csv")
 
 
 def test_transaction_schema_contract_passes_for_categorized_data():
@@ -140,7 +140,7 @@ def test_audit_log_includes_backend_accuracy_self_checks():
     audit = build_audit_log(
         df,
         calculate_accuracy(df),
-        PROJECT_ROOT / "data" / "alex_rivera_transactions.csv",
+        PROJECT_ROOT / "test_personas" / "starter_person" / "transactions.csv",
         PROJECT_ROOT,
     )
 

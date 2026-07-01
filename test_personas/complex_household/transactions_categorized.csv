@@ -1,0 +1,129 @@
+date,vendor,amount,raw_category,assigned_category,classification_method
+2026-01-01,Northstar Health Payroll,6500.0,income,Income,keyword_match
+2026-01-15,Northstar Health Payroll,6500.0,income,Income,keyword_match
+2026-01-07,BrightPath Consulting Invoice,4200.0,income,Income,general_keyword_match
+2026-01-22,BrightPath Consulting Invoice,4200.0,income,Income,general_keyword_match
+2026-01-25,Quarterly Dividend Payout,220.0,income,Income,ai_assisted_fallback_0.80
+2026-01-02,Wells Fargo Mortgage,-3450.0,mortgage,Housing,general_keyword_match
+2026-01-03,Maple HOA AutoPay,-385.0,housing,Housing,general_keyword_match
+2026-01-04,Pacific Gas and Electric,-245.0,utilities,Subscriptions,general_keyword_match
+2026-01-04,East Bay Water District,-118.0,utilities,Subscriptions,general_keyword_match
+2026-01-05,Comcast Xfinity Internet,-96.0,internet,Subscriptions,general_keyword_match
+2026-01-06,State Farm Home Insurance,-185.0,insurance,Subscriptions,general_keyword_match
+2026-01-06,State Farm Auto Insurance,-210.0,insurance,Subscriptions,general_keyword_match
+2026-01-07,T-Mobile Family Plan,-168.0,phone,Subscriptions,general_keyword_match
+2026-01-08,Little Oaks Childcare,-1650.0,childcare,Education,general_keyword_match
+2026-01-10,Federal Student Loan Servicer,-720.0,student_loan,Education,exact_vendor_match
+2026-01-11,Toyota Financial Services,-520.0,auto_loan,Transport,general_keyword_match
+2026-01-12,529 College Plan Contribution,-500.0,education,Education,general_keyword_match
+2026-01-13,Vanguard Automatic Investment,-2200.0,investment,Savings Transfer,general_keyword_match
+2026-01-14,Transfer to High Yield Savings,-1800.0,savings,Savings Transfer,general_keyword_match
+2026-01-05,Costco Wholesale,-385.0,groceries,Food & Dining,general_keyword_match
+2026-01-09,Trader Joe's,-165.0,groceries,Food & Dining,exact_vendor_match
+2026-01-16,Safeway,-205.0,groceries,Food & Dining,exact_vendor_match
+2026-01-23,Whole Foods Market,-190.0,groceries,Food & Dining,exact_vendor_match
+2026-01-27,Instacart Grocery,-145.0,groceries,Food & Dining,general_keyword_match
+2026-01-06,Shell Oil Gas Station,-135.0,transportation,Transport,general_keyword_match
+2026-01-17,Bay Area Transit,-96.0,transportation,Transport,general_keyword_match
+2026-01-26,Chevron 0421,-122.0,transportation,Transport,general_keyword_match
+2026-01-09,Pediatrician Copay,-85.0,medical,Medical,general_keyword_match
+2026-01-18,CVS Pharmacy,-42.0,medical,Medical,general_keyword_match
+2026-01-12,Amazon Marketplace,-260.0,shopping,Shopping,general_keyword_match
+2026-01-19,Target,-180.0,shopping,Shopping,exact_vendor_match
+2026-01-21,Home Depot,-240.0,household,Shopping,general_keyword_match
+2026-01-24,Local Taqueria,-72.0,dining,Food & Dining,exact_vendor_match
+2026-01-28,Sushi Spot,-118.0,dining,Food & Dining,exact_vendor_match
+2026-01-29,Uber Eats Family Dinner,-92.0,dining,Food & Dining,keyword_match
+2026-01-03,Netflix,-22.99,subscription,Subscriptions,exact_vendor_match
+2026-01-04,Spotify Family,-19.99,subscription,Subscriptions,keyword_match
+2026-01-05,Apple.com/Bill iCloud,-9.99,subscription,Subscriptions,general_keyword_match
+2026-01-06,Adobe Creative Cloud,-59.99,subscription,Subscriptions,general_keyword_match
+2026-01-15,Peloton,-44.0,subscription,Subscriptions,general_keyword_match
+2026-01-20,Family Movie Theater,-78.0,entertainment,Entertainment,general_keyword_match
+2026-02-01,Northstar Health Payroll,6500.0,income,Income,keyword_match
+2026-02-15,Northstar Health Payroll,6500.0,income,Income,keyword_match
+2026-02-07,BrightPath Consulting Invoice,3600.0,income,Income,general_keyword_match
+2026-02-22,BrightPath Consulting Invoice,4200.0,income,Income,general_keyword_match
+2026-02-25,Quarterly Dividend Payout,220.0,income,Income,ai_assisted_fallback_0.80
+2026-02-02,Wells Fargo Mortgage,-3450.0,mortgage,Housing,general_keyword_match
+2026-02-03,Maple HOA AutoPay,-385.0,housing,Housing,general_keyword_match
+2026-02-04,Pacific Gas and Electric,-254.8,utilities,Subscriptions,general_keyword_match
+2026-02-04,East Bay Water District,-122.72,utilities,Subscriptions,general_keyword_match
+2026-02-05,Comcast Xfinity Internet,-96.0,internet,Subscriptions,general_keyword_match
+2026-02-06,State Farm Home Insurance,-185.0,insurance,Subscriptions,general_keyword_match
+2026-02-06,State Farm Auto Insurance,-210.0,insurance,Subscriptions,general_keyword_match
+2026-02-07,T-Mobile Family Plan,-168.0,phone,Subscriptions,general_keyword_match
+2026-02-08,Little Oaks Childcare,-1650.0,childcare,Education,general_keyword_match
+2026-02-10,Federal Student Loan Servicer,-720.0,student_loan,Education,exact_vendor_match
+2026-02-11,Toyota Financial Services,-520.0,auto_loan,Transport,general_keyword_match
+2026-02-12,529 College Plan Contribution,-500.0,education,Education,general_keyword_match
+2026-02-13,Vanguard Automatic Investment,-2200.0,investment,Savings Transfer,general_keyword_match
+2026-02-14,Transfer to High Yield Savings,-1800.0,savings,Savings Transfer,general_keyword_match
+2026-02-05,Costco Wholesale,-400.4,groceries,Food & Dining,general_keyword_match
+2026-02-09,Trader Joe's,-171.6,groceries,Food & Dining,exact_vendor_match
+2026-02-16,Safeway,-213.2,groceries,Food & Dining,exact_vendor_match
+2026-02-23,Whole Foods Market,-197.6,groceries,Food & Dining,exact_vendor_match
+2026-02-27,Instacart Grocery,-150.8,groceries,Food & Dining,general_keyword_match
+2026-02-06,Shell Oil Gas Station,-135.0,transportation,Transport,general_keyword_match
+2026-02-17,Bay Area Transit,-96.0,transportation,Transport,general_keyword_match
+2026-02-26,Chevron 0421,-122.0,transportation,Transport,general_keyword_match
+2026-02-09,Pediatrician Copay,-85.0,medical,Medical,general_keyword_match
+2026-02-18,CVS Pharmacy,-42.0,medical,Medical,general_keyword_match
+2026-02-12,Amazon Marketplace,-270.4,shopping,Shopping,general_keyword_match
+2026-02-19,Target,-187.2,shopping,Shopping,exact_vendor_match
+2026-02-21,Home Depot,-240.0,household,Shopping,general_keyword_match
+2026-02-24,Local Taqueria,-72.0,dining,Food & Dining,exact_vendor_match
+2026-02-28,Sushi Spot,-118.0,dining,Food & Dining,exact_vendor_match
+2026-02-28,Uber Eats Family Dinner,-92.0,dining,Food & Dining,keyword_match
+2026-02-03,Netflix,-22.99,subscription,Subscriptions,exact_vendor_match
+2026-02-04,Spotify Family,-19.99,subscription,Subscriptions,keyword_match
+2026-02-05,Apple.com/Bill iCloud,-9.99,subscription,Subscriptions,general_keyword_match
+2026-02-06,Adobe Creative Cloud,-59.99,subscription,Subscriptions,general_keyword_match
+2026-02-15,Peloton,-44.0,subscription,Subscriptions,general_keyword_match
+2026-02-20,Family Movie Theater,-78.0,entertainment,Entertainment,general_keyword_match
+2026-03-01,Northstar Health Payroll,6500.0,income,Income,keyword_match
+2026-03-15,Northstar Health Payroll,6500.0,income,Income,keyword_match
+2026-03-07,BrightPath Consulting Invoice,4200.0,income,Income,general_keyword_match
+2026-03-22,BrightPath Consulting Invoice,4200.0,income,Income,general_keyword_match
+2026-03-25,Quarterly Dividend Payout,220.0,income,Income,ai_assisted_fallback_0.80
+2026-03-02,Wells Fargo Mortgage,-3450.0,mortgage,Housing,general_keyword_match
+2026-03-03,Maple HOA AutoPay,-385.0,housing,Housing,general_keyword_match
+2026-03-04,Pacific Gas and Electric,-264.6,utilities,Subscriptions,general_keyword_match
+2026-03-04,East Bay Water District,-127.44,utilities,Subscriptions,general_keyword_match
+2026-03-05,Comcast Xfinity Internet,-96.0,internet,Subscriptions,general_keyword_match
+2026-03-06,State Farm Home Insurance,-185.0,insurance,Subscriptions,general_keyword_match
+2026-03-06,State Farm Auto Insurance,-210.0,insurance,Subscriptions,general_keyword_match
+2026-03-07,T-Mobile Family Plan,-168.0,phone,Subscriptions,general_keyword_match
+2026-03-08,Little Oaks Childcare,-1650.0,childcare,Education,general_keyword_match
+2026-03-10,Federal Student Loan Servicer,-720.0,student_loan,Education,exact_vendor_match
+2026-03-11,Toyota Financial Services,-520.0,auto_loan,Transport,general_keyword_match
+2026-03-12,529 College Plan Contribution,-500.0,education,Education,general_keyword_match
+2026-03-13,Vanguard Automatic Investment,-2200.0,investment,Savings Transfer,general_keyword_match
+2026-03-14,Transfer to High Yield Savings,-2500.0,savings,Savings Transfer,general_keyword_match
+2026-03-05,Costco Wholesale,-415.8,groceries,Food & Dining,general_keyword_match
+2026-03-09,Trader Joe's,-178.2,groceries,Food & Dining,exact_vendor_match
+2026-03-16,Safeway,-221.4,groceries,Food & Dining,exact_vendor_match
+2026-03-23,Whole Foods Market,-205.2,groceries,Food & Dining,exact_vendor_match
+2026-03-27,Instacart Grocery,-156.6,groceries,Food & Dining,general_keyword_match
+2026-03-06,Shell Oil Gas Station,-135.0,transportation,Transport,general_keyword_match
+2026-03-17,Bay Area Transit,-96.0,transportation,Transport,general_keyword_match
+2026-03-26,Chevron 0421,-122.0,transportation,Transport,general_keyword_match
+2026-03-09,Pediatrician Copay,-85.0,medical,Medical,general_keyword_match
+2026-03-18,CVS Pharmacy,-42.0,medical,Medical,general_keyword_match
+2026-03-12,Amazon Marketplace,-280.8,shopping,Shopping,general_keyword_match
+2026-03-19,Target,-194.4,shopping,Shopping,exact_vendor_match
+2026-03-21,Home Depot,-890.0,household,Shopping,general_keyword_match
+2026-03-24,Local Taqueria,-72.0,dining,Food & Dining,exact_vendor_match
+2026-03-28,Sushi Spot,-118.0,dining,Food & Dining,exact_vendor_match
+2026-03-29,Uber Eats Family Dinner,-92.0,dining,Food & Dining,keyword_match
+2026-03-03,Netflix,-22.99,subscription,Subscriptions,exact_vendor_match
+2026-03-04,Spotify Family,-19.99,subscription,Subscriptions,keyword_match
+2026-03-05,Apple.com/Bill iCloud,-9.99,subscription,Subscriptions,general_keyword_match
+2026-03-06,Adobe Creative Cloud,-59.99,subscription,Subscriptions,general_keyword_match
+2026-03-15,Peloton,-44.0,subscription,Subscriptions,general_keyword_match
+2026-03-20,Family Movie Theater,-78.0,entertainment,Entertainment,general_keyword_match
+2026-01-20,Orthodontist Deposit,-1200.0,medical,Medical,general_keyword_match
+2026-02-14,Southwest Airlines Family Trip,-1450.0,travel,Transport,general_keyword_match
+2026-02-18,Emergency Plumbing Repair,-1850.0,home_repair,Housing,general_keyword_match
+2026-03-14,Used Appliance Replacement,-1350.0,home_repair,Housing,general_keyword_match
+2026-03-18,Annual Property Tax Escrow Catch-Up,-2400.0,housing,Housing,general_keyword_match

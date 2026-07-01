@@ -177,8 +177,8 @@ def test_home_dashboard_model_is_read_only_engine_verified():
     assert model["risk_counts"] == {"high": 0, "medium": 2, "low": 4}
     assert "Home Depot" in model["next_action"]
     assert model["source_artifacts"] == [
-        "report_2026-03.json",
-        "portfolio_demo_morgan_patel_monthly_cfo_report_2026_03.pdf",
+        "report.json",
+        "monthly_cfo_report.pdf",
     ]
 
 
@@ -433,8 +433,8 @@ def test_local_ai_memo_model_is_disabled_placeholder_with_verified_sources():
     assert model["number_source_statement"] == "Numbers remain owned by the deterministic Python engine."
     assert model["source_label"] == "Would be based on verified artifacts"
     assert model["verified_artifacts"] == [
-        "report_2026-03.json",
-        "portfolio_demo_morgan_patel_monthly_cfo_report_2026_03.pdf",
+        "report.json",
+        "monthly_cfo_report.pdf",
     ]
 
 

@@ -1,13 +1,9 @@
 #!/usr/bin/env python3
-"""Generate the stable report JSON contract for the UI layer.
+"""Generate stable report JSON contracts for the UI layer.
 
-The future local app (Streamlit first, possibly React/Tauri later) binds to this
-JSON instead of recomputing anything. The deterministic Python engine owns the
-numbers; this script just serializes the verified results.
-
-Outputs (Git-ignored, regenerate on demand):
-- outputs/report_json/report_<month>.json            (default Alex Rivera report)
-- outputs/report_json/portfolio_demo_<month>.json    (richer Morgan household)
+The local app binds to these JSON files instead of recomputing anything. The
+deterministic Python engine owns the numbers; this script serializes verified
+results into each committed test persona folder.
 """
 
 from pathlib import Path
@@ -17,23 +13,21 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from modules.config import REPORT_MONTH
 from modules.reports.pdf_report import portfolio_demo_report_config
 from modules.reports.report_json import write_report_json
 
 
 def main():
-    """Write both the default and portfolio-demo report JSON contracts."""
-    out_dir = PROJECT_ROOT / "outputs" / "report_json"
-    charts_dir = PROJECT_ROOT / "outputs" / "report_json_charts"
+    """Write report JSON contracts next to each test persona's run outputs."""
+    personas_root = PROJECT_ROOT / "test_personas"
 
     default_path = write_report_json(
-        out_dir / f"report_{REPORT_MONTH}.json",
-        output_dir=charts_dir / "default",
+        personas_root / "starter_person" / "outputs" / "report.json",
+        output_dir=personas_root / "starter_person" / "outputs" / "charts",
     )
     demo_path = write_report_json(
-        out_dir / f"portfolio_demo_{REPORT_MONTH}.json",
-        output_dir=charts_dir / "portfolio_demo",
+        personas_root / "complex_household" / "outputs" / "report.json",
+        output_dir=personas_root / "complex_household" / "outputs" / "charts",
         report_config=portfolio_demo_report_config(),
     )
 

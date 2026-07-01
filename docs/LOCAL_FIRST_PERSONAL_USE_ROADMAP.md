@@ -21,8 +21,10 @@ The default design should work without cloud accounts, hosted databases, externa
 
 ```text
 Personal_Finance_CFO_Agent/
+  test_personas/                         # reusable fictional personas + full outputs
+    starter_person/
+    complex_household/
   data/
-    alex_rivera_transactions.csv          # fictional demo input
     sample/                               # safe templates and fake fixtures
     personal/                             # future real local inputs, Git-ignored
     processed/                            # reviewed/processed workflow outputs, Git-ignored
@@ -144,7 +146,7 @@ These are wired into both:
 Current verification:
 
 ```text
-231 local tests passing
+233 local tests passing
 GitHub Actions passing
 100-persona stress harness available
 value-invariant checks added to the stress harness
