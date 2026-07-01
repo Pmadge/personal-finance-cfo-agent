@@ -116,7 +116,7 @@ python3 scripts/generate_personal_report.py
 To regenerate the richer GitHub README screenshots from the fictional complex-household fixture:
 
 ```bash
-python3 scripts/generate_portfolio_demo_screenshots.py
+python3 scripts/generate_complex_household_screenshots.py
 ```
 
 To regenerate the UI report JSON contract (what the local Read & Trust app binds to):
@@ -315,7 +315,7 @@ Keep real transaction files only in Git-ignored local paths such as `data/person
 
 ## Sample Persona
 
-Alex Rivera is a fictional young professional with bi-weekly paycheck income, rent, groceries, dining, transportation, subscriptions, student loan payments, and occasional unusual charges. Fictional data is used so the project can demonstrate financial reporting logic without exposing real personal bank, credit card, or identity information. No real personal financial data should be added to this project.
+The starter-person fixture is a fictional young professional with bi-weekly paycheck income, rent, groceries, dining, transportation, subscriptions, student loan payments, and occasional unusual charges. Fictional data is used so the project can demonstrate financial reporting logic without exposing real personal bank, credit card, or identity information. No real personal financial data should be added to this project.
 
 ## Key Calculations
 
@@ -337,7 +337,7 @@ Alex Rivera is a fictional young professional with bi-weekly paycheck income, re
 
 - Report month is March 2026.
 - The source dataset covers January-March 2026.
-- Alex's monthly budget is fixed for this demo.
+- The starter-person monthly budget is fixed for this demo.
 - Forecasts use the available 3-month history and are directional estimates, not financial advice.
 - Net worth uses fictional sample balances: checking, savings, investments, student loan, car loan, and credit card.
 

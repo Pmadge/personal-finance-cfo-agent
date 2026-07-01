@@ -1,4 +1,4 @@
-"""Automated QA checks for the fictional Alex Rivera CFO Agent."""
+"""Automated QA checks for the fictional starter-person CFO Agent."""
 
 from pathlib import Path
 import sys
@@ -13,7 +13,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from modules.action_items import generate_action_items
 from modules.analytics import budget_vs_actual, monthly_summary, upcoming_obligations
 from modules.categorizer import calculate_accuracy
-from modules.config import ALEX_ASSETS, ALEX_BUDGET, ALEX_LIABILITIES
+from modules.config import STARTER_PERSON_ASSETS, STARTER_PERSON_BUDGET, STARTER_PERSON_LIABILITIES
 from modules.detectors import detect_unusual
 from modules.forecast import forecast_cash_flow
 from modules.net_worth import debt_payoff_comparison, net_worth_snapshot
@@ -40,7 +40,7 @@ def test_month_2_savings_rate_matches_manual_check():
 
 def test_month_1_food_variance_matches_manual_check():
     df = load_categorized()
-    food_row = budget_vs_actual(df, "2026-01", ALEX_BUDGET)
+    food_row = budget_vs_actual(df, "2026-01", STARTER_PERSON_BUDGET)
     food_row = food_row[food_row["Category"] == "Food & Dining"].iloc[0]
     assert food_row["Actual Amount"] == 722.59
     assert food_row["Variance ($)"] == -472.59
@@ -89,18 +89,18 @@ def test_400_coffee_test_charge_fires_without_changing_source_data():
 
 def test_action_items_pass_required_format():
     df = load_categorized()
-    actions = generate_action_items(df, "2026-02", ALEX_BUDGET)
+    actions = generate_action_items(df, "2026-02", STARTER_PERSON_BUDGET)
     assert len(actions) == 3
     assert set(actions["Evaluation"]) == {"PASS"}
-    assert actions["Owner"].eq("Alex Rivera").all()
+    assert actions["Owner"].eq("Starter Person").all()
 
 
 def test_net_worth_and_debt_payoff_math():
-    snapshot = net_worth_snapshot(ALEX_ASSETS, ALEX_LIABILITIES)
+    snapshot = net_worth_snapshot(STARTER_PERSON_ASSETS, STARTER_PERSON_LIABILITIES)
     assert snapshot["Net Worth"] == -19900.00
     debts = [
         {"name": name, "balance": details["balance"], "interest_rate": details["interest_rate"]}
-        for name, details in ALEX_LIABILITIES.items()
+        for name, details in STARTER_PERSON_LIABILITIES.items()
     ]
     payoff = debt_payoff_comparison(debts)
     assert payoff["Total Interest Paid"].round(2).tolist() == [6437.95, 6437.95]

@@ -16,7 +16,7 @@ Data posture: committed assets fictional/sample only
 Local real uploads: CSV and CoastHills Visa PDF statements supported in Git-ignored folders
 ```
 
-The project now has the full v1 CFO parity suite wired into both the fictional Alex board pack and the draft personal report path.
+The project now has the full v1 CFO parity suite wired into both the fictional starter-person board pack and the draft personal report path.
 
 ## What it produces
 
@@ -29,7 +29,7 @@ A run generates:
 - a draft personal report from reviewed fake personal rows or explicitly uploaded local CSV/PDF statements
 - stress-test outputs for fictional personas
 
-Committed test-persona outputs now live under `test_personas/<persona>/outputs/` so GitHub visitors can inspect a full run without generating files locally. Portfolio screenshots live under `docs/screenshots/` so GitHub renders the walkthrough immediately. Selected report screenshots are regenerated from `test_personas/complex_household/transactions.csv` with `scripts/generate_portfolio_demo_screenshots.py`; the Streamlit screenshot is captured from the local Read & Trust app.
+Committed test-persona outputs now live under `test_personas/<persona>/outputs/` so GitHub visitors can inspect a full run without generating files locally. Portfolio screenshots live under `docs/screenshots/` so GitHub renders the walkthrough immediately. Selected report screenshots are regenerated from `test_personas/complex_household/transactions.csv` with `scripts/generate_complex_household_screenshots.py`; the Streamlit screenshot is captured from the local Read & Trust app.
 
 ## Representative report pages
 
@@ -47,7 +47,7 @@ The Streamlit app renders the verified report JSON, category review CSV, and fic
 
 ### Executive dashboard
 
-The first content page now consolidates the board pack into a one-page CFO readout: net cash flow, savings rate, emergency runway, risk count, top goal, capital-event readiness, rent-vs-buy answer, and next action. The screenshot below uses the richer fictional Morgan Patel household demo, not real data.
+The first content page now consolidates the board pack into a one-page CFO readout: net cash flow, savings rate, emergency runway, risk count, top goal, capital-event readiness, rent-vs-buy answer, and next action. The screenshot below uses the richer fictional complex-household fixture, not real data.
 
 ![One-page Executive Dashboard](screenshots/report_executive_dashboard.png)
 

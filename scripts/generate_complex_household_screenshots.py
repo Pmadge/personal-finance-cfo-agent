@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Generate portfolio screenshots from a richer fictional household demo.
+"""Generate README screenshots from the complex-household test persona.
 
 The README screenshots should demonstrate the CFO engine on a realistic household,
-not only the simple Alex Rivera starter persona. This script uses a fully
-fictional Morgan Patel household dataset and copies selected rendered PDF pages
-into docs/screenshots/ for GitHub display.
+not only the simple starter-person fixture. This script uses the fully fictional
+complex-household dataset and copies selected rendered PDF pages into
+docs/screenshots/ for GitHub display.
 """
 
 from pathlib import Path
@@ -19,7 +19,7 @@ import fitz
 
 from modules.reports.pdf_report import (
     build_pdf,
-    portfolio_demo_report_config,
+    complex_household_report_config,
     render_pdf_for_review,
 )
 
@@ -51,13 +51,13 @@ def _section_pages(pdf_path):
 
 
 def main():
-    """Regenerate portfolio-safe screenshot assets from the richer demo report."""
-    output_dir = PROJECT_ROOT / "outputs" / "portfolio_demo"
-    review_dir = PROJECT_ROOT / "outputs" / "portfolio_demo_review"
+    """Regenerate GitHub-safe screenshot assets from the complex-household report."""
+    output_dir = PROJECT_ROOT / "outputs" / "complex_household"
+    review_dir = PROJECT_ROOT / "outputs" / "complex_household_review"
     screenshots_dir = PROJECT_ROOT / "docs" / "screenshots"
     screenshots_dir.mkdir(parents=True, exist_ok=True)
 
-    report_config = portfolio_demo_report_config()
+    report_config = complex_household_report_config()
     pdf_path = build_pdf(output_dir=output_dir, report_config=report_config)
     rendered_pages = render_pdf_for_review(pdf_path, review_dir=review_dir)
     page_lookup = _section_pages(pdf_path)
@@ -69,7 +69,7 @@ def main():
         shutil.copyfile(source, destination)
         copied.append(destination)
 
-    print(f"Portfolio demo PDF: {pdf_path}")
+    print(f"Complex-household PDF: {pdf_path}")
     print(f"Rendered review pages: {review_dir}")
     print("Updated screenshots:")
     for path in copied:

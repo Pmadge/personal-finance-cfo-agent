@@ -21,4 +21,4 @@ test_personas/
 
 Persona names can appear inside the fictional data and reports, but public filenames stay generic so another user can swap in their own starter person or complex household fixture without renaming the project.
 
-All files here are fictional/sample data only. The starter fixture uses fictional Alex Rivera data. The complex household fixture uses fictional Morgan Patel household data. Do not place real bank statements, credit card exports, account numbers, names, addresses, or any other real personal financial data in this tracked folder.
+All files here are fictional/sample data only. The starter-person and complex-household fixtures intentionally use generic display names inside their generated reports. Self-check notices: `fictional starter-person data`; `fictional complex-household data`. Do not place real bank statements, credit card exports, account numbers, names, addresses, or any other real personal financial data in this tracked folder.

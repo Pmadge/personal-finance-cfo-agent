@@ -1,8 +1,8 @@
-"""Rolling forecast scenarios for the fictional Alex Rivera CFO Agent."""
+"""Rolling forecast scenarios for the fictional starter-person CFO Agent."""
 
 import pandas as pd
 
-from modules.config import ALEX_ASSETS, FIXED_OBLIGATION_CATEGORIES, FORECAST_SCENARIOS
+from modules.config import STARTER_PERSON_ASSETS, FIXED_OBLIGATION_CATEGORIES, FORECAST_SCENARIOS
 
 
 VARIABLE_CATEGORIES = {
@@ -76,7 +76,7 @@ def _monthly_fixed_obligations(df):
 def forecast_cash_flow(df, periods=(30, 90), starting_cash=None):
     """Return base/upside/downside cash-flow forecasts for 30 and 90 days."""
     working_df = _prepare(df)
-    starting_cash = float(starting_cash if starting_cash is not None else ALEX_ASSETS["Checking"])
+    starting_cash = float(starting_cash if starting_cash is not None else STARTER_PERSON_ASSETS["Checking"])
     income_average = _monthly_income_average(working_df)
     variable_spend_average = _monthly_variable_spend_average(working_df)
     fixed_obligations = _monthly_fixed_obligations(working_df)

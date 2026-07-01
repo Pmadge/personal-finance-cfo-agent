@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "generated_at": "2026-07-01T07:10:39.107774+00:00",
+  "generated_at": "2026-07-01T15:47:20.339697+00:00",
   "engine": {
     "model_version": "CFO Agent v1.1",
     "deterministic": true,
@@ -8,8 +8,8 @@
     "note": "All numbers are calculated by the deterministic Python engine. No AI wrote these values."
   },
   "persona": {
-    "name": "Alex Rivera",
-    "fictional_notice": "Fictional Alex Rivera data only",
+    "name": "Starter Person",
+    "fictional_notice": "Fictional starter-person data only",
     "sample_data_only": true
   },
   "period": {
@@ -26,9 +26,9 @@
     "local_ai_enabled": false
   },
   "self_check": {
-    "checks_passed": 10,
+    "checks_passed": 11,
     "checks_total": 11,
-    "all_passed": false
+    "all_passed": true
   },
   "headline": {
     "verdict": "On track, with risks to watch",
@@ -61,7 +61,7 @@
     "next_action": {
       "Rank": 1,
       "Action Item": "Review H&M charge of $61.25 by March 25 because Shopping spend was $113.05 versus the $100.00 budget, creating a $13.05 overage. Expected impact: up to $61.25 cash recovered or reclassified.",
-      "Owner": "Alex Rivera",
+      "Owner": "Starter Person",
       "Due Date": "2026-03-25",
       "Status": "Open",
       "Urgency Score": 3,
@@ -643,7 +643,7 @@
       {
         "Rank": 1,
         "Action Item": "Review H&M charge of $61.25 by March 25 because Shopping spend was $113.05 versus the $100.00 budget, creating a $13.05 overage. Expected impact: up to $61.25 cash recovered or reclassified.",
-        "Owner": "Alex Rivera",
+        "Owner": "Starter Person",
         "Due Date": "2026-03-25",
         "Status": "Open",
         "Urgency Score": 3,
@@ -653,7 +653,7 @@
       {
         "Rank": 2,
         "Action Item": "Cap Food & Dining spend at $250.00 by April 30 because March Food & Dining spend was $735.24 versus the $250.00 budget, creating a $485.24 overage. Expected impact: $485.24 cash flow preserved and savings rate improves from 48.52% to 58.48%.",
-        "Owner": "Alex Rivera",
+        "Owner": "Starter Person",
         "Due Date": "2026-04-30",
         "Status": "Open",
         "Urgency Score": 2,
@@ -663,7 +663,7 @@
       {
         "Rank": 3,
         "Action Item": "Audit Verizon Wireless charge of $72.18 by April 4 because Subscriptions spend was $206.65 versus the $40.00 budget, and Verizon was the largest recurring charge in that category. Expected impact: identify at least $72.18 of monthly subscription pressure for reduction or budget approval.",
-        "Owner": "Alex Rivera",
+        "Owner": "Starter Person",
         "Due Date": "2026-04-04",
         "Status": "Open",
         "Urgency Score": 1,
@@ -807,8 +807,8 @@
       },
       {
         "Check": "Fictional data notice",
-        "Status": "FAIL",
-        "Detail": "Fictional data notice not found"
+        "Status": "PASS",
+        "Detail": "fictional starter-person data"
       }
     ]
   },

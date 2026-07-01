@@ -140,7 +140,7 @@ The project now contains seven CFO-style pillars:
 
 These are wired into both:
 
-- the fictional Alex Rivera board pack
+- the fictional starter-person board pack
 - the draft personal report path using a local profile
 
 Current verification:
@@ -227,8 +227,8 @@ Deferred until the product direction justifies more architecture:
 
 ## What stays demo-only for now
 
-- Alex Rivera fictional sample reports
-- Portfolio screenshots
+- starter-person fictional sample reports
+- complex-household screenshots
 - Public README examples
 - Fake personal-style CSV fixtures
 - Generated stress-test outputs

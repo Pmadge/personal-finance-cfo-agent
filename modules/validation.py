@@ -94,7 +94,7 @@ def validate_transactions(df, expected_months=None):
 
 
 def validate_fictional_data_notice(project_root):
-    """Confirm project docs explicitly label the data as fictional Alex Rivera data."""
+    """Confirm project docs explicitly label the tracked persona data as fictional."""
     project_root = Path(project_root)
     docs = [
         project_root / "README.md",

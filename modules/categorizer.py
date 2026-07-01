@@ -1,4 +1,4 @@
-"""Categorize fictional Alex Rivera transactions into CFO-level categories."""
+"""Categorize fictional starter-person transactions into CFO-level categories."""
 
 from pathlib import Path
 
@@ -89,7 +89,7 @@ KEYWORD_MATCHES = [
 
 # Broad, real-world merchant and keyword library so a normal person's vendors
 # categorize well instead of falling to "Misc". Checked AFTER the sample-persona
-# rules above (so Alex's categorization is unchanged) and BEFORE the Misc
+# rules above (so the starter person's categorization is unchanged) and BEFORE the Misc
 # fallback. Ordered so more distinctive/less-ambiguous terms win first when two
 # could match the same vendor (e.g. "MARKETPLACE" -> Shopping before grocery
 # terms). This list is intentionally transparent and human-editable.

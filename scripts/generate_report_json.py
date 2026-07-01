@@ -13,7 +13,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from modules.reports.pdf_report import portfolio_demo_report_config
+from modules.reports.pdf_report import complex_household_report_config
 from modules.reports.report_json import write_report_json
 
 
@@ -28,7 +28,7 @@ def main():
     demo_path = write_report_json(
         personas_root / "complex_household" / "outputs" / "report.json",
         output_dir=personas_root / "complex_household" / "outputs" / "charts",
-        report_config=portfolio_demo_report_config(),
+        report_config=complex_household_report_config(),
     )
 
     print("Report JSON contracts written:")

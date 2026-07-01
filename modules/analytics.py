@@ -1,4 +1,4 @@
-"""Financial analytics for the fictional Alex Rivera CFO Agent."""
+"""Financial analytics for the fictional starter-person CFO Agent."""
 
 import re
 

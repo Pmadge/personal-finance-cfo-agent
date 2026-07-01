@@ -1,4 +1,4 @@
-"""Narrative writing helpers for the fictional Alex Rivera CFO report."""
+"""Narrative writing helpers for the fictional starter-person CFO report."""
 
 
 def _money(amount):
@@ -32,7 +32,7 @@ def executive_summary(month_data):
 
 
 def cfo_commentary(month_data):
-    """Create first-person commentary from Alex's perspective."""
+    """Create first-person commentary from the starter person's perspective."""
     biggest_budget_miss = month_data["biggest_budget_miss"]
     summary = month_data["summary"]
     upcoming_total = month_data["upcoming_total"]

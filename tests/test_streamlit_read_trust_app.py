@@ -6,7 +6,7 @@ from tempfile import TemporaryDirectory
 
 import pytest
 
-from modules.reports.pdf_report import portfolio_demo_report_config
+from modules.reports.pdf_report import complex_household_report_config
 from modules.reports.report_json import build_report_json
 
 from modules.ui.report_reader import (
@@ -38,7 +38,7 @@ def _cached_sample_contract():
     with TemporaryDirectory() as tmp_dir:
         contract = build_report_json(
             output_dir=Path(tmp_dir) / "charts",
-            report_config=portfolio_demo_report_config(),
+            report_config=complex_household_report_config(),
         )
         contract["self_check"] = {"checks_passed": 11, "checks_total": 11, "all_passed": True}
         return contract
@@ -163,7 +163,7 @@ def test_load_report_contract_rejects_empty_self_check_totals(tmp_path):
 def test_home_dashboard_model_is_read_only_engine_verified():
     model = build_home_dashboard_model(_sample_contract())
 
-    assert model["title"] == "Morgan Patel Household"
+    assert model["title"] == "Complex Household"
     assert model["period_label"] == "March 2026"
     assert model["verdict"] == "On track"
     assert model["trust_badge"] == "Verified by engine"
@@ -191,7 +191,7 @@ def test_streamlit_markdown_escape_keeps_money_text_literal():
 def test_monthly_report_model_returns_all_key_sections():
     model = build_monthly_report_model(_sample_contract())
 
-    assert model["title"] == "Morgan Patel Household"
+    assert model["title"] == "Complex Household"
     assert model["period_label"] == "March 2026"
     assert "Verified by engine" in model["trust_badge"]
     assert "11/11" in model["trust_badge"]

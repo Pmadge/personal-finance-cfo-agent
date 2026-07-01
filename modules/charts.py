@@ -1,4 +1,4 @@
-"""Chart generation for the fictional Alex Rivera CFO report."""
+"""Chart generation for the fictional starter-person CFO report."""
 
 import os
 import math
@@ -108,7 +108,7 @@ def generate_spending_by_category_chart(df, output_path):
         loc="center left",
         bbox_to_anchor=(1, 0.5),
     )
-    ax.text(0, 0, "Alex Rivera\ncomputed data", ha="center", va="center", fontsize=10)
+    ax.text(0, 0, "Computed\ntransaction data", ha="center", va="center", fontsize=10)
 
     path = _save_chart(fig, output_path)
     return {
@@ -117,7 +117,7 @@ def generate_spending_by_category_chart(df, output_path):
         "Title": "Spending by Category - 3-Month Total ($ and %)",
         "X Label": "N/A - donut chart",
         "Y Label": "N/A - donut chart",
-        "Data Source": "Alex Rivera computed transaction data",
+        "Data Source": "Computed transaction data",
         "DPI": DPI,
     }
 
@@ -148,7 +148,7 @@ def generate_savings_rate_trend_chart(df, output_path):
         "Title": "Monthly Savings Rate Trend",
         "X Label": "Month",
         "Y Label": "Savings Rate (%)",
-        "Data Source": "Alex Rivera computed transaction data",
+        "Data Source": "Computed transaction data",
         "DPI": DPI,
     }
 
@@ -200,7 +200,7 @@ def generate_budget_vs_actual_chart(df, month, budget_dict, output_path):
         "Title": f"Budget vs. Actual - {month}",
         "X Label": "Amount ($)",
         "Y Label": "Category",
-        "Data Source": "Alex Rivera computed transaction data",
+        "Data Source": "Computed transaction data",
         "DPI": DPI,
     }
 
@@ -236,7 +236,7 @@ def generate_mom_spending_chart(df, output_path):
         "Title": "Month-over-Month Spending by Category",
         "X Label": "Category",
         "Y Label": "Spending ($)",
-        "Data Source": "Alex Rivera computed transaction data",
+        "Data Source": "Computed transaction data",
         "DPI": DPI,
     }
 
@@ -276,9 +276,9 @@ def validate_chart_specs(chart_metadata):
                     if chart["X Label"] and chart["Y Label"]
                     else "FAIL"
                 ),
-                "Computed Alex Data": (
+                "Computed Data": (
                     "PASS"
-                    if chart["Data Source"] == "Alex Rivera computed transaction data"
+                    if chart["Data Source"] == "Computed transaction data"
                     else "FAIL"
                 ),
                 "300dpi Export": "PASS" if int(chart["DPI"]) == 300 else "FAIL",

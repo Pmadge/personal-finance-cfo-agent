@@ -5,10 +5,11 @@ import re
 import pandas as pd
 
 from modules.analytics import budget_vs_actual, monthly_summary
+from modules.config import PERSONA_NAME
 
 
 ACTION_VERBS = {"Review", "Cap", "Audit", "Cancel", "Reduce", "Move"}
-OWNER = "Alex Rivera"
+OWNER = PERSONA_NAME
 STATUS = "Open"
 
 

@@ -33,7 +33,7 @@ Do **not** build three separate apps. Instead:
 - **Charts:** moderate. Numbers lead, charts explain trends (cash projection,
   budget vs actual), tables support audit. No decorative chart clutter.
 - **Persona for all sample screens:** one dual-income household saving toward a
-  first home (the Morgan Patel demo). Shows rent-vs-buy, home-purchase readiness,
+  first home (the complex-household fixture). Shows rent-vs-buy, home-purchase readiness,
   goals, risks, cash runway, and monthly planning.
 
 ### Trust components (non-negotiable)

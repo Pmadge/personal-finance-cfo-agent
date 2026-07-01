@@ -1,4 +1,4 @@
-"""Build the Alex Rivera 3-Month Trend Summary PDF."""
+"""Build the starter-person 3-month trend summary PDF."""
 
 from pathlib import Path
 import shutil
@@ -23,8 +23,10 @@ from modules.analytics import monthly_summary, upcoming_obligations
 from modules.categorizer import categorize_file
 from modules.config import (
     APPROVED_CATEGORIES,
+    FICTIONAL_DATA_NOTICE,
     MODEL_VERSION,
     MONTH_LABELS,
+    PERSONA_NAME,
     REPORT_MONTH_LABEL,
     TREND_MONTHS,
 )
@@ -34,7 +36,7 @@ from modules.self_checks import assert_pipeline_self_checks
 
 PDF_PATH = PROJECT_ROOT / "test_personas" / "starter_person" / "outputs" / "three_month_trend_summary.pdf"
 REVIEW_DIR = PROJECT_ROOT / "outputs" / "trend_report_review"
-FOOTER = f"{MODEL_VERSION} | Fictional Alex Rivera data only | 3-Month Trend Summary"
+FOOTER = f"{MODEL_VERSION} | {FICTIONAL_DATA_NOTICE.capitalize()} only | 3-Month Trend Summary"
 MONTHS = TREND_MONTHS
 START_DEBT_BALANCE = 24500.00
 
@@ -247,7 +249,7 @@ def collect_trend_data():
     savings_rate_change = last_summary["Savings Rate"] - first_summary["Savings Rate"]
 
     cfo_summary = (
-        f"Alex generated {money(total_net_cash_flow)} of net cash flow over 3 months, "
+        f"{PERSONA_NAME} generated {money(total_net_cash_flow)} of net cash flow over 3 months, "
         f"while savings rate moved from {percent(first_summary['Savings Rate'])} in January "
         f"to {percent(last_summary['Savings Rate'])} in March, a {savings_rate_change:.2f} percentage-point change. "
         f"Financial health is positive but softening because March net cash flow fell to "
@@ -294,7 +296,7 @@ def build_pdf(output_path=None):
     )
 
     story = [
-        Paragraph("Alex Rivera - 3-Month Trend Summary Report", styles["TrendTitle"]),
+        Paragraph(f"{PERSONA_NAME} - 3-Month Trend Summary Report", styles["TrendTitle"]),
         Paragraph("Quarter in Review: January-March 2026", styles["TrendSubtitle"]),
         Paragraph("Savings Rate and Net Cash Flow", styles["SectionTitle"]),
         compact_table(
