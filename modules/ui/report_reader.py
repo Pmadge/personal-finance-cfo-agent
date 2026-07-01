@@ -12,7 +12,10 @@ import json
 from pathlib import Path
 from typing import Any
 
+import pandas as pd
+
 from modules.categorization_review import REVIEW_COLUMNS
+from modules.importers.personal_csv import normalize_uploaded_transactions
 
 EXPECTED_SCHEMA_VERSION = "1.0.0"
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -212,6 +215,22 @@ def build_category_review_model(data: dict[str, Any], rows: list[dict[str, str]]
         "status_counts": counts,
         "categories": categories,
         "rows": rows,
+    }
+
+
+def build_upload_preview_model(rows: list[dict[str, Any]], source_file="uploaded.csv") -> dict[str, Any]:
+    """Normalize uploaded CSV rows for local preview; report generation stays locked."""
+    profile, normalized = normalize_uploaded_transactions(
+        pd.DataFrame(rows),
+        source_file=source_file,
+    )
+    return {
+        "profile": profile,
+        "source_file": Path(str(source_file)).name,
+        "row_count": len(normalized),
+        "preview_rows": normalized.head(50).to_dict("records"),
+        "can_generate_report": False,
+        "status": "Upload parsed locally. Review/report generation not enabled yet.",
     }
 
 

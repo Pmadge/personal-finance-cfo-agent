@@ -16,6 +16,7 @@ import streamlit as st
 
 import pandas as pd
 
+from modules.importers.personal_csv import write_uploaded_transactions
 from modules.ui.report_reader import (
     RISK_COLORS,
     VARIANCE_COLORS,
@@ -26,6 +27,7 @@ from modules.ui.report_reader import (
     build_monthly_report_model,
     build_privacy_settings_model,
     build_stress_test_model,
+    build_upload_preview_model,
     load_category_review_rows,
     load_report_contract,
     load_stress_test_summary,
@@ -34,6 +36,7 @@ from modules.ui.report_reader import (
 DEFAULT_REPORT_JSON = Path("outputs/report_json/portfolio_demo_2026-03.json")
 DEFAULT_CATEGORY_REVIEW = Path("data/processed/category_review.csv")
 DEFAULT_STRESS_TEST_RUN = Path("outputs/stress_tests/review_smoke_12_personas")
+DEFAULT_UPLOAD_NORMALIZED = Path("data/processed/uploaded_transactions_normalized.csv")
 
 
 st.set_page_config(page_title="Personal Finance CFO Agent", page_icon="📊", layout="wide", initial_sidebar_state="collapsed")
@@ -43,13 +46,13 @@ def main() -> None:
     st.title("Personal Finance CFO Agent")
     st.caption("Local-first Read & Trust app over verified sample report JSON.")
 
-    st.sidebar.caption("MVP v0.1 reads approved sample artifacts only.")
+    st.sidebar.caption("Local-first MVP: sample reports plus upload preview.")
     report_path = DEFAULT_REPORT_JSON
     category_review_path = DEFAULT_CATEGORY_REVIEW
     stress_test_path = DEFAULT_STRESS_TEST_RUN
     page = st.sidebar.radio(
         "Screen",
-        ["Home Dashboard", "Monthly Report", "Category Review", "Stress Test Explorer", "Local AI Memo", "Settings / Privacy"],
+        ["Home Dashboard", "Upload Transactions", "Monthly Report", "Category Review", "Stress Test Explorer", "Local AI Memo", "Settings / Privacy"],
     )
 
     try:
@@ -62,6 +65,8 @@ def main() -> None:
 
     if page == "Home Dashboard":
         render_home_dashboard(build_home_dashboard_model(contract))
+    elif page == "Upload Transactions":
+        render_upload_transactions()
     elif page == "Monthly Report":
         render_monthly_report(build_monthly_report_model(contract))
     elif page == "Category Review":
@@ -107,6 +112,33 @@ def render_home_dashboard(model: dict) -> None:
 
     st.markdown("#### Source artifacts")
     st.write(", ".join(model["source_artifacts"]))
+
+
+def render_upload_transactions() -> None:
+    st.subheader("Upload Transactions")
+    st.info("Local preview only. Files are not sent anywhere and report generation stays locked until review is wired in.")
+    uploaded = st.file_uploader("CSV statement or transaction history", type=["csv"])
+    if uploaded is None:
+        st.caption("Supported now: personal template columns or Debit/Credit bank-export columns.")
+        return
+
+    try:
+        raw = pd.read_csv(uploaded)
+        model = build_upload_preview_model(raw.to_dict("records"), source_file=uploaded.name)
+    except Exception as error:  # Streamlit boundary: show parser errors instead of crashing.
+        st.error(f"Upload could not be parsed: {error}")
+        return
+
+    st.success(model["status"])
+    cols = st.columns(3)
+    cols[0].metric("Rows", model["row_count"])
+    cols[1].metric("Profile", model["profile"])
+    cols[2].metric("Report generation", "Locked")
+    st.caption(f"Source file: {model['source_file']}")
+    st.dataframe(pd.DataFrame(model["preview_rows"]), use_container_width=True, hide_index=True)
+    if st.button("Save normalized CSV locally"):
+        write_uploaded_transactions(raw, DEFAULT_UPLOAD_NORMALIZED, source_file=uploaded.name)
+        st.success(f"Saved to {DEFAULT_UPLOAD_NORMALIZED}")
 
 
 def render_monthly_report(model: dict) -> None:
@@ -234,8 +266,8 @@ def render_privacy_settings(model: dict) -> None:
 
 def _privacy_banner() -> None:
     st.warning(
-        "Sample mode active. Real data locked. Local-only. No bank login. "
-        "No cloud sync. No cloud AI. Local AI memo off by default."
+        "Upload preview active. Reports still use sample artifacts until review/report generation is wired. "
+        "No bank login. No cloud sync. No cloud AI. Local AI memo off by default."
     )
 
 

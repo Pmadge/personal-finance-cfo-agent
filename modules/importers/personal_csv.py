@@ -168,6 +168,39 @@ def normalize_personal_transactions(
     return validate_transactions_for_processing(normalized)
 
 
+def normalize_uploaded_transactions(df, source_file="uploaded.csv"):
+    """Detect a supported uploaded CSV profile and normalize it for preview."""
+    columns = set(df.columns)
+    if set(REQUIRED_IMPORT_COLUMNS).issubset(columns):
+        return "personal-template", normalize_personal_transactions(
+            df,
+            source_file=source_file,
+            import_batch_id="upload_preview",
+        )
+    if set(FAKE_BANK_EXPORT_COLUMNS).issubset(columns):
+        return "debit-credit", normalize_fake_bank_export(
+            df,
+            source_file=source_file,
+            import_batch_id="upload_preview",
+        )
+    raise ValueError(
+        "Unsupported upload columns. Use either "
+        f"{', '.join(REQUIRED_IMPORT_COLUMNS)} or {', '.join(FAKE_BANK_EXPORT_COLUMNS)}."
+    )
+
+
+def write_uploaded_transactions(df, output_path, source_file="uploaded.csv"):
+    """Normalize an uploaded CSV and write it to an approved local processed path."""
+    output_path = Path(output_path)
+    if not validate_safe_output_path(output_path):
+        raise ValueError("Unsafe personal output path. Use data/processed/ or outputs/personal/.")
+    output_path = resolve_local_path(output_path)
+    profile, normalized = normalize_uploaded_transactions(df, source_file=source_file)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    normalized.to_csv(output_path, index=False)
+    return profile, normalized
+
+
 def normalize_personal_csv(input_path, output_path, allow_unsafe_output=False):
     """Read a local CSV export, normalize it, and write the processed CSV.
 

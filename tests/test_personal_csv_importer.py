@@ -18,7 +18,9 @@ from modules.importers.personal_csv import (
     normalize_fake_bank_export,
     normalize_personal_csv,
     normalize_personal_transactions,
+    normalize_uploaded_transactions,
     validate_safe_output_path,
+    write_uploaded_transactions,
 )
 from modules.validation import REQUIRED_COLUMNS, validate_transactions_for_processing
 
@@ -189,6 +191,94 @@ def test_normalize_personal_transactions_maps_template_to_internal_schema():
         },
     ]
     validate_transactions_for_processing(normalized)
+
+
+def test_normalize_uploaded_transactions_detects_supported_template_profile():
+    """UI uploads should reuse importer profiles instead of inventing UI parsing."""
+    raw = pd.DataFrame(
+        [
+            {
+                "posted_date": "2026-04-01",
+                "description": "Real Uploaded Payroll",
+                "amount": 2500.00,
+                "source_category": "income",
+            }
+        ]
+    )
+
+    profile, normalized = normalize_uploaded_transactions(raw, source_file="checking.csv")
+
+    assert profile == "personal-template"
+    assert normalized.loc[0, "vendor"] == "Real Uploaded Payroll"
+    assert normalized.loc[0, "source_file"] == "checking.csv"
+
+
+def test_normalize_uploaded_transactions_detects_supported_debit_credit_profile():
+    """Uploaded bank-style Debit/Credit exports should normalize with existing logic."""
+    raw = pd.DataFrame(
+        [
+            {
+                "Transaction Date": "2026-04-01",
+                "Description": "Real Uploaded Grocery",
+                "Debit": "73.42",
+                "Credit": "",
+                "Category": "groceries",
+                "Account Name": "Checking",
+                "Transaction ID": "bank_001",
+            }
+        ]
+    )
+
+    profile, normalized = normalize_uploaded_transactions(raw, source_file="bank.csv")
+
+    assert profile == "debit-credit"
+    assert normalized.loc[0, "amount"] == -73.42
+    assert normalized.loc[0, "transaction_id"] == "bank_001"
+
+
+def test_normalize_uploaded_transactions_rejects_unknown_columns():
+    """Unsupported uploads should fail with the accepted column sets."""
+    raw = pd.DataFrame([{"date": "2026-04-01", "memo": "Store", "value": -1}])
+
+    with pytest.raises(ValueError, match="Unsupported upload columns"):
+        normalize_uploaded_transactions(raw, source_file="unknown.csv")
+
+
+def test_write_uploaded_transactions_writes_only_safe_processed_output():
+    output_path = PROJECT_ROOT / "data" / "processed" / "test_uploaded_normalized.csv"
+    output_path.unlink(missing_ok=True)
+    raw = pd.DataFrame(
+        [
+            {
+                "posted_date": "2026-04-01",
+                "description": "Uploaded Payroll",
+                "amount": 2500.0,
+                "source_category": "income",
+            }
+        ]
+    )
+    try:
+        profile, normalized = write_uploaded_transactions(
+            raw,
+            output_path,
+            source_file="checking.csv",
+        )
+
+        assert profile == "personal-template"
+        assert output_path.exists()
+        written = pd.read_csv(output_path, keep_default_na=False)
+        assert written.to_dict("records") == normalized.to_dict("records")
+    finally:
+        output_path.unlink(missing_ok=True)
+
+
+def test_write_uploaded_transactions_rejects_unsafe_output(tmp_path):
+    raw = pd.DataFrame(
+        [{"posted_date": "2026-04-01", "description": "Uploaded", "amount": 1, "source_category": "income"}]
+    )
+
+    with pytest.raises(ValueError, match="Unsafe personal output path"):
+        write_uploaded_transactions(raw, tmp_path / "normalized.csv", source_file="checking.csv")
 
 
 def test_normalize_personal_csv_writes_processed_output(tmp_path):

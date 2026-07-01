@@ -17,6 +17,7 @@ from modules.ui.report_reader import (
     build_monthly_report_model,
     build_privacy_settings_model,
     build_stress_test_model,
+    build_upload_preview_model,
     load_category_review_rows,
     load_report_contract,
     load_stress_test_summary,
@@ -223,6 +224,31 @@ def test_category_review_model_summarizes_read_only_review_rows():
     assert model["categories"] == ["Food & Dining", "Housing", "Income"]
     assert model["rows"][0]["source_file"] == "personal_transactions_template.csv"
     assert model["rows"][0]["source_row_number"] == "2"
+
+
+def test_upload_preview_model_normalizes_supported_uploaded_csv():
+    rows = [
+        {
+            "posted_date": "2026-04-01",
+            "description": "Uploaded Payroll",
+            "amount": 2500.0,
+            "source_category": "income",
+        },
+        {
+            "posted_date": "2026-04-02",
+            "description": "Uploaded Grocery",
+            "amount": -73.42,
+            "source_category": "groceries",
+        },
+    ]
+
+    model = build_upload_preview_model(rows, source_file="checking.csv")
+
+    assert model["profile"] == "personal-template"
+    assert model["row_count"] == 2
+    assert model["source_file"] == "checking.csv"
+    assert model["preview_rows"][0]["vendor"] == "Uploaded Payroll"
+    assert model["can_generate_report"] is False
 
 
 def test_category_review_model_rejects_source_path_leak():
