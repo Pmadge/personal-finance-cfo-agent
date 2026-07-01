@@ -11,6 +11,7 @@ import hashlib
 
 import pandas as pd
 
+from modules.categorization_review import build_category_review, write_category_review_file
 from modules.validation import REQUIRED_COLUMNS, validate_transactions_for_processing
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -199,6 +200,18 @@ def write_uploaded_transactions(df, output_path, source_file="uploaded.csv"):
     output_path.parent.mkdir(parents=True, exist_ok=True)
     normalized.to_csv(output_path, index=False)
     return profile, normalized
+
+
+def write_uploaded_category_review(df, output_path, source_file="uploaded.csv"):
+    """Normalize an uploaded CSV and persist a local category review file."""
+    output_path = Path(output_path)
+    if not validate_safe_output_path(output_path):
+        raise ValueError("Unsafe personal output path. Use data/processed/ or outputs/personal/.")
+    output_path = resolve_local_path(output_path)
+    profile, normalized = normalize_uploaded_transactions(df, source_file=source_file)
+    review = build_category_review(normalized)
+    write_category_review_file(review, output_path)
+    return profile, review
 
 
 def normalize_personal_csv(input_path, output_path, allow_unsafe_output=False):

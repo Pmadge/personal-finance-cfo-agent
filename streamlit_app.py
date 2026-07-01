@@ -16,7 +16,7 @@ import streamlit as st
 
 import pandas as pd
 
-from modules.importers.personal_csv import write_uploaded_transactions
+from modules.importers.personal_csv import write_uploaded_category_review, write_uploaded_transactions
 from modules.ui.report_reader import (
     RISK_COLORS,
     VARIANCE_COLORS,
@@ -38,6 +38,7 @@ DEFAULT_REPORT_JSON = Path("outputs/report_json/portfolio_demo_2026-03.json")
 DEFAULT_CATEGORY_REVIEW = Path("data/processed/category_review.csv")
 DEFAULT_STRESS_TEST_RUN = Path("outputs/stress_tests/review_smoke_12_personas")
 DEFAULT_UPLOAD_NORMALIZED = Path("data/processed/uploaded_transactions_normalized.csv")
+DEFAULT_UPLOAD_CATEGORY_REVIEW = Path("data/processed/uploaded_category_review.csv")
 
 
 st.set_page_config(page_title="Personal Finance CFO Agent", page_icon="📊", layout="wide", initial_sidebar_state="collapsed")
@@ -149,6 +150,9 @@ def render_upload_transactions() -> None:
     if st.button("Save normalized CSV locally"):
         write_uploaded_transactions(raw, DEFAULT_UPLOAD_NORMALIZED, source_file=uploaded.name)
         st.success(f"Saved to {DEFAULT_UPLOAD_NORMALIZED}")
+    if st.button("Save category review CSV locally"):
+        write_uploaded_category_review(raw, DEFAULT_UPLOAD_CATEGORY_REVIEW, source_file=uploaded.name)
+        st.success(f"Saved to {DEFAULT_UPLOAD_CATEGORY_REVIEW}")
 
 
 def render_monthly_report(model: dict) -> None:

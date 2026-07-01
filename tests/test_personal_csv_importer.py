@@ -20,6 +20,7 @@ from modules.importers.personal_csv import (
     normalize_personal_transactions,
     normalize_uploaded_transactions,
     validate_safe_output_path,
+    write_uploaded_category_review,
     write_uploaded_transactions,
 )
 from modules.validation import REQUIRED_COLUMNS, validate_transactions_for_processing
@@ -279,6 +280,40 @@ def test_write_uploaded_transactions_rejects_unsafe_output(tmp_path):
 
     with pytest.raises(ValueError, match="Unsafe personal output path"):
         write_uploaded_transactions(raw, tmp_path / "normalized.csv", source_file="checking.csv")
+
+
+def test_write_uploaded_category_review_writes_review_file_to_safe_output():
+    output_path = PROJECT_ROOT / "data" / "processed" / "test_uploaded_category_review.csv"
+    output_path.unlink(missing_ok=True)
+    raw = pd.DataFrame(
+        [
+            {
+                "posted_date": "2026-04-01",
+                "description": "Uploaded Payroll",
+                "amount": 2500.0,
+                "source_category": "income",
+            }
+        ]
+    )
+    try:
+        profile, review = write_uploaded_category_review(raw, output_path, source_file="checking.csv")
+
+        assert profile == "personal-template"
+        assert output_path.exists()
+        written = pd.read_csv(output_path, keep_default_na=False)
+        assert written.to_dict("records") == review.to_dict("records")
+        assert written.loc[0, "suggested_category"] == "Income"
+    finally:
+        output_path.unlink(missing_ok=True)
+
+
+def test_write_uploaded_category_review_rejects_unsafe_output(tmp_path):
+    raw = pd.DataFrame(
+        [{"posted_date": "2026-04-01", "description": "Uploaded", "amount": 1, "source_category": "income"}]
+    )
+
+    with pytest.raises(ValueError, match="Unsafe personal output path"):
+        write_uploaded_category_review(raw, tmp_path / "review.csv", source_file="checking.csv")
 
 
 def test_normalize_personal_csv_writes_processed_output(tmp_path):
