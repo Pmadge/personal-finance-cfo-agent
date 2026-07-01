@@ -31,13 +31,15 @@ from modules.self_checks import assert_personal_report_self_checks
 from modules.workflow_audit import validate_safe_listed_output_path
 
 DEFAULT_REVIEWED_INPUT = PROJECT_ROOT / "data" / "processed" / "category_review_applied.csv"
+UPLOADED_REVIEWED_INPUT = PROJECT_ROOT / "data" / "processed" / "uploaded_category_review.csv"
+APPROVED_REVIEWED_INPUTS = {DEFAULT_REVIEWED_INPUT.resolve(), UPLOADED_REVIEWED_INPUT.resolve()}
 DEFAULT_OUTPUT = PROJECT_ROOT / "outputs" / "personal" / "personal_cfo_report_draft.pdf"
 DEFAULT_CHARTS_DIR = PROJECT_ROOT / "outputs" / "personal" / "charts"
 
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Generate a local draft personal CFO report from reviewed fake data."
+        description="Generate a local draft personal CFO report from reviewed transaction rows."
     )
     parser.add_argument("--reviewed-input", type=Path, default=DEFAULT_REVIEWED_INPUT)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
@@ -68,11 +70,10 @@ def _validate_paths(reviewed_input, output, charts_dir, allow_unsafe_input_for_t
     if not Path(reviewed_input).exists():
         raise SystemExit(f"Missing reviewed input: {reviewed_input}")
     if not allow_unsafe_input_for_tests:
-        if Path(reviewed_input).expanduser().resolve() != DEFAULT_REVIEWED_INPUT.resolve():
+        if Path(reviewed_input).expanduser().resolve() not in APPROVED_REVIEWED_INPUTS:
             raise SystemExit(
-                "Fake personal report generation only accepts the default reviewed "
-                "sample workflow file until personal mode is approved: "
-                f"{DEFAULT_REVIEWED_INPUT}"
+                "Personal report generation only accepts approved reviewed workflow files: "
+                + ", ".join(_relative(path) for path in sorted(APPROVED_REVIEWED_INPUTS))
             )
         if not _is_under(reviewed_input, PROJECT_ROOT / "data" / "processed"):
             raise SystemExit("Reviewed input must stay under data/processed/ until personal mode is approved.")
@@ -326,7 +327,13 @@ def _add_pillar_sections(story, report_df, profile, styles):
         ))
 
 
-def build_draft_personal_report(report_df, output_path, charts_dir=DEFAULT_CHARTS_DIR, profile=None):
+def build_draft_personal_report(
+    report_df,
+    output_path,
+    charts_dir=DEFAULT_CHARTS_DIR,
+    profile=None,
+    privacy_notice="Sample or fictional data only. Do not use real financial data yet.",
+):
     """Lower-level renderer; callers must run assert_personal_report_self_checks first."""
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -350,7 +357,7 @@ def build_draft_personal_report(report_df, output_path, charts_dir=DEFAULT_CHART
     story = [
         Paragraph("Draft Personal CFO Report", styles["Title"]),
         Spacer(1, 0.18 * inch),
-        Paragraph("Sample or fictional data only. Do not use real financial data yet.", styles["BodyText"]),
+        Paragraph(privacy_notice, styles["BodyText"]),
         Spacer(1, 0.2 * inch),
         Paragraph("Visual CFO Snapshot", styles["Heading2"]),
         Table(
@@ -409,6 +416,12 @@ def build_draft_personal_report(report_df, output_path, charts_dir=DEFAULT_CHART
     return output_path
 
 
+def _privacy_notice_for_input(reviewed_input):
+    if Path(reviewed_input).expanduser().resolve() == UPLOADED_REVIEWED_INPUT.resolve():
+        return "Local reviewed personal data. Keep private; do not publish without privacy review."
+    return "Sample or fictional data only. Do not use real financial data yet."
+
+
 def main():
     args = parse_args()
     _validate_paths(args.reviewed_input, args.output, args.charts_dir, args.allow_unsafe_input_for_tests)
@@ -416,10 +429,15 @@ def main():
     report_df = build_report_transactions_from_review(review_df)
     checks = assert_personal_report_self_checks(review_df, report_df, APPROVED_CATEGORIES)
     print(f"Personal report self-checks passed ({len(checks)} checks).")
-    output_path = build_draft_personal_report(report_df, args.output, args.charts_dir)
+    output_path = build_draft_personal_report(
+        report_df,
+        args.output,
+        args.charts_dir,
+        privacy_notice=_privacy_notice_for_input(args.reviewed_input),
+    )
     print(f"Wrote draft personal report: {_relative(output_path)}")
     print(f"Wrote personal report charts: {_relative(args.charts_dir)}")
-    print("Reminder: sample or fictional data only. Do not use real financial data yet.")
+    print(_privacy_notice_for_input(args.reviewed_input))
 
 
 if __name__ == "__main__":
