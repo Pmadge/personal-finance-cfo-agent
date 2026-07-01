@@ -14,7 +14,7 @@ from typing import Any
 
 import pandas as pd
 
-from modules.categorization_review import REVIEW_COLUMNS
+from modules.categorization_review import REVIEW_COLUMNS, build_category_review
 from modules.importers.personal_csv import normalize_uploaded_transactions
 
 EXPECTED_SCHEMA_VERSION = "1.0.0"
@@ -231,6 +231,29 @@ def build_upload_preview_model(rows: list[dict[str, Any]], source_file="uploaded
         "preview_rows": normalized.head(50).to_dict("records"),
         "can_generate_report": False,
         "status": "Upload parsed locally. Review/report generation not enabled yet.",
+    }
+
+
+def build_uploaded_category_review_model(rows: list[dict[str, Any]], source_file="uploaded.csv") -> dict[str, Any]:
+    """Normalize uploaded rows and build category suggestions for human review."""
+    profile, normalized = normalize_uploaded_transactions(
+        pd.DataFrame(rows),
+        source_file=source_file,
+    )
+    review = build_category_review(normalized)
+    review_rows = review.to_dict("records")
+    counts = {"total_rows": len(review_rows), "needs_review": 0, "auto_suggested": 0, "manual_override": 0}
+    for row in review_rows:
+        status = row["review_status"]
+        if status in counts:
+            counts[status] += 1
+    return {
+        "profile": profile,
+        "source_file": Path(str(source_file)).name,
+        "status_counts": counts,
+        "rows": review_rows,
+        "can_generate_report": False,
+        "status": "Categories suggested locally. Review/report generation remains locked.",
     }
 
 

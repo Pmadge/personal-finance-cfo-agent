@@ -27,6 +27,7 @@ from modules.ui.report_reader import (
     build_monthly_report_model,
     build_privacy_settings_model,
     build_stress_test_model,
+    build_uploaded_category_review_model,
     build_upload_preview_model,
     load_category_review_rows,
     load_report_contract,
@@ -125,6 +126,7 @@ def render_upload_transactions() -> None:
     try:
         raw = pd.read_csv(uploaded)
         model = build_upload_preview_model(raw.to_dict("records"), source_file=uploaded.name)
+        review_model = build_uploaded_category_review_model(raw.to_dict("records"), source_file=uploaded.name)
     except Exception as error:  # Streamlit boundary: show parser errors instead of crashing.
         st.error(f"Upload could not be parsed: {error}")
         return
@@ -135,7 +137,15 @@ def render_upload_transactions() -> None:
     cols[1].metric("Profile", model["profile"])
     cols[2].metric("Report generation", "Locked")
     st.caption(f"Source file: {model['source_file']}")
+    st.markdown("#### Normalized preview")
     st.dataframe(pd.DataFrame(model["preview_rows"]), use_container_width=True, hide_index=True)
+    st.markdown("#### Category review preview")
+    st.caption(review_model["status"])
+    review_cols = st.columns(3)
+    review_cols[0].metric("Needs review", review_model["status_counts"]["needs_review"])
+    review_cols[1].metric("Auto suggested", review_model["status_counts"]["auto_suggested"])
+    review_cols[2].metric("Manual overrides", review_model["status_counts"]["manual_override"])
+    st.dataframe(pd.DataFrame(review_model["rows"]), use_container_width=True, hide_index=True)
     if st.button("Save normalized CSV locally"):
         write_uploaded_transactions(raw, DEFAULT_UPLOAD_NORMALIZED, source_file=uploaded.name)
         st.success(f"Saved to {DEFAULT_UPLOAD_NORMALIZED}")
