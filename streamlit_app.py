@@ -19,7 +19,7 @@ import streamlit as st
 import pandas as pd
 
 from modules.config import APPROVED_CATEGORIES
-from modules.importers.personal_csv import write_uploaded_transactions
+from modules.importers.personal_csv import parse_coasthills_visa_pdf, write_uploaded_transactions
 from modules.ui.report_reader import (
     RISK_COLORS,
     VARIANCE_COLORS,
@@ -126,14 +126,17 @@ def render_home_dashboard(model: dict) -> None:
 def render_upload_transactions() -> None:
     st.subheader("Upload Transactions")
     st.info("Local preview only. Files are not sent anywhere and report generation stays locked until review is wired in.")
-    uploaded = st.file_uploader("CSV statement or transaction history", type=["csv"])
+    uploaded = st.file_uploader("CSV or PDF statement/transaction history", type=["csv", "pdf"])
     if uploaded is None:
-        st.caption("Supported now: personal template columns or Debit/Credit bank-export columns.")
+        st.caption("Supported now: personal template CSV, Debit/Credit CSV, or CoastHills FCU Visa PDF statements.")
         _render_uploaded_report_action()
         return
 
     try:
-        raw = pd.read_csv(uploaded)
+        if uploaded.name.lower().endswith(".pdf"):
+            raw = parse_coasthills_visa_pdf(uploaded.read(), source_file=uploaded.name)
+        else:
+            raw = pd.read_csv(uploaded)
         model = build_upload_preview_model(raw.to_dict("records"), source_file=uploaded.name)
         review_model = build_uploaded_category_review_model(raw.to_dict("records"), source_file=uploaded.name)
     except Exception as error:  # Streamlit boundary: show parser errors instead of crashing.

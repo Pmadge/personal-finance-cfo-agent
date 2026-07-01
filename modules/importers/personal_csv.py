@@ -8,7 +8,9 @@ the standalone CLI remains the fake/sample-only user entry point.
 
 from pathlib import Path
 import hashlib
+import re
 
+import fitz
 import pandas as pd
 
 from modules.categorization_review import build_category_review, write_category_review_file
@@ -92,6 +94,9 @@ FAKE_BANK_EXPORT_COLUMNS = [
     "Account Name",
     "Transaction ID",
 ]
+STATEMENT_DATE_RE = re.compile(r"^\d{2}/\d{2}$")
+STATEMENT_REFERENCE_RE = re.compile(r"^\d{20,}$")
+STATEMENT_MONEY_RE = re.compile(r"^\$?\s*\d{1,3}(?:,\d{3})*\.\d{2}-?$")
 
 
 def _missing_fake_bank_columns(df):
@@ -167,6 +172,64 @@ def normalize_personal_transactions(
 
     normalized = normalized[REQUIRED_COLUMNS + IDENTITY_COLUMNS]
     return validate_transactions_for_processing(normalized)
+
+
+def _statement_pdf_lines(input_pdf):
+    if isinstance(input_pdf, (bytes, bytearray)):
+        document = fitz.open(stream=input_pdf, filetype="pdf")
+    else:
+        document = fitz.open(input_pdf)
+    return [line.strip() for page in document for line in page.get_text("text").splitlines() if line.strip()]
+
+
+def _money_to_float(value):
+    return float(str(value).replace("$", "").replace(",", "").replace("-", ""))
+
+
+def parse_coasthills_visa_pdf(input_pdf, source_file="statement.pdf"):
+    """Extract purchase rows from CoastHills FCU Visa statement PDFs."""
+    rows = []
+    lines = _statement_pdf_lines(input_pdf)
+    for index in range(len(lines) - 5):
+        if not (
+            STATEMENT_DATE_RE.match(lines[index])
+            and STATEMENT_DATE_RE.match(lines[index + 1])
+            and lines[index + 2].startswith("PPLN")
+            and STATEMENT_REFERENCE_RE.match(lines[index + 3])
+        ):
+            continue
+        amount_index = index + 5
+        if amount_index < len(lines) and lines[amount_index] == "$":
+            amount_index += 1
+        if amount_index >= len(lines) or not STATEMENT_MONEY_RE.match(lines[amount_index]):
+            continue
+        posted_month, posted_day = lines[index + 1].split("/")
+        rows.append(
+            {
+                "posted_date": f"2026-{posted_month}-{posted_day}",
+                "description": lines[index + 4],
+                "amount": -_money_to_float(lines[amount_index]),
+                "source_category": "misc",
+                "source_account": "CoastHills FCU Visa",
+                "transaction_id": lines[index + 3],
+            }
+        )
+    if not rows:
+        raise ValueError("No CoastHills Visa statement transactions found in PDF")
+    return pd.DataFrame(rows)
+
+
+def normalize_uploaded_statement_file(file_obj, source_file="uploaded"):
+    """Normalize an uploaded CSV or CoastHills Visa PDF statement."""
+    source_name = Path(str(source_file)).name
+    if source_name.lower().endswith(".pdf"):
+        parsed = parse_coasthills_visa_pdf(file_obj, source_file=source_name)
+        return "coasthills-visa-pdf", normalize_personal_transactions(
+            parsed,
+            source_file=source_name,
+            import_batch_id="upload_preview",
+        )
+    return normalize_uploaded_transactions(pd.read_csv(file_obj), source_file=source_name)
 
 
 def normalize_uploaded_transactions(df, source_file="uploaded.csv"):
