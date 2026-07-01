@@ -11,7 +11,7 @@ The default design should work without cloud accounts, hosted databases, externa
 1. **Local by default**: all processing happens locally unless explicitly approved.
 2. **No credentials in the app**: no bank passwords, OAuth tokens, API keys, or brokerage credentials.
 3. **Manual import first**: exported CSV files before any bank integration is even considered.
-4. **Fictional data until safety is ready**: current repo data and screenshots stay fictional/sample-only.
+4. **Fictional committed assets**: repo data and screenshots stay fictional/sample-only; explicitly provided local uploads may be processed in Git-ignored folders.
 5. **Clear private folders**: real inputs, processed data, local rules, and personal outputs stay in Git-ignored folders.
 6. **No accidental sharing**: no portfolio screenshot or committed artifact may show real vendors, accounts, balances, or spending.
 7. **User review before automation**: categories, assumptions, and report outputs should be reviewable before trusted.
@@ -62,9 +62,9 @@ Status: **complete**
 - [x] Add GitHub Actions CI.
 - [x] Keep generated PDFs/charts local or regenerated on demand.
 
-## Phase 2: Manual personal CSV import foundation
+## Phase 2: Manual personal CSV/PDF import foundation
 
-Status: **sample/fake fixtures complete, real personal import still disabled**
+Status: **local upload path active for approved manual files**
 
 - [x] Create `data/personal/` and add it to `.gitignore`.
 - [x] Create personal CSV templates using fake data only.
@@ -81,8 +81,10 @@ Status: **sample/fake fixtures complete, real personal import still disabled**
 - [x] Add clear validation errors.
 - [x] Add fake bank-export profile coverage.
 - [x] Add tests with fake personal-style CSV fixtures only.
+- [x] Add local Streamlit upload support for one CSV, one CoastHills Visa PDF, or multiple CoastHills Visa PDFs merged into one review file.
+- [x] Reconcile the attached February-May 2026 PDF statement totals against parsed purchase rows.
 
-Real personal import remains disabled until Paul explicitly approves a real-data safety gate.
+Bank-login automation remains out of scope; manual local uploads are the approved path.
 
 ## Phase 3: Categorization review workflow
 
@@ -94,7 +96,9 @@ Status: **sample workflow complete**
 - [x] Keep local vendor/category rules Git-ignored.
 - [x] Add tests for category overrides and unknown vendors.
 - [x] Add duplicate checks for source IDs, source rows, and exact final-statement rows before report rendering.
-- [ ] Promote repeat vendor overrides into a reusable local rules flow.
+- [x] Preserve transaction IDs so legitimate same-date/same-vendor/same-amount card charges are not blocked as duplicates.
+- [x] Add merchant-rule bulk fill for common uploaded statement vendors.
+- [ ] Promote repeat vendor overrides into a reusable local rules file if static merchant rules become too limited.
 
 ## Phase 4: Monthly close workflow
 
@@ -140,7 +144,7 @@ These are wired into both:
 Current verification:
 
 ```text
-212 local tests passing
+231 local tests passing
 GitHub Actions passing
 100-persona stress harness available
 value-invariant checks added to the stress harness
@@ -199,13 +203,14 @@ The first safe feature should be a local AI CFO memo from generated fake/sample 
 
 ## Phase 9: Local app/interface
 
-Status: **Streamlit Read & Trust MVP complete**
+Status: **Streamlit local upload/report MVP active**
 
-The app is a read-only wrapper around tested modules and approved sample artifacts. It renders verified report JSON, the local sample category review CSV, and the fictional stress-test summary. It does not replace the deterministic engine.
+The app is a wrapper around tested modules and approved artifacts. It renders verified sample report JSON, sample category review CSV, and fictional stress-test summaries. It also supports a local Upload Transactions flow for explicitly selected files.
 
 Current screens:
 
 - Home Dashboard
+- Upload Transactions with one CSV, one PDF, multi-PDF merge, category editing, merchant-rule bulk fill, and gated report generation
 - Monthly Report
 - Category Review
 - Stress Test Explorer

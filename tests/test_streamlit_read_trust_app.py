@@ -15,6 +15,7 @@ from modules.ui.report_reader import (
     build_home_dashboard_model,
     build_local_ai_memo_model,
     build_monthly_report_model,
+    apply_merchant_category_rules,
     build_privacy_settings_model,
     build_stress_test_model,
     build_uploaded_category_review_model,
@@ -299,6 +300,37 @@ def test_save_uploaded_category_review_edits_updates_status_and_validates_catego
     rows[1]["final_category"] = "Not Approved"
     with pytest.raises(ValueError, match="Invalid final_category"):
         save_uploaded_category_review_edits(rows, output_path)
+
+
+def test_apply_merchant_category_rules_bulk_fills_pdf_statement_rows():
+    rows = _category_review_rows()
+    rows[1].update(
+        {
+            "vendor": "COSTCO WHSE #0474 GOLETA CA",
+            "raw_category": "misc",
+            "suggested_category": "Other",
+            "review_status": "needs_review",
+            "final_category": "",
+        }
+    )
+    rows[2].update(
+        {
+            "vendor": "GITHUB, INC. GITHUB.COM CA",
+            "raw_category": "misc",
+            "suggested_category": "Other",
+            "review_status": "needs_review",
+            "final_category": "",
+        }
+    )
+
+    updated, changed = apply_merchant_category_rules(rows)
+
+    assert changed == 2
+    assert updated[1]["final_category"] == "Food & Dining"
+    assert updated[2]["final_category"] == "Subscriptions"
+    assert updated[1]["review_status"] == "manual_override"
+    assert "merchant rule" in updated[1]["override_note"]
+    assert updated[0]["final_category"] == "Income"
 
 
 def test_uploaded_report_action_model_blocks_until_review_file_is_ready(tmp_path):

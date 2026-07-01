@@ -1,8 +1,8 @@
 # Personal Finance CFO Agent
 
-A local-first portfolio prototype that turns fictional transaction data into a family-office-style monthly CFO packet.
+A local-first portfolio prototype that turns fictional samples or user-approved local statement uploads into a family-office-style monthly CFO packet.
 
-> **Fictional data only:** this project does not connect to bank accounts, does not use real personal financial data, and is not financial advice.
+> **Local-first:** this project does not connect to bank accounts, does not use cloud AI, and is not financial advice. Portfolio screenshots and committed artifacts stay fictional/sample-only. Real uploads stay local in Git-ignored folders.
 
 For a deeper visual walkthrough with sample report screenshots, see the
 [Portfolio Summary](docs/PORTFOLIO_SUMMARY.md).
@@ -40,10 +40,10 @@ The Personal Finance CFO Agent turns fictional transaction data into a family of
 Current verification status:
 
 ```text
-212 local tests passing
+231 local tests passing
 GitHub Actions passing
 100-persona fictional stress harness available
-Real personal data disabled until explicit safety approval
+Local CSV upload, CoastHills Visa PDF upload, multi-PDF merge, category review, and gated personal report generation verified
 ```
 
 ## What It Produces
@@ -89,7 +89,14 @@ python3 scripts/generate_report_json.py
 
 ### Local Read & Trust app
 
-The local app is a read-only Streamlit dashboard over the verified report JSON contract. It does not calculate new numbers, call AI, connect to banks, or use real financial data.
+The local Streamlit app reads the verified sample report JSON and also has a local Upload Transactions screen. Uploads never leave the machine. Supported upload paths now include:
+
+- one personal-template CSV
+- one Debit/Credit CSV export
+- one CoastHills FCU Visa statement PDF
+- multiple CoastHills FCU Visa statement PDFs merged into one review file
+
+The upload flow is: upload → preview normalized rows → apply merchant rules if useful → edit final categories → save local review CSV → generate a gated local CFO report.
 
 ```bash
 python3 -m pip install -r requirements.txt
@@ -102,11 +109,12 @@ streamlit run streamlit_app.py
 Current screens:
 
 1. Home Dashboard — the 10-second CFO verdict and headline metrics.
-2. Settings / Privacy — sample/local-only trust settings and self-check status.
+2. Upload Transactions — local CSV/PDF upload, category review editing, merchant-rule bulk fill, and gated report generation.
 3. Monthly Report — section navigation over the verified report JSON sections.
 4. Category Review — read-only Workbench table over the local sample review CSV.
 5. Stress Test Explorer — read-only Workbench grid over generated fictional stress-test results.
 6. Local AI Memo — disabled placeholder only; no AI call, no cloud fallback, no generated memo.
+7. Settings / Privacy — sample/local-only trust settings and self-check status.
 
 ### Personalize the report (optional)
 
@@ -162,9 +170,9 @@ To use a different fictional dataset, replace that file with a CSV using the sam
 
 Long term, this project should become a local-first personal CFO product that can run fully on Paul's Mac as either a script workflow or a small local app. The default design should not require cloud hosting, external AI APIs, hosted databases, or bank-login integrations.
 
-Personal financial data should stay local. For now, the project should continue using fictional/sample data; real personal data remains disabled until explicit safety approval.
+Personal financial data should stay local. The repository and portfolio screenshots stay fictional/sample-only, while the local app can process explicitly provided CSV/PDF statement uploads into Git-ignored local folders.
 
-Important local-data rule: real transaction CSVs, processed personal files, local vendor rules, and personal reports belong only in Git-ignored local folders such as `data/personal/`, `data/processed/`, and `outputs/personal/`. Do not use real financial data in portfolio screenshots or committed sample artifacts.
+Important local-data rule: real transaction CSVs, PDF statements, processed personal files, local vendor rules, and personal reports belong only in Git-ignored local folders such as `data/personal/`, `data/processed/`, and `outputs/personal/`. Do not use real financial data in portfolio screenshots or committed sample artifacts.
 
 Roadmap: `docs/LOCAL_FIRST_PERSONAL_USE_ROADMAP.md`
 Backend/data foundation: `docs/BACKEND_DATA_FOUNDATION.md`

@@ -4,16 +4,16 @@ A local-first Python system that turns fictional transaction data into a family 
 
 It is not a budgeting app. It is an FP&A reporting system designed to explain what happened, why it matters, what comes next, and what action to take.
 
-All examples use fully fictional sample personas. The core board pack uses Alex Rivera, while the GitHub/portfolio screenshots use a richer fictional Morgan Patel household to show dual-income household complexity. No real financial data is used anywhere in this project.
+All examples and committed screenshots use fully fictional sample personas. The core board pack uses Alex Rivera, while the GitHub/portfolio screenshots use a richer fictional Morgan Patel household to show dual-income household complexity. The local app can now process explicitly provided local statement uploads, but no real financial data is committed or shown in portfolio assets.
 
 ## Current status
 
 ```text
 Repository: private GitHub repo
 CI: GitHub Actions passing
-Local tests: 207 passing
-Data posture: fictional/sample only
-Real personal data: disabled until explicit safety approval
+Local tests: 231 passing
+Data posture: committed assets fictional/sample only
+Local real uploads: CSV and CoastHills Visa PDF statements supported in Git-ignored folders
 ```
 
 The project now has the full v1 CFO parity suite wired into both the fictional Alex board pack and the draft personal report path.
@@ -26,7 +26,7 @@ A run generates:
 - a 3-month trend summary PDF
 - analysis charts
 - a sample-only monthly close workflow receipt
-- a draft personal report from reviewed fake personal rows
+- a draft personal report from reviewed fake personal rows or explicitly uploaded local CSV/PDF statements
 - stress-test outputs for fictional personas
 
 Generated PDFs and PNGs are intentionally not committed. Portfolio screenshots live under `docs/screenshots/` so GitHub renders the walkthrough without requiring a local run. Selected report screenshots are regenerated from `data/portfolio_demo_morgan_patel_household.csv` with `scripts/generate_portfolio_demo_screenshots.py`; the Streamlit screenshot is captured from the local Read & Trust app.
@@ -166,7 +166,7 @@ Python, pandas, matplotlib, reportlab, PyMuPDF, Streamlit, pytest, GitHub Action
 
 - Not investment, tax, accounting, legal, or compliance advice.
 - Does not connect to live accounts or real-time data.
-- Does not process real personal data yet.
+- Manual local CSV/PDF uploads are supported, but private outputs stay Git-ignored and are not portfolio artifacts.
 - Forecasts and rent-vs-buy outputs are directional estimates, not decisions.
 - The board pack is intentionally comprehensive. The new Executive Dashboard gives readers the one-page answer first, while the detailed sections remain available for auditability.
 

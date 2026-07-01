@@ -24,6 +24,7 @@ from modules.ui.report_reader import (
     RISK_COLORS,
     VARIANCE_COLORS,
     ContractTrustError,
+    apply_merchant_category_rules,
     build_category_review_model,
     build_home_dashboard_model,
     build_local_ai_memo_model,
@@ -125,7 +126,7 @@ def render_home_dashboard(model: dict) -> None:
 
 def render_upload_transactions() -> None:
     st.subheader("Upload Transactions")
-    st.info("Local preview only. Files are not sent anywhere and report generation stays locked until review is wired in.")
+    st.info("Local upload flow. Files are not sent anywhere; reports require saved final categories first.")
     uploaded_files = st.file_uploader(
         "CSV or PDF statement/transaction history",
         type=["csv", "pdf"],
@@ -172,7 +173,11 @@ def render_upload_transactions() -> None:
     st.dataframe(pd.DataFrame(model["preview_rows"]), use_container_width=True, hide_index=True)
     st.markdown("#### Category review")
     st.caption("Edit `final_category` where needed, then save the review CSV before generating a report.")
-    review_df = pd.DataFrame(review_model["rows"])
+    review_rows = review_model["rows"]
+    if st.button("Apply merchant rules to blank categories"):
+        review_rows, changed = apply_merchant_category_rules(review_rows)
+        st.success(f"Applied merchant rules to {changed} rows")
+    review_df = pd.DataFrame(review_rows)
     edited_review = st.data_editor(
         review_df,
         use_container_width=True,

@@ -177,6 +177,22 @@ MONTHLY_REPORT_SECTIONS = [
 
 RISK_COLORS = {"High": "🔴", "Medium": "🟡", "Low": "🟢"}
 VARIANCE_COLORS = {"green": "🟢", "amber": "🟡", "red": "🔴"}
+MERCHANT_CATEGORY_RULES = {
+    "GITHUB": "Subscriptions",
+    "COSTCO": "Food & Dining",
+    "ALBERTSONS": "Food & Dining",
+    "TRADER JOE": "Food & Dining",
+    "FREEBIRDS": "Food & Dining",
+    "CHIPOTLE": "Food & Dining",
+    "IN-N-OUT": "Food & Dining",
+    "MCDONALD": "Food & Dining",
+    "STARBUCKS": "Food & Dining",
+    "COFFEE": "Food & Dining",
+    "UCSB": "Food & Dining",
+    "TARGET": "Food & Dining",
+    "CVS": "Food & Dining",
+    "CHEVRON": "Transport",
+}
 
 
 def build_monthly_report_model(data: dict[str, Any]) -> dict[str, Any]:
@@ -221,7 +237,7 @@ def build_category_review_model(data: dict[str, Any], rows: list[dict[str, str]]
 
 
 def build_upload_preview_model(rows: list[dict[str, Any]], source_file="uploaded.csv") -> dict[str, Any]:
-    """Normalize uploaded CSV rows for local preview; report generation stays locked."""
+    """Normalize uploaded CSV rows for local preview."""
     profile, normalized = normalize_uploaded_transactions(
         pd.DataFrame(rows),
         source_file=source_file,
@@ -257,6 +273,26 @@ def build_uploaded_category_review_model(rows: list[dict[str, Any]], source_file
         "can_generate_report": False,
         "status": "Categories suggested locally. Review/report generation remains locked.",
     }
+
+
+def apply_merchant_category_rules(rows: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], int]:
+    """Bulk-fill review rows from simple merchant keyword rules."""
+    updated = []
+    changed = 0
+    for row in rows:
+        edited = dict(row)
+        vendor = str(edited.get("vendor", "")).upper()
+        current = str(edited.get("final_category", "")).strip()
+        if not current:
+            for keyword, category in MERCHANT_CATEGORY_RULES.items():
+                if keyword in vendor:
+                    edited["final_category"] = category
+                    edited["review_status"] = "manual_override"
+                    edited["override_note"] = f"merchant rule: {keyword}"
+                    changed += 1
+                    break
+        updated.append(edited)
+    return updated, changed
 
 
 def save_uploaded_category_review_edits(rows: list[dict[str, Any]], output_path: str | Path) -> list[dict[str, Any]]:
