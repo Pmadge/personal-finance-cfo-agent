@@ -18,6 +18,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: 'pip'
 
       - name: Install dependencies
         run: |
@@ -26,7 +27,7 @@ jobs:
 
       - name: Compile Python files
         run: |
-          python -m py_compile main.py modules/*.py modules/reports/*.py modules/importers/*.py scripts/*.py tests/*.py
+          python -m py_compile main.py streamlit_app.py modules/*.py modules/reports/*.py modules/importers/*.py modules/ui/*.py scripts/*.py tests/*.py
 
       - name: Run tests
         run: |

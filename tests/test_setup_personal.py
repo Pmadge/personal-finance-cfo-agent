@@ -8,6 +8,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from scripts.setup_personal import EXAMPLE_PROFILE, ensure_local_profile, run_setup
+import scripts.setup_personal as setup_personal
 
 
 def test_creates_local_profile_from_example_when_absent(tmp_path):
@@ -39,3 +40,19 @@ def test_run_setup_creates_profile_and_confirms_safety(tmp_path):
     assert result["profile_state"] == "created"
     assert result["private_paths_protected"] is True
     assert profile.exists()
+
+
+def test_run_setup_checks_gitignore_before_creating_profile(tmp_path, monkeypatch):
+    profile = tmp_path / "personal_profile.json"
+
+    def fail_safety(_project_root):
+        raise RuntimeError("not ignored")
+
+    monkeypatch.setattr(setup_personal, "assert_private_paths_gitignored", fail_safety)
+
+    try:
+        run_setup(project_root=PROJECT_ROOT, example_path=EXAMPLE_PROFILE, profile_path=profile)
+    except RuntimeError:
+        pass
+
+    assert not profile.exists()

@@ -93,6 +93,8 @@ def validate_report_contract(data: dict[str, Any]) -> None:
     self_check = data.get("self_check", {})
     if self_check.get("all_passed") is not True:
         raise ContractTrustError("self-checks are not all passing.")
+    if self_check.get("checks_total", 0) <= 0 or self_check.get("checks_passed") != self_check.get("checks_total"):
+        raise ContractTrustError("self-check counts are not trusted.")
 
     artifacts = data.get("sources", {}).get("artifacts", [])
     if any(Path(str(artifact)).name != str(artifact) for artifact in artifacts):

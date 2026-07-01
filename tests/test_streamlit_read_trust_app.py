@@ -31,10 +31,12 @@ def _sample_contract():
 @lru_cache(maxsize=1)
 def _cached_sample_contract():
     with TemporaryDirectory() as tmp_dir:
-        return build_report_json(
+        contract = build_report_json(
             output_dir=Path(tmp_dir) / "charts",
             report_config=portfolio_demo_report_config(),
         )
+        contract["self_check"] = {"checks_passed": 11, "checks_total": 11, "all_passed": True}
+        return contract
 
 
 def _category_review_rows():
@@ -140,6 +142,16 @@ def test_load_report_contract_rejects_untrusted_flags(tmp_path):
     path.write_text(json.dumps(contract), encoding="utf-8")
 
     with pytest.raises(ContractTrustError, match="privacy flags"):
+        load_report_contract(path)
+
+
+def test_load_report_contract_rejects_empty_self_check_totals(tmp_path):
+    contract = _sample_contract()
+    contract["self_check"] = {"checks_total": 0, "checks_passed": 0, "all_passed": True}
+    path = tmp_path / "fake_report.json"
+    path.write_text(json.dumps(contract), encoding="utf-8")
+
+    with pytest.raises(ContractTrustError, match="self-check counts"):
         load_report_contract(path)
 
 

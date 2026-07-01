@@ -5,12 +5,12 @@ One command to get started:
     python3 scripts/setup_personal.py
 
 What it does, in plain English:
-1. Creates a local `config/personal_profile.json` (copied from the committed
+1. Confirms your private files are Git-ignored, so nothing personal can be
+   committed by accident.
+2. Creates a local `config/personal_profile.json` (copied from the committed
    example) if you do not have one yet. That file holds your assets, debts,
    goals, what-if scenarios, and a home target. It is Git-ignored and never
    leaves your Mac.
-2. Confirms your private files are Git-ignored, so nothing personal can be
-   committed by accident.
 3. Prints exactly what to do next.
 
 It does not connect to any bank, import real transactions, or write anything
@@ -50,8 +50,8 @@ def run_setup(project_root=PROJECT_ROOT, example_path=EXAMPLE_PROFILE, profile_p
 
     Raises RuntimeError via the safety gate if any private path is not Git-ignored.
     """
-    profile_state = ensure_local_profile(example_path, profile_path)
     safety = assert_private_paths_gitignored(project_root)
+    profile_state = ensure_local_profile(example_path, profile_path)
     try:
         display_path = str(Path(profile_path).relative_to(Path(project_root)))
     except ValueError:

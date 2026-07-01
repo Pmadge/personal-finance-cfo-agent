@@ -2,4 +2,4 @@
 
 This folder will hold generated CFO reporting artifacts, such as charts and PDF reports.
 
-All outputs must be based only on fictional Alex Rivera data.
+All committed/generated demo outputs must use fictional or sample data only. Examples may include fictional Alex Rivera data, Morgan Patel, fake personal fixtures, or fictional stress personas.
