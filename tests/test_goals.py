@@ -47,6 +47,16 @@ def test_savings_goal_achieved():
     assert row["Status"] == "✅ Achieved"
 
 
+def test_amount_goal_progress_never_goes_negative():
+    goals = [{
+        "name": "Recover Net Worth", "type": "net_worth",
+        "target_amount": 50000.0, "current_amount": -5000.0,
+    }]
+    row = track_goals(goals, as_of_date="2026-06-30").iloc[0]
+
+    assert row["Progress (%)"] == 0.0
+
+
 def test_debt_payoff_progress_uses_starting_balance():
     goals = [{
         "name": "Car Loan", "type": "debt_payoff",
@@ -81,6 +91,15 @@ def test_savings_rate_goal_meeting_and_below():
         as_of_date="2026-06-30",
     ).iloc[0]
     assert below["Status"].startswith("🔴 Below target")
+
+
+def test_savings_rate_goal_progress_never_goes_negative():
+    row = track_goals(
+        [{"name": "Save 10%", "type": "savings_rate", "target_amount": 10.0, "current_amount": -2.5}],
+        as_of_date="2026-06-30",
+    ).iloc[0]
+
+    assert row["Progress (%)"] == 0.0
 
 
 def test_net_worth_goal_progress_and_behind_when_date_passed():

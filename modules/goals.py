@@ -43,11 +43,11 @@ def _amount_goal_row(goal, as_of_date, default_monthly, lower_is_better):
         remaining = max(current - target, 0.0)
         paid = max(starting - current, 0.0)
         denominator = max(starting - target, 0.0)
-        progress = min(paid / denominator * 100, 100.0) if denominator else 100.0
+        progress = min(max(paid / denominator * 100, 0.0), 100.0) if denominator else 100.0
     else:
         # Savings / net worth: progress is how much of the target is reached.
         remaining = max(target - current, 0.0)
-        progress = min(current / target * 100, 100.0) if target > 0 else (
+        progress = min(max(current / target * 100, 0.0), 100.0) if target > 0 else (
             100.0 if current >= target else 0.0
         )
 
@@ -94,7 +94,7 @@ def _rate_goal_row(goal):
     """Progress for a savings-rate goal (a percentage target, not a dollar amount)."""
     target = float(goal["target_amount"])
     current = float(goal["current_amount"])
-    progress = min(current / target * 100, 100.0) if target > 0 else 100.0
+    progress = min(max(current / target * 100, 0.0), 100.0) if target > 0 else 100.0
     if current >= target:
         status = f"✅ Meeting target: {current:.1f}% vs {target:.1f}% goal"
     else:

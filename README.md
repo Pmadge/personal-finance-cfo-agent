@@ -40,7 +40,7 @@ The Personal Finance CFO Agent turns fictional transaction data into a family of
 Current verification status:
 
 ```text
-206 local tests passing
+212 local tests passing
 GitHub Actions passing
 100-persona fictional stress harness available
 Real personal data disabled until explicit safety approval
@@ -66,7 +66,7 @@ cd personal-finance-cfo-agent
 python3 -m venv .venv
 source .venv/bin/activate
 python3 -m pip install -r requirements.txt
-python3 -m py_compile main.py modules/*.py modules/reports/*.py modules/importers/*.py scripts/*.py
+python3 -m py_compile main.py modules/*.py modules/reports/*.py modules/importers/*.py modules/ui/*.py scripts/*.py streamlit_app.py
 python3 -m pytest -q
 python3 main.py
 python3 scripts/generate_monthly_report.py
@@ -94,6 +94,8 @@ The local app is a read-only Streamlit dashboard over the verified report JSON c
 ```bash
 python3 -m pip install -r requirements.txt
 python3 scripts/generate_report_json.py
+python3 scripts/monthly_close.py --sample
+python3 scripts/stress_test_personas.py --count 12 --seed 20260628 --output-dir outputs/stress_tests/review_smoke_12_personas
 streamlit run streamlit_app.py
 ```
 
@@ -160,7 +162,7 @@ To use a different fictional dataset, replace that file with a CSV using the sam
 
 Long term, this project should become a local-first personal CFO product that can run fully on Paul's Mac as either a script workflow or a small local app. The default design should not require cloud hosting, external AI APIs, hosted databases, or bank-login integrations.
 
-Personal financial data should stay local. For now, the project should continue using fictional Alex Rivera data until a safe import/review/report workflow exists.
+Personal financial data should stay local. For now, the project should continue using fictional/sample data; real personal data remains disabled until explicit safety approval.
 
 Important local-data rule: real transaction CSVs, processed personal files, local vendor rules, and personal reports belong only in Git-ignored local folders such as `data/personal/`, `data/processed/`, and `outputs/personal/`. Do not use real financial data in portfolio screenshots or committed sample artifacts.
 

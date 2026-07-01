@@ -418,6 +418,30 @@ def test_audit_rejects_unsafe_workflow_paths():
         )
 
 
+def test_write_audit_revalidates_hand_built_paths(tmp_path):
+    audit = build_personal_workflow_audit(
+        mode="sample",
+        input_file="data/sample/personal_transactions_template.csv",
+        normalized_file="data/processed/normalized_personal_transactions.csv",
+        category_review_file="data/processed/category_review.csv",
+        override_file="config/personal_rules.csv",
+        applied_review_file="data/processed/category_review_applied.csv",
+        reviewed_df=reviewed_transactions(),
+        self_check_status="NOT_RUN",
+        output_paths=[],
+    )
+    audit["output_paths"] = ["docs/private_report.pdf"]
+
+    markdown_path = PROJECT_ROOT / "data" / "processed" / "test_workflow_audit.md"
+    json_path = PROJECT_ROOT / "data" / "processed" / "test_workflow_audit.json"
+    try:
+        with pytest.raises(ValueError, match="Unsafe workflow output path"):
+            write_personal_workflow_audit(audit, markdown_path, json_path)
+    finally:
+        markdown_path.unlink(missing_ok=True)
+        json_path.unlink(missing_ok=True)
+
+
 def test_markdown_output_escapes_backticks_and_newlines(tmp_path):
     """Path-like values should not be able to distort the Markdown receipt."""
     audit = build_personal_workflow_audit(

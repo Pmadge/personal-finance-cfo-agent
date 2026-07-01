@@ -11,7 +11,7 @@ All examples use fully fictional sample personas. The core board pack uses Alex 
 ```text
 Repository: private GitHub repo
 CI: GitHub Actions passing
-Local tests: 206 passing
+Local tests: 207 passing
 Data posture: fictional/sample only
 Real personal data: disabled until explicit safety approval
 ```
@@ -29,7 +29,7 @@ A run generates:
 - a draft personal report from reviewed fake personal rows
 - stress-test outputs for fictional personas
 
-Generated PDFs and PNGs are intentionally not committed. Portfolio screenshots live under `docs/screenshots/` so GitHub renders the walkthrough without requiring a local run. Report screenshots are regenerated from `data/portfolio_demo_morgan_patel_household.csv` with `scripts/generate_portfolio_demo_screenshots.py`; the Streamlit screenshot is captured from the local Read & Trust app.
+Generated PDFs and PNGs are intentionally not committed. Portfolio screenshots live under `docs/screenshots/` so GitHub renders the walkthrough without requiring a local run. Selected report screenshots are regenerated from `data/portfolio_demo_morgan_patel_household.csv` with `scripts/generate_portfolio_demo_screenshots.py`; the Streamlit screenshot is captured from the local Read & Trust app.
 
 ## Representative report pages
 
@@ -172,4 +172,4 @@ Python, pandas, matplotlib, reportlab, PyMuPDF, Streamlit, pytest, GitHub Action
 
 ## Next planned step
 
-Review the final GitHub README screenshots, choose repo visibility, then use `docs/LINKEDIN_LAUNCH_DRAFT.md` for the launch post.
+Choose repo visibility, then update `docs/LINKEDIN_LAUNCH_DRAFT.md` with the repo URL before posting.

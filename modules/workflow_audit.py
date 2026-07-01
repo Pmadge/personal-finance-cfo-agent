@@ -228,7 +228,7 @@ def _validate_count(audit, field):
         raise ValueError(f"Invalid audit count for {field}: {value}")
 
 
-def _validate_audit(audit):
+def _validate_audit(audit, *, allow_unsafe_paths=False):
     """Fail closed if an audit dict is missing or misstates required fields."""
     missing = [field for field in REQUIRED_AUDIT_FIELDS if field not in audit]
     if missing:
@@ -256,6 +256,13 @@ def _validate_audit(audit):
         isinstance(value, str) for value in audit["output_paths"]
     ):
         raise ValueError("output_paths must be a list of strings")
+    if not allow_unsafe_paths:
+        for field_name in ["normalized_file", "category_review_file", "override_file", "applied_review_file"]:
+            if not validate_safe_workflow_path(field_name, audit[field_name]):
+                raise ValueError(f"Unsafe workflow path for {field_name}: {audit[field_name]}")
+        unsafe_outputs = [path for path in audit["output_paths"] if not validate_safe_listed_output_path(path)]
+        if unsafe_outputs:
+            raise ValueError(f"Unsafe workflow output path: {', '.join(unsafe_outputs)}")
 
 
 def _escape_markdown_inline(value):
@@ -315,7 +322,7 @@ def write_personal_workflow_audit(
     allow_unsafe_output=False,
 ):
     """Write a Markdown and JSON audit artifact, then return both paths."""
-    _validate_audit(audit)
+    _validate_audit(audit, allow_unsafe_paths=allow_unsafe_output)
     markdown_path = Path(markdown_path)
     json_path = Path(json_path)
     if not allow_unsafe_output:

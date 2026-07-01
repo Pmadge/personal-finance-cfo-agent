@@ -96,14 +96,14 @@ def render_home_dashboard(model: dict) -> None:
     left, right = st.columns(2)
     with left:
         st.markdown("#### What changed")
-        st.write(model["next_action"])
+        st.markdown(_escape_streamlit_markdown(model["next_action"]))
         st.markdown("#### Runway")
-        st.write(model["runway_status"])
+        st.markdown(_escape_streamlit_markdown(model["runway_status"]))
     with right:
         st.markdown("#### Risk snapshot")
         st.json(model["risk_counts"])
         st.markdown("#### Rent vs buy")
-        st.write(model["rent_vs_buy"]["recommendation"])
+        st.markdown(_escape_streamlit_markdown(model["rent_vs_buy"]["recommendation"]))
 
     st.markdown("#### Source artifacts")
     st.write(", ".join(model["source_artifacts"]))
@@ -237,6 +237,11 @@ def _privacy_banner() -> None:
         "Sample mode active. Real data locked. Local-only. No bank login. "
         "No cloud sync. No cloud AI. Local AI memo off by default."
     )
+
+
+def _escape_streamlit_markdown(text: object) -> str:
+    """Render finance text literally instead of treating dollar pairs as Markdown math."""
+    return str(text).replace("$", r"\$")
 
 
 if __name__ == "__main__":
