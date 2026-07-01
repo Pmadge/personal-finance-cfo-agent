@@ -18,8 +18,10 @@ from modules.ui.report_reader import (
     build_privacy_settings_model,
     build_stress_test_model,
     build_uploaded_category_review_model,
+    build_uploaded_report_action_model,
     build_upload_preview_model,
     load_category_review_rows,
+    save_uploaded_category_review_edits,
     load_report_contract,
     load_stress_test_summary,
 )
@@ -280,6 +282,46 @@ def test_uploaded_category_review_model_builds_suggestions_from_uploaded_csv():
     assert model["rows"][0]["suggested_category"] == "Income"
     assert model["rows"][0]["final_category"] == "Income"
     assert model["can_generate_report"] is False
+
+
+def test_save_uploaded_category_review_edits_updates_status_and_validates_categories(tmp_path):
+    rows = _category_review_rows()
+    rows[1]["final_category"] = "Food & Dining"
+    rows[1]["override_note"] = "Rent was actually dining fixture test"
+    output_path = tmp_path / "uploaded_category_review.csv"
+
+    saved = save_uploaded_category_review_edits(rows, output_path)
+
+    assert output_path.exists()
+    assert saved[1]["review_status"] == "manual_override"
+    assert saved[1]["final_category"] == "Food & Dining"
+
+    rows[1]["final_category"] = "Not Approved"
+    with pytest.raises(ValueError, match="Invalid final_category"):
+        save_uploaded_category_review_edits(rows, output_path)
+
+
+def test_uploaded_report_action_model_blocks_until_review_file_is_ready(tmp_path):
+    missing_path = tmp_path / "missing.csv"
+    output_path = tmp_path / "report.pdf"
+
+    missing = build_uploaded_report_action_model(missing_path, output_path)
+    assert missing["can_generate"] is False
+    assert "Save a category review" in missing["reason"]
+
+    review_path = tmp_path / "uploaded_category_review.csv"
+    rows = _category_review_rows()
+    rows[1]["final_category"] = ""
+    save_uploaded_category_review_edits(rows, review_path)
+    blocked = build_uploaded_report_action_model(review_path, output_path)
+    assert blocked["can_generate"] is False
+    assert "blank final_category" in blocked["reason"]
+
+    rows[1]["final_category"] = "Housing"
+    save_uploaded_category_review_edits(rows, review_path)
+    ready = build_uploaded_report_action_model(review_path, output_path)
+    assert ready["can_generate"] is True
+    assert ready["reason"] == "Ready to generate reviewed local report."
 
 
 def test_category_review_model_rejects_source_path_leak():

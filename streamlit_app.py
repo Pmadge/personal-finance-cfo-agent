@@ -11,12 +11,15 @@ data, call AI, or calculate new financial numbers.
 from __future__ import annotations
 
 from pathlib import Path
+import subprocess
+import sys
 
 import streamlit as st
 
 import pandas as pd
 
-from modules.importers.personal_csv import write_uploaded_category_review, write_uploaded_transactions
+from modules.config import APPROVED_CATEGORIES
+from modules.importers.personal_csv import write_uploaded_transactions
 from modules.ui.report_reader import (
     RISK_COLORS,
     VARIANCE_COLORS,
@@ -28,10 +31,12 @@ from modules.ui.report_reader import (
     build_privacy_settings_model,
     build_stress_test_model,
     build_uploaded_category_review_model,
+    build_uploaded_report_action_model,
     build_upload_preview_model,
     load_category_review_rows,
     load_report_contract,
     load_stress_test_summary,
+    save_uploaded_category_review_edits,
 )
 
 DEFAULT_REPORT_JSON = Path("outputs/report_json/portfolio_demo_2026-03.json")
@@ -39,6 +44,8 @@ DEFAULT_CATEGORY_REVIEW = Path("data/processed/category_review.csv")
 DEFAULT_STRESS_TEST_RUN = Path("outputs/stress_tests/review_smoke_12_personas")
 DEFAULT_UPLOAD_NORMALIZED = Path("data/processed/uploaded_transactions_normalized.csv")
 DEFAULT_UPLOAD_CATEGORY_REVIEW = Path("data/processed/uploaded_category_review.csv")
+DEFAULT_UPLOAD_REPORT = Path("outputs/personal/uploaded_personal_cfo_report.pdf")
+DEFAULT_UPLOAD_CHARTS = Path("outputs/personal/uploaded_charts")
 
 
 st.set_page_config(page_title="Personal Finance CFO Agent", page_icon="📊", layout="wide", initial_sidebar_state="collapsed")
@@ -122,6 +129,7 @@ def render_upload_transactions() -> None:
     uploaded = st.file_uploader("CSV statement or transaction history", type=["csv"])
     if uploaded is None:
         st.caption("Supported now: personal template columns or Debit/Credit bank-export columns.")
+        _render_uploaded_report_action()
         return
 
     try:
@@ -140,19 +148,53 @@ def render_upload_transactions() -> None:
     st.caption(f"Source file: {model['source_file']}")
     st.markdown("#### Normalized preview")
     st.dataframe(pd.DataFrame(model["preview_rows"]), use_container_width=True, hide_index=True)
-    st.markdown("#### Category review preview")
-    st.caption(review_model["status"])
-    review_cols = st.columns(3)
-    review_cols[0].metric("Needs review", review_model["status_counts"]["needs_review"])
-    review_cols[1].metric("Auto suggested", review_model["status_counts"]["auto_suggested"])
-    review_cols[2].metric("Manual overrides", review_model["status_counts"]["manual_override"])
-    st.dataframe(pd.DataFrame(review_model["rows"]), use_container_width=True, hide_index=True)
+    st.markdown("#### Category review")
+    st.caption("Edit `final_category` where needed, then save the review CSV before generating a report.")
+    review_df = pd.DataFrame(review_model["rows"])
+    edited_review = st.data_editor(
+        review_df,
+        use_container_width=True,
+        hide_index=True,
+        column_config={"final_category": st.column_config.SelectboxColumn("final_category", options=["", *APPROVED_CATEGORIES])},
+        disabled=[column for column in review_df.columns if column not in {"final_category", "override_note"}],
+    )
     if st.button("Save normalized CSV locally"):
         write_uploaded_transactions(raw, DEFAULT_UPLOAD_NORMALIZED, source_file=uploaded.name)
         st.success(f"Saved to {DEFAULT_UPLOAD_NORMALIZED}")
     if st.button("Save category review CSV locally"):
-        write_uploaded_category_review(raw, DEFAULT_UPLOAD_CATEGORY_REVIEW, source_file=uploaded.name)
+        save_uploaded_category_review_edits(edited_review.to_dict("records"), DEFAULT_UPLOAD_CATEGORY_REVIEW)
         st.success(f"Saved to {DEFAULT_UPLOAD_CATEGORY_REVIEW}")
+    _render_uploaded_report_action()
+
+
+def _render_uploaded_report_action() -> None:
+    st.markdown("#### Generate CFO report")
+    action = build_uploaded_report_action_model(DEFAULT_UPLOAD_CATEGORY_REVIEW, DEFAULT_UPLOAD_REPORT)
+    st.caption(action["reason"])
+    if not action["can_generate"]:
+        return
+    if st.button("Generate CFO report from saved uploaded review"):
+        try:
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "scripts/generate_personal_report.py",
+                    "--reviewed-input",
+                    str(DEFAULT_UPLOAD_CATEGORY_REVIEW),
+                    "--output",
+                    str(DEFAULT_UPLOAD_REPORT),
+                    "--charts-dir",
+                    str(DEFAULT_UPLOAD_CHARTS),
+                ],
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+        except subprocess.CalledProcessError as error:
+            st.error(error.stderr or error.stdout or str(error))
+            return
+        st.success(f"Generated {DEFAULT_UPLOAD_REPORT}")
+        st.code(result.stdout)
 
 
 def render_monthly_report(model: dict) -> None:

@@ -14,8 +14,10 @@ from typing import Any
 
 import pandas as pd
 
-from modules.categorization_review import REVIEW_COLUMNS, build_category_review
+from modules.categorization_review import REVIEW_COLUMNS, build_category_review, write_category_review_file
+from modules.config import APPROVED_CATEGORIES
 from modules.importers.personal_csv import normalize_uploaded_transactions
+from modules.personal_report_inputs import build_report_transactions_from_review
 
 EXPECTED_SCHEMA_VERSION = "1.0.0"
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -254,6 +256,42 @@ def build_uploaded_category_review_model(rows: list[dict[str, Any]], source_file
         "rows": review_rows,
         "can_generate_report": False,
         "status": "Categories suggested locally. Review/report generation remains locked.",
+    }
+
+
+def save_uploaded_category_review_edits(rows: list[dict[str, Any]], output_path: str | Path) -> list[dict[str, Any]]:
+    """Persist edited uploaded category rows after validating final categories."""
+    _validate_category_review_rows(rows)
+    edited = pd.DataFrame(rows, columns=REVIEW_COLUMNS).fillna("")
+    final_categories = edited["final_category"].astype(str).str.strip()
+    invalid = sorted(set(final_categories[final_categories != ""]) - set(APPROVED_CATEGORIES))
+    if invalid:
+        raise ValueError(f"Invalid final_category: {invalid[0]}")
+    edited["final_category"] = final_categories
+    edited["review_status"] = "auto_suggested"
+    edited.loc[edited["final_category"] == "", "review_status"] = "needs_review"
+    edited.loc[
+        (edited["final_category"] != "") & (edited["final_category"] != edited["suggested_category"].astype(str)),
+        "review_status",
+    ] = "manual_override"
+    write_category_review_file(edited, output_path)
+    return edited.to_dict("records")
+
+
+def build_uploaded_report_action_model(review_path: str | Path, output_path: str | Path) -> dict[str, Any]:
+    """Return whether the saved uploaded review file is ready for report generation."""
+    review_path = Path(review_path)
+    if not review_path.exists():
+        return {"can_generate": False, "reason": "Save a category review before generating a report."}
+    try:
+        build_report_transactions_from_review(pd.read_csv(review_path, keep_default_na=False))
+    except ValueError as error:
+        return {"can_generate": False, "reason": str(error)}
+    return {
+        "can_generate": True,
+        "reason": "Ready to generate reviewed local report.",
+        "review_path": str(review_path),
+        "output_path": str(output_path),
     }
 
 
