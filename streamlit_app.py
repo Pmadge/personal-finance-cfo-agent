@@ -11,29 +11,42 @@ data, call AI, or calculate new financial numbers.
 from __future__ import annotations
 
 from pathlib import Path
+import subprocess
+import sys
 
 import streamlit as st
 
 import pandas as pd
 
+from modules.config import APPROVED_CATEGORIES
+from modules.importers.personal_csv import parse_coasthills_visa_pdf, write_uploaded_transactions
 from modules.ui.report_reader import (
     RISK_COLORS,
     VARIANCE_COLORS,
     ContractTrustError,
+    apply_merchant_category_rules,
     build_category_review_model,
     build_home_dashboard_model,
     build_local_ai_memo_model,
     build_monthly_report_model,
     build_privacy_settings_model,
     build_stress_test_model,
+    build_uploaded_category_review_model,
+    build_uploaded_report_action_model,
+    build_upload_preview_model,
     load_category_review_rows,
     load_report_contract,
     load_stress_test_summary,
+    save_uploaded_category_review_edits,
 )
 
-DEFAULT_REPORT_JSON = Path("outputs/report_json/portfolio_demo_2026-03.json")
+DEFAULT_REPORT_JSON = Path("test_personas/complex_household/outputs/report.json")
 DEFAULT_CATEGORY_REVIEW = Path("data/processed/category_review.csv")
 DEFAULT_STRESS_TEST_RUN = Path("outputs/stress_tests/review_smoke_12_personas")
+DEFAULT_UPLOAD_NORMALIZED = Path("data/processed/uploaded_transactions_normalized.csv")
+DEFAULT_UPLOAD_CATEGORY_REVIEW = Path("data/processed/uploaded_category_review.csv")
+DEFAULT_UPLOAD_REPORT = Path("outputs/personal/uploaded_personal_cfo_report.pdf")
+DEFAULT_UPLOAD_CHARTS = Path("outputs/personal/uploaded_charts")
 
 
 st.set_page_config(page_title="Personal Finance CFO Agent", page_icon="📊", layout="wide", initial_sidebar_state="collapsed")
@@ -43,14 +56,13 @@ def main() -> None:
     st.title("Personal Finance CFO Agent")
     st.caption("Local-first Read & Trust app over verified sample report JSON.")
 
-    st.sidebar.caption("MVP v0.1 reads approved sample artifacts only.")
+    st.sidebar.caption("Local-first MVP: sample reports plus local upload/review.")
     report_path = DEFAULT_REPORT_JSON
     category_review_path = DEFAULT_CATEGORY_REVIEW
     stress_test_path = DEFAULT_STRESS_TEST_RUN
-    page = st.sidebar.radio(
-        "Screen",
-        ["Home Dashboard", "Monthly Report", "Category Review", "Stress Test Explorer", "Local AI Memo", "Settings / Privacy"],
-    )
+    screens = ["Home Dashboard", "Upload Transactions", "Monthly Report", "Category Review", "Stress Test Explorer", "Local AI Memo", "Settings / Privacy"]
+    requested_screen = st.query_params.get("screen", "")
+    page = st.sidebar.radio("Screen", screens, index=screens.index(requested_screen) if requested_screen in screens else 0)
 
     try:
         contract = load_report_contract(report_path)
@@ -62,6 +74,8 @@ def main() -> None:
 
     if page == "Home Dashboard":
         render_home_dashboard(build_home_dashboard_model(contract))
+    elif page == "Upload Transactions":
+        render_upload_transactions()
     elif page == "Monthly Report":
         render_monthly_report(build_monthly_report_model(contract))
     elif page == "Category Review":
@@ -107,6 +121,106 @@ def render_home_dashboard(model: dict) -> None:
 
     st.markdown("#### Source artifacts")
     st.write(", ".join(model["source_artifacts"]))
+
+
+def render_upload_transactions() -> None:
+    st.subheader("Upload Transactions")
+    st.info("Local upload flow. Files are not sent anywhere; reports require saved final categories first.")
+    uploaded_files = st.file_uploader(
+        "CSV or PDF statement/transaction history",
+        type=["csv", "pdf"],
+        accept_multiple_files=True,
+    )
+    if not uploaded_files:
+        st.caption("Supported now: one CSV, one PDF, or multiple CoastHills FCU Visa PDF statements.")
+        _render_uploaded_report_action()
+        return
+
+    try:
+        source_names = [uploaded.name for uploaded in uploaded_files]
+        if len(uploaded_files) > 1:
+            if any(not name.lower().endswith(".pdf") for name in source_names):
+                raise ValueError("Multiple uploads currently supports PDF statements only")
+            raw = pd.concat(
+                [
+                    parse_coasthills_visa_pdf(uploaded.read(), source_file=uploaded.name)
+                    for uploaded in uploaded_files
+                ],
+                ignore_index=True,
+            )
+            source_label = " + ".join(source_names)
+        else:
+            uploaded = uploaded_files[0]
+            source_label = uploaded.name
+            if uploaded.name.lower().endswith(".pdf"):
+                raw = parse_coasthills_visa_pdf(uploaded.read(), source_file=uploaded.name)
+            else:
+                raw = pd.read_csv(uploaded)
+        model = build_upload_preview_model(raw.to_dict("records"), source_file=source_label)
+        review_model = build_uploaded_category_review_model(raw.to_dict("records"), source_file=source_label)
+    except Exception as error:  # Streamlit boundary: show parser errors instead of crashing.
+        st.error(f"Upload could not be parsed: {error}")
+        return
+
+    st.success(model["status"])
+    cols = st.columns(3)
+    cols[0].metric("Rows", model["row_count"])
+    cols[1].metric("Profile", model["profile"])
+    cols[2].metric("Report generation", "Locked")
+    st.caption(f"Source file: {model['source_file']}")
+    st.markdown("#### Normalized preview")
+    st.dataframe(pd.DataFrame(model["preview_rows"]), use_container_width=True, hide_index=True)
+    st.markdown("#### Category review")
+    st.caption("Edit `final_category` where needed, then save the review CSV before generating a report.")
+    review_rows = review_model["rows"]
+    if st.button("Apply merchant rules to blank categories"):
+        review_rows, changed = apply_merchant_category_rules(review_rows)
+        st.success(f"Applied merchant rules to {changed} rows")
+    review_df = pd.DataFrame(review_rows)
+    edited_review = st.data_editor(
+        review_df,
+        use_container_width=True,
+        hide_index=True,
+        column_config={"final_category": st.column_config.SelectboxColumn("final_category", options=["", *APPROVED_CATEGORIES])},
+        disabled=[column for column in review_df.columns if column not in {"final_category", "override_note"}],
+    )
+    if st.button("Save normalized CSV locally"):
+        write_uploaded_transactions(raw, DEFAULT_UPLOAD_NORMALIZED, source_file=source_label)
+        st.success(f"Saved to {DEFAULT_UPLOAD_NORMALIZED}")
+    if st.button("Save category review CSV locally"):
+        save_uploaded_category_review_edits(edited_review.to_dict("records"), DEFAULT_UPLOAD_CATEGORY_REVIEW)
+        st.success(f"Saved to {DEFAULT_UPLOAD_CATEGORY_REVIEW}")
+    _render_uploaded_report_action()
+
+
+def _render_uploaded_report_action() -> None:
+    st.markdown("#### Generate CFO report")
+    action = build_uploaded_report_action_model(DEFAULT_UPLOAD_CATEGORY_REVIEW, DEFAULT_UPLOAD_REPORT)
+    st.caption(action["reason"])
+    if not action["can_generate"]:
+        return
+    if st.button("Generate CFO report from saved uploaded review"):
+        try:
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "scripts/generate_personal_report.py",
+                    "--reviewed-input",
+                    str(DEFAULT_UPLOAD_CATEGORY_REVIEW),
+                    "--output",
+                    str(DEFAULT_UPLOAD_REPORT),
+                    "--charts-dir",
+                    str(DEFAULT_UPLOAD_CHARTS),
+                ],
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+        except subprocess.CalledProcessError as error:
+            st.error(error.stderr or error.stdout or str(error))
+            return
+        st.success(f"Generated {DEFAULT_UPLOAD_REPORT}")
+        st.code(result.stdout)
 
 
 def render_monthly_report(model: dict) -> None:
@@ -234,8 +348,8 @@ def render_privacy_settings(model: dict) -> None:
 
 def _privacy_banner() -> None:
     st.warning(
-        "Sample mode active. Real data locked. Local-only. No bank login. "
-        "No cloud sync. No cloud AI. Local AI memo off by default."
+        "Local upload/review active. Reports require saved final categories first. "
+        "No bank login. No cloud sync. No cloud AI. Local AI memo off by default."
     )
 
 

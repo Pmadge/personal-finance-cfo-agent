@@ -118,9 +118,9 @@ def test_unknown_goal_type_raises():
                     as_of_date="2026-06-30")
 
 
-def test_sample_alex_goals_track_without_error():
-    from modules.config import ALEX_GOALS
+def test_starter_person_goals_track_without_error():
+    from modules.config import STARTER_PERSON_GOALS
 
-    tracker = track_goals(ALEX_GOALS, as_of_date="2026-03-31", default_monthly=400.0)
-    assert len(tracker) == len(ALEX_GOALS)
+    tracker = track_goals(STARTER_PERSON_GOALS, as_of_date="2026-03-31", default_monthly=400.0)
+    assert len(tracker) == len(STARTER_PERSON_GOALS)
     assert set(tracker["Type"]) == {"savings", "debt_payoff", "net_worth", "savings_rate"}

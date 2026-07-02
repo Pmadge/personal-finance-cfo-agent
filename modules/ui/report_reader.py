@@ -12,7 +12,12 @@ import json
 from pathlib import Path
 from typing import Any
 
-from modules.categorization_review import REVIEW_COLUMNS
+import pandas as pd
+
+from modules.categorization_review import REVIEW_COLUMNS, build_category_review, write_category_review_file
+from modules.config import APPROVED_CATEGORIES
+from modules.importers.personal_csv import normalize_uploaded_transactions
+from modules.personal_report_inputs import build_report_transactions_from_review
 
 EXPECTED_SCHEMA_VERSION = "1.0.0"
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -172,6 +177,22 @@ MONTHLY_REPORT_SECTIONS = [
 
 RISK_COLORS = {"High": "🔴", "Medium": "🟡", "Low": "🟢"}
 VARIANCE_COLORS = {"green": "🟢", "amber": "🟡", "red": "🔴"}
+MERCHANT_CATEGORY_RULES = {
+    "GITHUB": "Subscriptions",
+    "COSTCO": "Food & Dining",
+    "ALBERTSONS": "Food & Dining",
+    "TRADER JOE": "Food & Dining",
+    "FREEBIRDS": "Food & Dining",
+    "CHIPOTLE": "Food & Dining",
+    "IN-N-OUT": "Food & Dining",
+    "MCDONALD": "Food & Dining",
+    "STARBUCKS": "Food & Dining",
+    "COFFEE": "Food & Dining",
+    "UCSB": "Food & Dining",
+    "TARGET": "Food & Dining",
+    "CVS": "Food & Dining",
+    "CHEVRON": "Transport",
+}
 
 
 def build_monthly_report_model(data: dict[str, Any]) -> dict[str, Any]:
@@ -212,6 +233,101 @@ def build_category_review_model(data: dict[str, Any], rows: list[dict[str, str]]
         "status_counts": counts,
         "categories": categories,
         "rows": rows,
+    }
+
+
+def build_upload_preview_model(rows: list[dict[str, Any]], source_file="uploaded.csv") -> dict[str, Any]:
+    """Normalize uploaded CSV rows for local preview."""
+    profile, normalized = normalize_uploaded_transactions(
+        pd.DataFrame(rows),
+        source_file=source_file,
+    )
+    return {
+        "profile": profile,
+        "source_file": Path(str(source_file)).name,
+        "row_count": len(normalized),
+        "preview_rows": normalized.head(50).to_dict("records"),
+        "can_generate_report": False,
+        "status": "Upload parsed locally. Review/report generation not enabled yet.",
+    }
+
+
+def build_uploaded_category_review_model(rows: list[dict[str, Any]], source_file="uploaded.csv") -> dict[str, Any]:
+    """Normalize uploaded rows and build category suggestions for human review."""
+    profile, normalized = normalize_uploaded_transactions(
+        pd.DataFrame(rows),
+        source_file=source_file,
+    )
+    review = build_category_review(normalized)
+    review_rows = review.to_dict("records")
+    counts = {"total_rows": len(review_rows), "needs_review": 0, "auto_suggested": 0, "manual_override": 0}
+    for row in review_rows:
+        status = row["review_status"]
+        if status in counts:
+            counts[status] += 1
+    return {
+        "profile": profile,
+        "source_file": Path(str(source_file)).name,
+        "status_counts": counts,
+        "rows": review_rows,
+        "can_generate_report": False,
+        "status": "Categories suggested locally. Review/report generation remains locked.",
+    }
+
+
+def apply_merchant_category_rules(rows: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], int]:
+    """Bulk-fill review rows from simple merchant keyword rules."""
+    updated = []
+    changed = 0
+    for row in rows:
+        edited = dict(row)
+        vendor = str(edited.get("vendor", "")).upper()
+        current = str(edited.get("final_category", "")).strip()
+        if not current:
+            for keyword, category in MERCHANT_CATEGORY_RULES.items():
+                if keyword in vendor:
+                    edited["final_category"] = category
+                    edited["review_status"] = "manual_override"
+                    edited["override_note"] = f"merchant rule: {keyword}"
+                    changed += 1
+                    break
+        updated.append(edited)
+    return updated, changed
+
+
+def save_uploaded_category_review_edits(rows: list[dict[str, Any]], output_path: str | Path) -> list[dict[str, Any]]:
+    """Persist edited uploaded category rows after validating final categories."""
+    _validate_category_review_rows(rows)
+    edited = pd.DataFrame(rows, columns=REVIEW_COLUMNS).fillna("")
+    final_categories = edited["final_category"].astype(str).str.strip()
+    invalid = sorted(set(final_categories[final_categories != ""]) - set(APPROVED_CATEGORIES))
+    if invalid:
+        raise ValueError(f"Invalid final_category: {invalid[0]}")
+    edited["final_category"] = final_categories
+    edited["review_status"] = "auto_suggested"
+    edited.loc[edited["final_category"] == "", "review_status"] = "needs_review"
+    edited.loc[
+        (edited["final_category"] != "") & (edited["final_category"] != edited["suggested_category"].astype(str)),
+        "review_status",
+    ] = "manual_override"
+    write_category_review_file(edited, output_path)
+    return edited.to_dict("records")
+
+
+def build_uploaded_report_action_model(review_path: str | Path, output_path: str | Path) -> dict[str, Any]:
+    """Return whether the saved uploaded review file is ready for report generation."""
+    review_path = Path(review_path)
+    if not review_path.exists():
+        return {"can_generate": False, "reason": "Save a category review before generating a report."}
+    try:
+        build_report_transactions_from_review(pd.read_csv(review_path, keep_default_na=False))
+    except ValueError as error:
+        return {"can_generate": False, "reason": str(error)}
+    return {
+        "can_generate": True,
+        "reason": "Ready to generate reviewed local report.",
+        "review_path": str(review_path),
+        "output_path": str(output_path),
     }
 
 

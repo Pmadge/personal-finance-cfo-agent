@@ -7,7 +7,7 @@ from modules.reports.report_json import (
     build_report_json,
     write_report_json,
 )
-from modules.reports.pdf_report import portfolio_demo_report_config
+from modules.reports.pdf_report import complex_household_report_config
 
 
 def _assert_json_safe(obj):
@@ -70,15 +70,15 @@ def test_report_json_contract_default_persona(tmp_path):
     assert "paulmadgett" not in text
 
 
-def test_report_json_contract_portfolio_demo_passes_self_checks(tmp_path):
-    """The portfolio-facing Morgan household must pass every self-check."""
+def test_report_json_contract_complex_household_passes_self_checks(tmp_path):
+    """The complex-household fixture must pass every self-check."""
     contract = build_report_json(
         output_dir=tmp_path / "charts",
-        report_config=portfolio_demo_report_config(),
+        report_config=complex_household_report_config(),
     )
     _assert_json_safe(contract)
 
-    assert contract["persona"]["name"] == "Morgan Patel Household"
+    assert contract["persona"]["name"] == "Complex Household"
     self_check = contract["self_check"]
     assert self_check["checks_total"] > 0
     assert self_check["all_passed"] is True
@@ -87,7 +87,7 @@ def test_report_json_contract_portfolio_demo_passes_self_checks(tmp_path):
     # The action item owner follows the persona, not a hardcoded name.
     actions = contract["sections"]["action_items"]
     if actions:
-        assert actions[0]["Owner"] == "Morgan Patel Household"
+        assert actions[0]["Owner"] == "Complex Household"
 
 
 def test_write_report_json_creates_file(tmp_path):

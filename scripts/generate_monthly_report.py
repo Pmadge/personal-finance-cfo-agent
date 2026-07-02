@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the fictional Alex Rivera monthly CFO report."""
+"""Generate the fictional starter-person monthly CFO report."""
 
 from pathlib import Path
 import sys

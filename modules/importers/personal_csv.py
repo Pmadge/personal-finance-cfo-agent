@@ -2,15 +2,18 @@
 
 This module is intentionally simple and offline. It turns safe bank-style CSV
 exports into the internal transaction schema used by the rest of the app.
-Direct module calls are lower-level helpers; while personal mode is disabled,
-the standalone CLI remains the fake/sample-only user entry point.
+Direct module calls and the Streamlit upload screen use these helpers; the
+standalone import CLI remains the fake/sample-only user entry point.
 """
 
 from pathlib import Path
 import hashlib
+import re
 
+import fitz
 import pandas as pd
 
+from modules.categorization_review import build_category_review, write_category_review_file
 from modules.validation import REQUIRED_COLUMNS, validate_transactions_for_processing
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -91,6 +94,9 @@ FAKE_BANK_EXPORT_COLUMNS = [
     "Account Name",
     "Transaction ID",
 ]
+STATEMENT_DATE_RE = re.compile(r"^\d{2}/\d{2}$")
+STATEMENT_REFERENCE_RE = re.compile(r"^\d{20,}$")
+STATEMENT_MONEY_RE = re.compile(r"^\$?\s*\d{1,3}(?:,\d{3})*\.\d{2}-?$")
 
 
 def _missing_fake_bank_columns(df):
@@ -166,6 +172,135 @@ def normalize_personal_transactions(
 
     normalized = normalized[REQUIRED_COLUMNS + IDENTITY_COLUMNS]
     return validate_transactions_for_processing(normalized)
+
+
+def _statement_pdf_lines(input_pdf):
+    if isinstance(input_pdf, (bytes, bytearray)):
+        document = fitz.open(stream=input_pdf, filetype="pdf")
+    else:
+        document = fitz.open(input_pdf)
+    return [line.strip() for page in document for line in page.get_text("text").splitlines() if line.strip()]
+
+
+def _money_to_float(value):
+    return float(str(value).replace("$", "").replace(",", "").replace("-", ""))
+
+
+def parse_coasthills_visa_pdf(input_pdf, source_file="statement.pdf"):
+    """Extract purchase rows from CoastHills FCU Visa statement PDFs."""
+    rows = []
+    lines = _statement_pdf_lines(input_pdf)
+    for index in range(len(lines) - 5):
+        if not (
+            STATEMENT_DATE_RE.match(lines[index])
+            and STATEMENT_DATE_RE.match(lines[index + 1])
+            and lines[index + 2].startswith("PPLN")
+            and STATEMENT_REFERENCE_RE.match(lines[index + 3])
+        ):
+            continue
+        amount_index = index + 5
+        if amount_index < len(lines) and lines[amount_index] == "$":
+            amount_index += 1
+        if amount_index >= len(lines) or not STATEMENT_MONEY_RE.match(lines[amount_index]):
+            continue
+        posted_month, posted_day = lines[index + 1].split("/")
+        rows.append(
+            {
+                "posted_date": f"2026-{posted_month}-{posted_day}",
+                "description": lines[index + 4],
+                "amount": -_money_to_float(lines[amount_index]),
+                "source_category": "misc",
+                "source_account": "CoastHills FCU Visa",
+                "transaction_id": lines[index + 3],
+            }
+        )
+    if not rows:
+        raise ValueError("No CoastHills Visa statement transactions found in PDF")
+    return pd.DataFrame(rows)
+
+
+def normalize_uploaded_statement_file(file_obj, source_file="uploaded"):
+    """Normalize an uploaded CSV or CoastHills Visa PDF statement."""
+    source_name = Path(str(source_file)).name
+    if source_name.lower().endswith(".pdf"):
+        parsed = parse_coasthills_visa_pdf(file_obj, source_file=source_name)
+        return "coasthills-visa-pdf", normalize_personal_transactions(
+            parsed,
+            source_file=source_name,
+            import_batch_id="upload_preview",
+        )
+    return normalize_uploaded_transactions(pd.read_csv(file_obj), source_file=source_name)
+
+
+def normalize_uploaded_files(file_items):
+    """Normalize one upload or merge multiple CoastHills Visa PDF uploads."""
+    file_items = list(file_items)
+    if not file_items:
+        raise ValueError("Upload at least one file")
+    source_names = [Path(str(source_file)).name for _, source_file in file_items]
+    if len(file_items) == 1:
+        profile, normalized = normalize_uploaded_statement_file(file_items[0][0], source_file=source_names[0])
+        return source_names[0], profile, normalized
+    if any(not source_name.lower().endswith(".pdf") for source_name in source_names):
+        raise ValueError("Multiple uploads currently supports PDF statements only")
+    raw = pd.concat(
+        [
+            parse_coasthills_visa_pdf(file_obj, source_file=source_name)
+            for (file_obj, _), source_name in zip(file_items, source_names)
+        ],
+        ignore_index=True,
+    )
+    source_label = " + ".join(source_names)
+    return " + ".join(source_names), "coasthills-visa-pdf-batch", normalize_personal_transactions(
+        raw,
+        source_file=source_label,
+        import_batch_id="upload_preview",
+    )
+
+
+def normalize_uploaded_transactions(df, source_file="uploaded.csv"):
+    """Detect a supported uploaded CSV profile and normalize it for preview."""
+    columns = set(df.columns)
+    if set(REQUIRED_IMPORT_COLUMNS).issubset(columns):
+        return "personal-template", normalize_personal_transactions(
+            df,
+            source_file=source_file,
+            import_batch_id="upload_preview",
+        )
+    if set(FAKE_BANK_EXPORT_COLUMNS).issubset(columns):
+        return "debit-credit", normalize_fake_bank_export(
+            df,
+            source_file=source_file,
+            import_batch_id="upload_preview",
+        )
+    raise ValueError(
+        "Unsupported upload columns. Use either "
+        f"{', '.join(REQUIRED_IMPORT_COLUMNS)} or {', '.join(FAKE_BANK_EXPORT_COLUMNS)}."
+    )
+
+
+def write_uploaded_transactions(df, output_path, source_file="uploaded.csv"):
+    """Normalize an uploaded CSV and write it to an approved local processed path."""
+    output_path = Path(output_path)
+    if not validate_safe_output_path(output_path):
+        raise ValueError("Unsafe personal output path. Use data/processed/ or outputs/personal/.")
+    output_path = resolve_local_path(output_path)
+    profile, normalized = normalize_uploaded_transactions(df, source_file=source_file)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    normalized.to_csv(output_path, index=False)
+    return profile, normalized
+
+
+def write_uploaded_category_review(df, output_path, source_file="uploaded.csv"):
+    """Normalize an uploaded CSV and persist a local category review file."""
+    output_path = Path(output_path)
+    if not validate_safe_output_path(output_path):
+        raise ValueError("Unsafe personal output path. Use data/processed/ or outputs/personal/.")
+    output_path = resolve_local_path(output_path)
+    profile, normalized = normalize_uploaded_transactions(df, source_file=source_file)
+    review = build_category_review(normalized)
+    write_category_review_file(review, output_path)
+    return profile, review
 
 
 def normalize_personal_csv(input_path, output_path, allow_unsafe_output=False):

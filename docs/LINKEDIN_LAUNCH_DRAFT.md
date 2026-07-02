@@ -24,11 +24,11 @@ It generates:
 - cash runway analysis
 - budget variance and unusual expense review
 - goals, risk, scenarios, and rent-vs-buy analysis
-- a read-only Streamlit app for reviewing the verified report output
+- a Streamlit app for reviewing verified sample output and manually uploaded local statements
 
 The part I cared about most was trust.
 
-The app does not connect to banks. It does not use real personal financial data. It does not call external AI APIs. The numbers come from deterministic Python checks, and the UI only renders verified outputs.
+The app does not connect to banks. It does not call external AI APIs. Portfolio screenshots use fictional sample personas, and manually uploaded statements stay local in Git-ignored folders. The numbers come from deterministic Python checks, and the UI only renders verified outputs.
 
 All portfolio screenshots use fictional sample personas.
 
@@ -40,8 +40,8 @@ Repo: [add link after visibility decision]
 
 I built a local-first Personal Finance CFO Agent portfolio project.
 
-It turns fictional transaction data into a CFO-style monthly report and a read-only Streamlit app, with deterministic checks behind the numbers.
+It turns fictional transaction data or manually selected local statements into a CFO-style monthly report and Streamlit app, with deterministic checks behind the numbers.
 
-No bank login. No real personal data. No cloud AI. Just a privacy-first finance workflow built in Python.
+No bank login. No cloud AI. Portfolio assets stay fictional; local uploads stay Git-ignored.
 
 Repo: [add link after visibility decision]

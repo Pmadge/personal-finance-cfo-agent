@@ -35,23 +35,23 @@ def test_monthly_report_can_regenerate_to_temp_output_folder(tmp_path):
     assert "Model Version Log" in text
 
 
-def test_portfolio_demo_report_uses_richer_fictional_household(tmp_path):
-    """Portfolio screenshots should be reproducible from a more complex fake household."""
-    from modules.reports.pdf_report import build_pdf, portfolio_demo_report_config
+def test_complex_household_report_uses_richer_fictional_household(tmp_path):
+    """README screenshots should be reproducible from a more complex fake household."""
+    from modules.reports.pdf_report import build_pdf, complex_household_report_config
 
-    pdf_path = tmp_path / "portfolio_demo_report.pdf"
+    pdf_path = tmp_path / "complex_household_report.pdf"
     generated_path = build_pdf(
         output_path=pdf_path,
         output_dir=tmp_path / "charts",
-        report_config=portfolio_demo_report_config(),
+        report_config=complex_household_report_config(),
     )
     text, page_count = extract_pdf_text(generated_path)
 
     assert generated_path == pdf_path
     assert generated_path.exists()
     assert page_count >= 10
-    assert "Morgan Patel Household" in text
-    assert "fictional Morgan Patel household data only" in text
+    assert "Complex Household" in text
+    assert "fictional complex-household data only" in text
     assert "dual income, mortgage-level housing, childcare" in text
     assert "First Home Down Payment" in text
     assert "Readiness to buy a $875,000.00 home" in text

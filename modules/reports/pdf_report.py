@@ -1,4 +1,4 @@
-"""Build the Alex Rivera Monthly CFO Report PDF."""
+"""Build the starter-person Monthly CFO Report PDF."""
 
 from pathlib import Path
 import shutil
@@ -38,27 +38,29 @@ from modules.categorizer import categorize_file
 from modules.charts import generate_all_charts
 from modules.capital_events import home_purchase_readiness, major_purchase_check, rent_vs_buy
 from modules.config import (
-    ALEX_ASSETS,
-    ALEX_BUDGET,
-    ALEX_GOALS,
-    ALEX_HOME_TARGET,
-    ALEX_LIABILITIES,
-    ALEX_MAJOR_PURCHASE,
-    ALEX_SCENARIOS,
+    STARTER_PERSON_ASSETS,
+    STARTER_PERSON_BUDGET,
+    STARTER_PERSON_GOALS,
+    STARTER_PERSON_HOME_TARGET,
+    STARTER_PERSON_LIABILITIES,
+    STARTER_PERSON_MAJOR_PURCHASE,
+    STARTER_PERSON_SCENARIOS,
     APPROVED_CATEGORIES,
+    FICTIONAL_DATA_NOTICE,
     MODEL_VERSION,
-    PORTFOLIO_DEMO_ASSETS,
-    PORTFOLIO_DEMO_BUDGET,
-    PORTFOLIO_DEMO_CATEGORIZED,
-    PORTFOLIO_DEMO_FICTIONAL_DATA_NOTICE,
-    PORTFOLIO_DEMO_GOALS,
-    PORTFOLIO_DEMO_HOME_TARGET,
-    PORTFOLIO_DEMO_LIABILITIES,
-    PORTFOLIO_DEMO_MAJOR_PURCHASE,
-    PORTFOLIO_DEMO_PDF,
-    PORTFOLIO_DEMO_PERSONA_NAME,
-    PORTFOLIO_DEMO_SCENARIOS,
-    PORTFOLIO_DEMO_TRANSACTIONS,
+    PERSONA_NAME,
+    COMPLEX_HOUSEHOLD_ASSETS,
+    COMPLEX_HOUSEHOLD_BUDGET,
+    COMPLEX_HOUSEHOLD_CATEGORIZED,
+    COMPLEX_HOUSEHOLD_FICTIONAL_DATA_NOTICE,
+    COMPLEX_HOUSEHOLD_GOALS,
+    COMPLEX_HOUSEHOLD_HOME_TARGET,
+    COMPLEX_HOUSEHOLD_LIABILITIES,
+    COMPLEX_HOUSEHOLD_MAJOR_PURCHASE,
+    COMPLEX_HOUSEHOLD_PDF,
+    COMPLEX_HOUSEHOLD_PERSONA_NAME,
+    COMPLEX_HOUSEHOLD_SCENARIOS,
+    COMPLEX_HOUSEHOLD_TRANSACTIONS,
     REPORT_MONTH,
     REPORT_MONTH_LABEL,
 )
@@ -76,48 +78,48 @@ from modules.validation import build_audit_log
 
 MONTH = REPORT_MONTH
 MONTH_LABEL = REPORT_MONTH_LABEL
-PDF_PATH = PROJECT_ROOT / "outputs" / "alex_rivera_monthly_cfo_report_2026_03.pdf"
+PDF_PATH = PROJECT_ROOT / "test_personas" / "starter_person" / "outputs" / "monthly_cfo_report.pdf"
 REVIEW_DIR = PROJECT_ROOT / "outputs" / "pdf_review"
-FOOTER = f"{MODEL_VERSION} | Fictional Alex Rivera data only | Generated for {MONTH_LABEL}"
+FOOTER = f"{MODEL_VERSION} | {FICTIONAL_DATA_NOTICE.capitalize()} only | Generated for {MONTH_LABEL}"
 
 
 def default_report_config():
-    """Return the default fictional Alex Rivera report configuration."""
+    """Return the default fictional starter-person report configuration."""
     return {
-        "persona_name": "Alex Rivera",
-        "fictional_notice": "Fictional Alex Rivera data only",
-        "raw_path": PROJECT_ROOT / "data" / "alex_rivera_transactions.csv",
-        "categorized_path": PROJECT_ROOT / "data" / "alex_rivera_transactions_categorized.csv",
+        "persona_name": PERSONA_NAME,
+        "fictional_notice": f"{FICTIONAL_DATA_NOTICE.capitalize()} only",
+        "raw_path": PROJECT_ROOT / "test_personas" / "starter_person" / "transactions.csv",
+        "categorized_path": PROJECT_ROOT / "test_personas" / "starter_person" / "transactions_categorized.csv",
         "pdf_path": PDF_PATH,
-        "budget": ALEX_BUDGET,
-        "assets": ALEX_ASSETS,
-        "liabilities": ALEX_LIABILITIES,
-        "goals": ALEX_GOALS,
-        "scenarios": ALEX_SCENARIOS,
-        "home_target": ALEX_HOME_TARGET,
-        "major_purchase": ALEX_MAJOR_PURCHASE,
+        "budget": STARTER_PERSON_BUDGET,
+        "assets": STARTER_PERSON_ASSETS,
+        "liabilities": STARTER_PERSON_LIABILITIES,
+        "goals": STARTER_PERSON_GOALS,
+        "scenarios": STARTER_PERSON_SCENARIOS,
+        "home_target": STARTER_PERSON_HOME_TARGET,
+        "major_purchase": STARTER_PERSON_MAJOR_PURCHASE,
         "dashboard_note": (
-            "One-page CFO answer: Alex has strong monthly cash generation, but the dashboard highlights the "
+            "One-page CFO answer: the starter person has strong monthly cash generation, but the dashboard highlights the "
             "thin emergency runway, debt load, goal progress, and capital-event readiness before the detailed pages."
         ),
     }
 
 
-def portfolio_demo_report_config():
+def complex_household_report_config():
     """Return the richer fictional household configuration used for portfolio screenshots."""
     return {
-        "persona_name": PORTFOLIO_DEMO_PERSONA_NAME,
-        "fictional_notice": f"{PORTFOLIO_DEMO_FICTIONAL_DATA_NOTICE} only",
-        "raw_path": PROJECT_ROOT / PORTFOLIO_DEMO_TRANSACTIONS,
-        "categorized_path": PROJECT_ROOT / PORTFOLIO_DEMO_CATEGORIZED,
-        "pdf_path": PROJECT_ROOT / PORTFOLIO_DEMO_PDF,
-        "budget": PORTFOLIO_DEMO_BUDGET,
-        "assets": PORTFOLIO_DEMO_ASSETS,
-        "liabilities": PORTFOLIO_DEMO_LIABILITIES,
-        "goals": PORTFOLIO_DEMO_GOALS,
-        "scenarios": PORTFOLIO_DEMO_SCENARIOS,
-        "home_target": PORTFOLIO_DEMO_HOME_TARGET,
-        "major_purchase": PORTFOLIO_DEMO_MAJOR_PURCHASE,
+        "persona_name": COMPLEX_HOUSEHOLD_PERSONA_NAME,
+        "fictional_notice": f"{COMPLEX_HOUSEHOLD_FICTIONAL_DATA_NOTICE} only",
+        "raw_path": PROJECT_ROOT / COMPLEX_HOUSEHOLD_TRANSACTIONS,
+        "categorized_path": PROJECT_ROOT / COMPLEX_HOUSEHOLD_CATEGORIZED,
+        "pdf_path": PROJECT_ROOT / COMPLEX_HOUSEHOLD_PDF,
+        "budget": COMPLEX_HOUSEHOLD_BUDGET,
+        "assets": COMPLEX_HOUSEHOLD_ASSETS,
+        "liabilities": COMPLEX_HOUSEHOLD_LIABILITIES,
+        "goals": COMPLEX_HOUSEHOLD_GOALS,
+        "scenarios": COMPLEX_HOUSEHOLD_SCENARIOS,
+        "home_target": COMPLEX_HOUSEHOLD_HOME_TARGET,
+        "major_purchase": COMPLEX_HOUSEHOLD_MAJOR_PURCHASE,
         "dashboard_note": (
             "One-page CFO answer: this richer fictional household combines dual income, mortgage-level housing, "
             "childcare, debt payoff, savings transfers, home-buying goals, and surprise expenses so the report "

@@ -1,8 +1,13 @@
 # Personal Finance CFO Agent
 
-A local-first portfolio prototype that turns fictional transaction data into a family-office-style monthly CFO packet.
+![Tests](https://github.com/Pmadge/personal-finance-cfo-agent/actions/workflows/tests.yml/badge.svg)
+![Python](https://img.shields.io/badge/python-3.11-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Local First](https://img.shields.io/badge/local--first-no%20cloud%20AI-brightgreen)
 
-> **Fictional data only:** this project does not connect to bank accounts, does not use real personal financial data, and is not financial advice.
+A local-first portfolio prototype that turns fictional samples or user-approved local statement uploads into a family-office-style monthly CFO packet.
+
+> **Local-first:** this project does not connect to bank accounts, does not use cloud AI, and is not financial advice. Portfolio screenshots and committed artifacts stay fictional/sample-only. Real uploads stay local in Git-ignored folders.
 
 For a deeper visual walkthrough with sample report screenshots, see the
 [Portfolio Summary](docs/PORTFOLIO_SUMMARY.md).
@@ -11,7 +16,23 @@ The local app/interface design direction and the engine's UI data contract are
 documented in [Design Direction](docs/DESIGN_DIRECTION.md) and
 [Report JSON Contract](docs/REPORT_JSON_CONTRACT.md).
 
+## Why this is different
+
+Most finance demos stop at spending charts. This project adds CFO-style variance explanations, runway and forecast checks, goals, risk, capital-event readiness, reviewed local uploads, and fail-closed self-checks before report generation.
+
+## Feature snapshot
+
+- Local CSV/PDF upload with no bank login, cloud sync, or cloud AI.
+- Editable category review before any uploaded rows become report-ready.
+- Merchant-rule bulk fill for repeat vendors.
+- Deterministic self-checks for schema, categories, duplicates, and math reconciliation.
+- PDF reports, charts, stress tests, and Streamlit reader screens from the same checked engine.
+
 ## Preview
+
+### Local Upload + Category Review
+
+![Upload Transactions screen](docs/screenshots/streamlit_upload_transactions.png)
 
 ### One-page Executive Dashboard
 
@@ -31,7 +52,7 @@ documented in [Design Direction](docs/DESIGN_DIRECTION.md) and
 |---|---|
 | ![Goal tracker](docs/screenshots/report_goal_tracker.png) | ![Capital event readiness](docs/screenshots/report_capital_event.png) |
 
-The README screenshots use the richer fictional Morgan Patel household demo so the portfolio preview shows dual income, mortgage-level housing, childcare, debt payoff, savings transfers, home-buying goals, and surprise expenses. No real financial data is shown.
+The README screenshots use the richer fictional complex-household fixture so the portfolio preview shows dual income, mortgage-level housing, childcare, debt payoff, savings transfers, home-buying goals, and surprise expenses. No real financial data is shown.
 
 ## What This Project Does
 
@@ -40,21 +61,38 @@ The Personal Finance CFO Agent turns fictional transaction data into a family of
 Current verification status:
 
 ```text
-212 local tests passing
+234 local tests passing
 GitHub Actions passing
 100-persona fictional stress harness available
-Real personal data disabled until explicit safety approval
+Local CSV upload, CoastHills Visa PDF upload, multi-PDF merge, category review, and gated personal report generation verified
 ```
 
 ## What It Produces
 
-- Monthly CFO Report PDF: `outputs/alex_rivera_monthly_cfo_report_2026_03.pdf`
-- 3-Month Trend Summary PDF: `outputs/alex_rivera_3_month_trend_summary_2026_q1.pdf`
-- Spending by Category donut chart: `outputs/spending_by_category.png`
-- Monthly Savings Rate Trend chart: `outputs/monthly_savings_rate_trend.png`
-- Budget vs. Actual chart: `outputs/budget_vs_actual.png`
-- Month-over-Month Spending chart: `outputs/month_over_month_spending.png`
-- Portfolio screenshot demo report: `outputs/portfolio_demo_morgan_patel_monthly_cfo_report_2026_03.pdf`
+Each committed test persona under `test_personas/` includes a full local run:
+
+- source `transactions.csv`
+- categorized `transactions_categorized.csv`
+- verified `outputs/report.json`
+- `outputs/monthly_cfo_report.pdf`
+- report charts under `outputs/charts/`
+- starter fixture only: `outputs/three_month_trend_summary.pdf`
+
+Private uploaded-statement reports still generate under Git-ignored local folders after categories are reviewed and saved.
+
+Selected screenshots are committed under `docs/screenshots/` for GitHub display.
+
+## How It Works
+
+```mermaid
+flowchart LR
+    A[CSV/PDF upload] --> B[Importer normalization]
+    B --> C[Category review + merchant rules]
+    C --> D[Reviewed rows]
+    D --> E[Self-check gates]
+    E --> F[PDF report + charts]
+    E --> G[Streamlit reader]
+```
 
 ## How To Run It
 
@@ -75,10 +113,10 @@ python3 scripts/monthly_close.py --sample
 python3 scripts/generate_personal_report.py
 ```
 
-To regenerate the richer GitHub README screenshots from the fictional Morgan Patel household demo:
+To regenerate the richer GitHub README screenshots from the fictional complex-household fixture:
 
 ```bash
-python3 scripts/generate_portfolio_demo_screenshots.py
+python3 scripts/generate_complex_household_screenshots.py
 ```
 
 To regenerate the UI report JSON contract (what the local Read & Trust app binds to):
@@ -89,7 +127,14 @@ python3 scripts/generate_report_json.py
 
 ### Local Read & Trust app
 
-The local app is a read-only Streamlit dashboard over the verified report JSON contract. It does not calculate new numbers, call AI, connect to banks, or use real financial data.
+The local Streamlit app reads the verified sample report JSON and also has a local Upload Transactions screen. Uploads never leave the machine. Supported upload paths now include:
+
+- one personal-template CSV
+- one Debit/Credit CSV export
+- one CoastHills FCU Visa statement PDF
+- multiple CoastHills FCU Visa statement PDFs merged into one review file
+
+The upload flow is: upload → preview normalized rows → apply merchant rules if useful → edit final categories → save local review CSV → generate a gated local CFO report.
 
 ```bash
 python3 -m pip install -r requirements.txt
@@ -102,11 +147,12 @@ streamlit run streamlit_app.py
 Current screens:
 
 1. Home Dashboard — the 10-second CFO verdict and headline metrics.
-2. Settings / Privacy — sample/local-only trust settings and self-check status.
+2. Upload Transactions — local CSV/PDF upload, category review editing, merchant-rule bulk fill, and gated report generation.
 3. Monthly Report — section navigation over the verified report JSON sections.
 4. Category Review — read-only Workbench table over the local sample review CSV.
 5. Stress Test Explorer — read-only Workbench grid over generated fictional stress-test results.
 6. Local AI Memo — disabled placeholder only; no AI call, no cloud fallback, no generated memo.
+7. Settings / Privacy — sample/local-only trust settings and self-check status.
 
 ### Personalize the report (optional)
 
@@ -124,8 +170,7 @@ your private files are Git-ignored, and prints the next commands. Edit it with
 your numbers, then regenerate the report.
 
 `config/personal_profile.json` is Git-ignored and stays local. If it is absent,
-the report falls back to the fictional sample. Transaction data is still
-sample/fictional until a real personal-data workflow is approved.
+the report falls back to the fictional sample. Real transaction files are handled only through explicit local upload/review paths and Git-ignored folders.
 
 ### Robustness stress test
 
@@ -146,14 +191,14 @@ python3 scripts/stress_test_personas.py --count 100 --seed 20260627 --output-dir
 
 Each run writes `summary.csv`, `summary.json`, a `README.md`, and one folder per
 persona with `input_transactions.csv`, `categorized_transactions.csv`,
-`profile.json`, `step_results.json`, `report_summary.md`, and detailed analysis
+`profile.json`, `step_results.json`, `report_summary.md`, `full_report.md`, and detailed analysis
 tables. The stress-test outputs are generated/local-only and ignored by Git.
 Fictional data only.
 
 The sample CSV is already included at:
 
 ```text
-data/alex_rivera_transactions.csv
+test_personas/starter_person/transactions.csv
 ```
 
 To use a different fictional dataset, replace that file with a CSV using the same schema below.
@@ -162,53 +207,36 @@ To use a different fictional dataset, replace that file with a CSV using the sam
 
 Long term, this project should become a local-first personal CFO product that can run fully on Paul's Mac as either a script workflow or a small local app. The default design should not require cloud hosting, external AI APIs, hosted databases, or bank-login integrations.
 
-Personal financial data should stay local. For now, the project should continue using fictional/sample data; real personal data remains disabled until explicit safety approval.
+Personal financial data should stay local. The repository and portfolio screenshots stay fictional/sample-only, while the local app can process explicitly provided CSV/PDF statement uploads into Git-ignored local folders.
 
-Important local-data rule: real transaction CSVs, processed personal files, local vendor rules, and personal reports belong only in Git-ignored local folders such as `data/personal/`, `data/processed/`, and `outputs/personal/`. Do not use real financial data in portfolio screenshots or committed sample artifacts.
+Important local-data rule: real transaction CSVs, PDF statements, processed personal files, local vendor rules, and personal reports belong only in Git-ignored local folders such as `data/personal/`, `data/processed/`, and `outputs/personal/`. Do not use real financial data in portfolio screenshots or committed sample artifacts.
 
 Roadmap: `docs/LOCAL_FIRST_PERSONAL_USE_ROADMAP.md`
 Backend/data foundation: `docs/BACKEND_DATA_FOUNDATION.md`
 
 ## Local AI Agent Workflow
 
-This project now has project-scoped instructions for Claude Code, Codex, and Hermes:
+Project-scoped instructions are included for repeatable local development across AI coding tools:
 
 ```text
 AGENTS.md
 CLAUDE.md
-.claude/skills/graphify/
-.codex/skills/graphify/
-.hermes/skills/graphify/
 ```
 
-Those files add two workflow rules:
+These keep future coding sessions aligned on local-first privacy rules, simple changes, and verified deterministic outputs. Tool-specific folders and generated graph files are ignored because they can contain machine-specific hooks, caches, or private local context.
 
-1. **Karpathy-style coding discipline:** think before coding, keep changes simple, make surgical edits, and verify with real commands.
-2. **Graphify project map:** use `graphify-out/graph.json` to query the code graph before broad architecture searches.
-
-This project keeps root `AGENTS.md` and `CLAUDE.md` in the repo so future AI coding sessions understand the project rules. Tool-specific local folders such as `.claude/`, `.codex/`, `.hermes/`, and `graphify-out/` are intentionally ignored because they can contain machine-specific hooks, caches, or generated graph files.
-
-The first Graphify pilot was generated from the Python code in `modules/` only, so it avoids sample data, private data folders, processed CSVs, and private reports. The local graph output is ignored by Git unless you intentionally regenerate and review it for publication.
-
-Useful local commands. If `graphify` is not found in a normal terminal, install it or add your local Python tools directory to `PATH` first:
-
-```bash
-graphify query "How does the personal workflow audit connect to the monthly close workflow?" --graph graphify-out/graph.json
-graphify explain "build_personal_workflow_audit" --graph graphify-out/graph.json
-graphify export callflow-html
-```
-
-Important: do not run Graphify on real personal financial data, credential files, bank exports, or private report outputs.
+Important: do not run graph tools or AI workflows on real personal financial data, credential files, bank exports, or private report outputs.
 
 ## Project Structure
 
 ```text
+test_personas/           # Reusable fictional personas with full run outputs
 main.py                 # Runs the core analysis pipeline and prints CFO outputs
 modules/                # Reusable analysis, forecasting, chart, and report logic
 modules/importers/      # Local CSV import and normalization helpers
 modules/reports/        # Source code for PDF report builders
-data/                   # Fictional demo data plus safe sample templates
-outputs/                # Generated PDFs, charts, and rendered review images
+data/                   # Local workflow folders plus safe templates
+outputs/                # Git-ignored review renders and private/local generated outputs
 scripts/                # Beginner-friendly commands for generating reports/imports
 requirements.txt        # Python packages needed for setup and testing
 ```
@@ -250,7 +278,7 @@ Run the local safety gate before any future real-data work:
 python3 scripts/check_personal_mode_safety.py
 ```
 
-This command verifies with Git itself that private local paths such as `data/personal/`, `data/processed/`, `outputs/personal/`, and `config/personal_rules.csv` are ignored. It does not enable real-data import yet.
+This command verifies with Git itself that private local paths such as `data/personal/`, `data/processed/`, `outputs/personal/`, and `config/personal_rules.csv` are ignored. It does not upload files, call banks, or send data anywhere.
 
 Run the full safe fake personal workflow with one command:
 
@@ -258,7 +286,7 @@ Run the full safe fake personal workflow with one command:
 python3 scripts/monthly_close.py --sample
 ```
 
-That command normalizes fake personal-style transactions, generates the category review, ensures the local Git-ignored override template exists, applies overrides, and writes the workflow audit receipt with the source input file SHA-256 hash. While personal mode is disabled, `--sample` only accepts input files under `data/sample/`; intermediate workflow CSVs stay under `data/processed/`; future private report outputs are listed only under `outputs/personal/`. After reviewing the audit, run `python3 scripts/generate_personal_report.py` to create the draft fake personal report at `outputs/personal/personal_cfo_report_draft.pdf`. The report script runs deterministic pre-render self-checks before writing any PDF or chart artifacts, including duplicate checks for source transaction IDs, imported source rows, and exact final-statement rows. The draft report includes a visual CFO snapshot, spending-by-category chart, and cash-flow waterfall chart under `outputs/personal/charts/`. The report script only accepts the default reviewed sample workflow file until personal mode is explicitly approved.
+That command normalizes fake personal-style transactions, generates the category review, ensures the local Git-ignored override template exists, applies overrides, and writes the workflow audit receipt with the source input file SHA-256 hash. `--sample` only accepts input files under `data/sample/`; intermediate workflow CSVs stay under `data/processed/`; private report outputs stay under `outputs/personal/`. After reviewing the audit, run `python3 scripts/generate_personal_report.py` to create the draft fake personal report at `outputs/personal/personal_cfo_report_draft.pdf`. The Streamlit Upload Transactions screen handles explicitly selected local CSV/PDF uploads through the newer preview → review → save → report flow. The report script runs deterministic pre-render self-checks before writing any PDF or chart artifacts, including duplicate checks for source transaction IDs, imported source rows, and exact final-statement rows.
 
 You can also run each step manually:
 
@@ -283,11 +311,11 @@ The normalized output includes source identity columns so each row can be traced
 | `import_batch_id` | Short deterministic ID based on the source file contents |
 | `transaction_id` | Optional source transaction ID when the export provides one |
 
-Do not put real transaction files into the project until the personal-data workflow is reviewed.
+Keep real transaction files only in Git-ignored local paths such as `data/personal/`, `data/processed/`, and `outputs/personal/`.
 
 ## Sample Persona
 
-Alex Rivera is a fictional young professional with bi-weekly paycheck income, rent, groceries, dining, transportation, subscriptions, student loan payments, and occasional unusual charges. Fictional data is used so the project can demonstrate financial reporting logic without exposing real personal bank, credit card, or identity information. No real personal financial data should be added to this project.
+The starter-person fixture is a fictional young professional with bi-weekly paycheck income, rent, groceries, dining, transportation, subscriptions, student loan payments, and occasional unusual charges. Fictional data is used so the project can demonstrate financial reporting logic without exposing real personal bank, credit card, or identity information. No real personal financial data should be added to this project.
 
 ## Key Calculations
 
@@ -309,7 +337,7 @@ Alex Rivera is a fictional young professional with bi-weekly paycheck income, re
 
 - Report month is March 2026.
 - The source dataset covers January-March 2026.
-- Alex's monthly budget is fixed for this demo.
+- The starter-person monthly budget is fixed for this demo.
 - Forecasts use the available 3-month history and are directional estimates, not financial advice.
 - Net worth uses fictional sample balances: checking, savings, investments, student loan, car loan, and credit card.
 

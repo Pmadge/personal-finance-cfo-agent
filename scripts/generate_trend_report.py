@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the fictional Alex Rivera 3-month trend report."""
+"""Generate the fictional starter-person 3-month trend report."""
 
 from pathlib import Path
 import sys

@@ -10,11 +10,16 @@ REVIEW_REQUIRED_COLUMNS = [
     "classification_method",
     "final_category",
 ]
-REPORT_COLUMNS = [
-    *REQUIRED_COLUMNS,
-    "assigned_category",
-    "classification_method",
-]
+TRACEABILITY_COLUMNS = ["source_file", "source_row_number", "import_batch_id", "transaction_id"]
+
+
+def _report_columns(working):
+    return [
+        *REQUIRED_COLUMNS,
+        *[column for column in TRACEABILITY_COLUMNS if column in working.columns],
+        "assigned_category",
+        "classification_method",
+    ]
 
 
 def build_report_transactions_from_review(review_df):
@@ -36,7 +41,8 @@ def build_report_transactions_from_review(review_df):
     if invalid:
         raise ValueError(f"Invalid final_category: {invalid[0]}")
 
-    report_df = working[[*REQUIRED_COLUMNS, "classification_method"]].copy()
+    report_columns = _report_columns(working)
+    report_df = working[[column for column in report_columns if column != "assigned_category"]].copy()
     report_df["assigned_category"] = final_categories
-    report_df = report_df[REPORT_COLUMNS]
+    report_df = report_df[report_columns]
     return validate_transactions_for_processing(report_df)

@@ -5,6 +5,7 @@ import hashlib
 import subprocess
 import sys
 
+import fitz
 import pandas as pd
 import pytest
 
@@ -18,7 +19,13 @@ from modules.importers.personal_csv import (
     normalize_fake_bank_export,
     normalize_personal_csv,
     normalize_personal_transactions,
+    normalize_uploaded_files,
+    normalize_uploaded_statement_file,
+    normalize_uploaded_transactions,
+    parse_coasthills_visa_pdf,
     validate_safe_output_path,
+    write_uploaded_category_review,
+    write_uploaded_transactions,
 )
 from modules.validation import REQUIRED_COLUMNS, validate_transactions_for_processing
 
@@ -26,6 +33,28 @@ TEMPLATE_PATH = PROJECT_ROOT / "data" / "sample" / "personal_transactions_templa
 
 
 FAKE_BANK_EXPORT_PATH = PROJECT_ROOT / "data" / "sample" / "fake_bank_export_profile.csv"
+
+
+FAKE_PDF_ROWS = [
+    ("01/31", "02/01", "00000000000000000001", "FAKE COASTHILLS GROCERY GOLETA CA", "12.34"),
+    ("02/14", "02/15", "00000000000000000002", "FAKE COASTHILLS BOOKSTORE ISLA VISTA CA", "56.78"),
+]
+FAKE_PDF_ROWS_LATER = [
+    ("03/01", "03/02", "00000000000000000003", "FAKE COASTHILLS COFFEE GOLETA CA", "9.99"),
+]
+
+
+def _fake_coasthills_pdf_bytes(rows):
+    """Build a tiny text-based statement PDF fixture with no real financial data."""
+    lines = []
+    for transaction_date, posted_date, reference, vendor, amount in rows:
+        lines.extend([transaction_date, posted_date, "PPLN", reference, vendor, "$", amount])
+    doc = fitz.open()
+    page = doc.new_page()
+    page.insert_text((72, 72), "\n".join(lines), fontsize=10)
+    data = doc.tobytes()
+    doc.close()
+    return data
 
 
 def test_fake_bank_export_profile_fixture_exists_and_is_fake_only():
@@ -189,6 +218,174 @@ def test_normalize_personal_transactions_maps_template_to_internal_schema():
         },
     ]
     validate_transactions_for_processing(normalized)
+
+
+def test_normalize_uploaded_transactions_detects_supported_template_profile():
+    """UI uploads should reuse importer profiles instead of inventing UI parsing."""
+    raw = pd.DataFrame(
+        [
+            {
+                "posted_date": "2026-04-01",
+                "description": "Real Uploaded Payroll",
+                "amount": 2500.00,
+                "source_category": "income",
+            }
+        ]
+    )
+
+    profile, normalized = normalize_uploaded_transactions(raw, source_file="checking.csv")
+
+    assert profile == "personal-template"
+    assert normalized.loc[0, "vendor"] == "Real Uploaded Payroll"
+    assert normalized.loc[0, "source_file"] == "checking.csv"
+
+
+def test_normalize_uploaded_transactions_detects_supported_debit_credit_profile():
+    """Uploaded bank-style Debit/Credit exports should normalize with existing logic."""
+    raw = pd.DataFrame(
+        [
+            {
+                "Transaction Date": "2026-04-01",
+                "Description": "Real Uploaded Grocery",
+                "Debit": "73.42",
+                "Credit": "",
+                "Category": "groceries",
+                "Account Name": "Checking",
+                "Transaction ID": "bank_001",
+            }
+        ]
+    )
+
+    profile, normalized = normalize_uploaded_transactions(raw, source_file="bank.csv")
+
+    assert profile == "debit-credit"
+    assert normalized.loc[0, "amount"] == -73.42
+    assert normalized.loc[0, "transaction_id"] == "bank_001"
+
+
+def test_normalize_uploaded_transactions_rejects_unknown_columns():
+    """Unsupported uploads should fail with the accepted column sets."""
+    raw = pd.DataFrame([{"date": "2026-04-01", "memo": "Store", "value": -1}])
+
+    with pytest.raises(ValueError, match="Unsupported upload columns"):
+        normalize_uploaded_transactions(raw, source_file="unknown.csv")
+
+
+def test_parse_coasthills_visa_pdf_extracts_statement_purchases():
+    parsed = parse_coasthills_visa_pdf(_fake_coasthills_pdf_bytes(FAKE_PDF_ROWS))
+
+    assert len(parsed) == 2
+    assert round(parsed["amount"].sum(), 2) == -69.12
+    assert parsed.loc[0, "description"] == "FAKE COASTHILLS GROCERY GOLETA CA"
+    assert parsed.loc[0, "transaction_id"] == "00000000000000000001"
+    assert set(["posted_date", "description", "amount", "source_category", "transaction_id"]).issubset(parsed.columns)
+
+
+def test_normalize_uploaded_statement_file_accepts_pdf_upload_bytes():
+    profile, normalized = normalize_uploaded_statement_file(
+        _fake_coasthills_pdf_bytes(FAKE_PDF_ROWS),
+        source_file="Fake CoastHills Statement.pdf",
+    )
+
+    assert profile == "coasthills-visa-pdf"
+    assert len(normalized) == 2
+    assert round(normalized["amount"].sum(), 2) == -69.12
+    assert normalized.loc[0, "source_file"] == "Fake CoastHills Statement.pdf"
+    assert normalized.loc[0, "vendor"] == "FAKE COASTHILLS GROCERY GOLETA CA"
+
+
+def test_normalize_uploaded_files_merges_multiple_pdf_statements():
+    uploads = [
+        (_fake_coasthills_pdf_bytes(FAKE_PDF_ROWS), "Fake February Statement.pdf"),
+        (_fake_coasthills_pdf_bytes(FAKE_PDF_ROWS_LATER), "Fake March Statement.pdf"),
+    ]
+
+    source_label, profile, normalized = normalize_uploaded_files(uploads)
+
+    assert profile == "coasthills-visa-pdf-batch"
+    assert source_label == "Fake February Statement.pdf + Fake March Statement.pdf"
+    assert len(normalized) == 3
+    assert round(normalized["amount"].sum(), 2) == -79.11
+    assert normalized.loc[0, "vendor"] == "FAKE COASTHILLS GROCERY GOLETA CA"
+    assert normalized.loc[len(normalized) - 1, "vendor"] == "FAKE COASTHILLS COFFEE GOLETA CA"
+
+
+def test_normalize_uploaded_files_rejects_multiple_csv_uploads():
+    csv_upload = b"posted_date,description,amount,source_category\n2026-04-01,Store,-1,misc\n"
+
+    with pytest.raises(ValueError, match="Multiple uploads currently supports PDF statements only"):
+        normalize_uploaded_files([(csv_upload, "one.csv"), (csv_upload, "two.csv")])
+
+
+def test_write_uploaded_transactions_writes_only_safe_processed_output():
+    output_path = PROJECT_ROOT / "data" / "processed" / "test_uploaded_normalized.csv"
+    output_path.unlink(missing_ok=True)
+    raw = pd.DataFrame(
+        [
+            {
+                "posted_date": "2026-04-01",
+                "description": "Uploaded Payroll",
+                "amount": 2500.0,
+                "source_category": "income",
+            }
+        ]
+    )
+    try:
+        profile, normalized = write_uploaded_transactions(
+            raw,
+            output_path,
+            source_file="checking.csv",
+        )
+
+        assert profile == "personal-template"
+        assert output_path.exists()
+        written = pd.read_csv(output_path, keep_default_na=False)
+        assert written.to_dict("records") == normalized.to_dict("records")
+    finally:
+        output_path.unlink(missing_ok=True)
+
+
+def test_write_uploaded_transactions_rejects_unsafe_output(tmp_path):
+    raw = pd.DataFrame(
+        [{"posted_date": "2026-04-01", "description": "Uploaded", "amount": 1, "source_category": "income"}]
+    )
+
+    with pytest.raises(ValueError, match="Unsafe personal output path"):
+        write_uploaded_transactions(raw, tmp_path / "normalized.csv", source_file="checking.csv")
+
+
+def test_write_uploaded_category_review_writes_review_file_to_safe_output():
+    output_path = PROJECT_ROOT / "data" / "processed" / "test_uploaded_category_review.csv"
+    output_path.unlink(missing_ok=True)
+    raw = pd.DataFrame(
+        [
+            {
+                "posted_date": "2026-04-01",
+                "description": "Uploaded Payroll",
+                "amount": 2500.0,
+                "source_category": "income",
+            }
+        ]
+    )
+    try:
+        profile, review = write_uploaded_category_review(raw, output_path, source_file="checking.csv")
+
+        assert profile == "personal-template"
+        assert output_path.exists()
+        written = pd.read_csv(output_path, keep_default_na=False)
+        assert written.to_dict("records") == review.to_dict("records")
+        assert written.loc[0, "suggested_category"] == "Income"
+    finally:
+        output_path.unlink(missing_ok=True)
+
+
+def test_write_uploaded_category_review_rejects_unsafe_output(tmp_path):
+    raw = pd.DataFrame(
+        [{"posted_date": "2026-04-01", "description": "Uploaded", "amount": 1, "source_category": "income"}]
+    )
+
+    with pytest.raises(ValueError, match="Unsafe personal output path"):
+        write_uploaded_category_review(raw, tmp_path / "review.csv", source_file="checking.csv")
 
 
 def test_normalize_personal_csv_writes_processed_output(tmp_path):

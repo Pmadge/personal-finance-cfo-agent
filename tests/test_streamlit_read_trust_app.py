@@ -6,7 +6,7 @@ from tempfile import TemporaryDirectory
 
 import pytest
 
-from modules.reports.pdf_report import portfolio_demo_report_config
+from modules.reports.pdf_report import complex_household_report_config
 from modules.reports.report_json import build_report_json
 
 from modules.ui.report_reader import (
@@ -15,9 +15,14 @@ from modules.ui.report_reader import (
     build_home_dashboard_model,
     build_local_ai_memo_model,
     build_monthly_report_model,
+    apply_merchant_category_rules,
     build_privacy_settings_model,
     build_stress_test_model,
+    build_uploaded_category_review_model,
+    build_uploaded_report_action_model,
+    build_upload_preview_model,
     load_category_review_rows,
+    save_uploaded_category_review_edits,
     load_report_contract,
     load_stress_test_summary,
 )
@@ -33,7 +38,7 @@ def _cached_sample_contract():
     with TemporaryDirectory() as tmp_dir:
         contract = build_report_json(
             output_dir=Path(tmp_dir) / "charts",
-            report_config=portfolio_demo_report_config(),
+            report_config=complex_household_report_config(),
         )
         contract["self_check"] = {"checks_passed": 11, "checks_total": 11, "all_passed": True}
         return contract
@@ -158,7 +163,7 @@ def test_load_report_contract_rejects_empty_self_check_totals(tmp_path):
 def test_home_dashboard_model_is_read_only_engine_verified():
     model = build_home_dashboard_model(_sample_contract())
 
-    assert model["title"] == "Morgan Patel Household"
+    assert model["title"] == "Complex Household"
     assert model["period_label"] == "March 2026"
     assert model["verdict"] == "On track"
     assert model["trust_badge"] == "Verified by engine"
@@ -172,8 +177,8 @@ def test_home_dashboard_model_is_read_only_engine_verified():
     assert model["risk_counts"] == {"high": 0, "medium": 2, "low": 4}
     assert "Home Depot" in model["next_action"]
     assert model["source_artifacts"] == [
-        "report_2026-03.json",
-        "portfolio_demo_morgan_patel_monthly_cfo_report_2026_03.pdf",
+        "report.json",
+        "monthly_cfo_report.pdf",
     ]
 
 
@@ -186,7 +191,7 @@ def test_streamlit_markdown_escape_keeps_money_text_literal():
 def test_monthly_report_model_returns_all_key_sections():
     model = build_monthly_report_model(_sample_contract())
 
-    assert model["title"] == "Morgan Patel Household"
+    assert model["title"] == "Complex Household"
     assert model["period_label"] == "March 2026"
     assert "Verified by engine" in model["trust_badge"]
     assert "11/11" in model["trust_badge"]
@@ -225,6 +230,132 @@ def test_category_review_model_summarizes_read_only_review_rows():
     assert model["rows"][0]["source_row_number"] == "2"
 
 
+def test_upload_preview_model_normalizes_supported_uploaded_csv():
+    rows = [
+        {
+            "posted_date": "2026-04-01",
+            "description": "Uploaded Payroll",
+            "amount": 2500.0,
+            "source_category": "income",
+        },
+        {
+            "posted_date": "2026-04-02",
+            "description": "Uploaded Grocery",
+            "amount": -73.42,
+            "source_category": "groceries",
+        },
+    ]
+
+    model = build_upload_preview_model(rows, source_file="checking.csv")
+
+    assert model["profile"] == "personal-template"
+    assert model["row_count"] == 2
+    assert model["source_file"] == "checking.csv"
+    assert model["preview_rows"][0]["vendor"] == "Uploaded Payroll"
+    assert model["can_generate_report"] is False
+
+
+def test_uploaded_category_review_model_builds_suggestions_from_uploaded_csv():
+    rows = [
+        {
+            "posted_date": "2026-04-01",
+            "description": "Uploaded Payroll",
+            "amount": 2500.0,
+            "source_category": "income",
+        },
+        {
+            "posted_date": "2026-04-02",
+            "description": "Uploaded Grocery",
+            "amount": -73.42,
+            "source_category": "groceries",
+        },
+    ]
+
+    model = build_uploaded_category_review_model(rows, source_file="checking.csv")
+
+    assert model["profile"] == "personal-template"
+    assert model["status_counts"] == {
+        "total_rows": 2,
+        "needs_review": 0,
+        "auto_suggested": 2,
+        "manual_override": 0,
+    }
+    assert model["rows"][0]["suggested_category"] == "Income"
+    assert model["rows"][0]["final_category"] == "Income"
+    assert model["can_generate_report"] is False
+
+
+def test_save_uploaded_category_review_edits_updates_status_and_validates_categories(tmp_path):
+    rows = _category_review_rows()
+    rows[1]["final_category"] = "Food & Dining"
+    rows[1]["override_note"] = "Rent was actually dining fixture test"
+    output_path = tmp_path / "uploaded_category_review.csv"
+
+    saved = save_uploaded_category_review_edits(rows, output_path)
+
+    assert output_path.exists()
+    assert saved[1]["review_status"] == "manual_override"
+    assert saved[1]["final_category"] == "Food & Dining"
+
+    rows[1]["final_category"] = "Not Approved"
+    with pytest.raises(ValueError, match="Invalid final_category"):
+        save_uploaded_category_review_edits(rows, output_path)
+
+
+def test_apply_merchant_category_rules_bulk_fills_pdf_statement_rows():
+    rows = _category_review_rows()
+    rows[1].update(
+        {
+            "vendor": "COSTCO WHSE #0474 GOLETA CA",
+            "raw_category": "misc",
+            "suggested_category": "Other",
+            "review_status": "needs_review",
+            "final_category": "",
+        }
+    )
+    rows[2].update(
+        {
+            "vendor": "GITHUB, INC. GITHUB.COM CA",
+            "raw_category": "misc",
+            "suggested_category": "Other",
+            "review_status": "needs_review",
+            "final_category": "",
+        }
+    )
+
+    updated, changed = apply_merchant_category_rules(rows)
+
+    assert changed == 2
+    assert updated[1]["final_category"] == "Food & Dining"
+    assert updated[2]["final_category"] == "Subscriptions"
+    assert updated[1]["review_status"] == "manual_override"
+    assert "merchant rule" in updated[1]["override_note"]
+    assert updated[0]["final_category"] == "Income"
+
+
+def test_uploaded_report_action_model_blocks_until_review_file_is_ready(tmp_path):
+    missing_path = tmp_path / "missing.csv"
+    output_path = tmp_path / "report.pdf"
+
+    missing = build_uploaded_report_action_model(missing_path, output_path)
+    assert missing["can_generate"] is False
+    assert "Save a category review" in missing["reason"]
+
+    review_path = tmp_path / "uploaded_category_review.csv"
+    rows = _category_review_rows()
+    rows[1]["final_category"] = ""
+    save_uploaded_category_review_edits(rows, review_path)
+    blocked = build_uploaded_report_action_model(review_path, output_path)
+    assert blocked["can_generate"] is False
+    assert "blank final_category" in blocked["reason"]
+
+    rows[1]["final_category"] = "Housing"
+    save_uploaded_category_review_edits(rows, review_path)
+    ready = build_uploaded_report_action_model(review_path, output_path)
+    assert ready["can_generate"] is True
+    assert ready["reason"] == "Ready to generate reviewed local report."
+
+
 def test_category_review_model_rejects_source_path_leak():
     rows = [
         {
@@ -232,7 +363,7 @@ def test_category_review_model_rejects_source_path_leak():
             "vendor": "Fake Payroll Deposit",
             "amount": "2500.0",
             "raw_category": "income",
-            "source_file": "/Users/paulmadgett/private.csv",
+            "source_file": "/Users/example/private.csv",
             "source_row_number": "2",
             "import_batch_id": "import_fake",
             "transaction_id": "fake_txn_001",
@@ -302,8 +433,8 @@ def test_local_ai_memo_model_is_disabled_placeholder_with_verified_sources():
     assert model["number_source_statement"] == "Numbers remain owned by the deterministic Python engine."
     assert model["source_label"] == "Would be based on verified artifacts"
     assert model["verified_artifacts"] == [
-        "report_2026-03.json",
-        "portfolio_demo_morgan_patel_monthly_cfo_report_2026_03.pdf",
+        "report.json",
+        "monthly_cfo_report.pdf",
     ]
 
 

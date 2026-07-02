@@ -98,6 +98,28 @@ def test_reviewed_rows_fail_closed_on_invalid_final_category():
         build_report_transactions_from_review(review_df)
 
 
+def test_personal_report_self_checks_allow_distinct_transactions_with_same_visible_fields():
+    """Two same-date/same-vendor/same-amount card charges can be valid when transaction IDs differ."""
+    from modules.personal_report_inputs import build_report_transactions_from_review
+    from modules.self_checks import assert_personal_report_self_checks
+
+    review_df = reviewed_rows()
+    review_df.loc[1, ["date", "vendor", "amount", "raw_category", "final_category"]] = [
+        review_df.loc[0, "date"],
+        review_df.loc[0, "vendor"],
+        review_df.loc[0, "amount"],
+        review_df.loc[0, "raw_category"],
+        review_df.loc[0, "final_category"],
+    ]
+    review_df.loc[0, "transaction_id"] = "same_visible_001"
+    review_df.loc[1, "transaction_id"] = "same_visible_002"
+
+    report_df = build_report_transactions_from_review(review_df)
+
+    checks = assert_personal_report_self_checks(review_df, report_df, APPROVED_CATEGORIES)
+    assert checks["Status"].eq("PASS").all()
+
+
 def test_personal_report_script_writes_draft_pdf_to_private_output(tmp_path):
     """The draft personal report script should create an inspectable PDF from reviewed fake data."""
     review_path = tmp_path / "category_review_applied.csv"
@@ -449,7 +471,7 @@ def test_personal_report_script_runs_self_checks_before_render(monkeypatch, tmp_
         calls.append("self_check")
         return original_assert(*args, **kwargs)
 
-    def fake_render(report_df, output, charts):
+    def fake_render(report_df, output, charts, **_kwargs):
         calls.append("render")
         return Path(output)
 
@@ -625,7 +647,7 @@ def test_personal_report_script_rejects_unsafe_charts_dir(tmp_path):
 
 
 def test_personal_report_script_rejects_non_default_reviewed_input_without_test_escape(tmp_path):
-    """Fake-only report generation should not accept arbitrary processed inputs by default."""
+    """Report generation should not accept arbitrary processed inputs by default."""
     custom_processed = PROJECT_ROOT / "data" / "processed" / "not_default_review.csv"
     reviewed_rows().to_csv(custom_processed, index=False)
     output_path = PROJECT_ROOT / "outputs" / "personal" / "should_not_write.pdf"
@@ -650,7 +672,113 @@ def test_personal_report_script_rejects_non_default_reviewed_input_without_test_
         output_path.unlink(missing_ok=True)
 
     assert result.returncode != 0
-    assert "only accepts the default reviewed sample workflow file" in result.stderr
+    assert "only accepts approved reviewed workflow files" in result.stderr
+
+
+def test_uploaded_reviewed_report_blocks_blank_final_category_without_writing_artifacts():
+    """Uploaded reports should fail closed until every row has an approved final category."""
+    review_path = PROJECT_ROOT / "data" / "processed" / "uploaded_category_review.csv"
+    output_path = PROJECT_ROOT / "outputs" / "personal" / "should_not_write_uploaded.pdf"
+    charts_dir = PROJECT_ROOT / "outputs" / "personal" / "should_not_write_uploaded_charts"
+    review_df = reviewed_rows()
+    review_df.loc[1, "final_category"] = ""
+    review_path.unlink(missing_ok=True)
+    output_path.unlink(missing_ok=True)
+    if charts_dir.exists():
+        for child in charts_dir.iterdir():
+            child.unlink()
+        charts_dir.rmdir()
+    try:
+        review_df.to_csv(review_path, index=False)
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(SCRIPT),
+                "--reviewed-input",
+                str(review_path),
+                "--output",
+                str(output_path),
+                "--charts-dir",
+                str(charts_dir),
+            ],
+            cwd=PROJECT_ROOT,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+
+        assert result.returncode != 0
+        assert "blank final_category" in result.stderr
+        assert not output_path.exists()
+        assert not charts_dir.exists()
+    finally:
+        review_path.unlink(missing_ok=True)
+        output_path.unlink(missing_ok=True)
+
+
+def test_uploaded_reviewed_report_generates_pdf_without_test_escape():
+    """The real-upload local loop should generate a report once categories are approved."""
+    review_path = PROJECT_ROOT / "data" / "processed" / "uploaded_category_review.csv"
+    output_path = PROJECT_ROOT / "outputs" / "personal" / "test_uploaded_personal_report.pdf"
+    charts_dir = PROJECT_ROOT / "outputs" / "personal" / "test_uploaded_personal_charts"
+    review_path.unlink(missing_ok=True)
+    output_path.unlink(missing_ok=True)
+    if charts_dir.exists():
+        for child in charts_dir.iterdir():
+            child.unlink()
+        charts_dir.rmdir()
+    try:
+        from modules.importers.personal_csv import write_uploaded_category_review
+
+        raw_upload = pd.DataFrame(
+            [
+                {
+                    "posted_date": "2026-04-01",
+                    "description": "Uploaded Payroll",
+                    "amount": 2500.0,
+                    "source_category": "income",
+                },
+                {
+                    "posted_date": "2026-04-02",
+                    "description": "Uploaded Grocery",
+                    "amount": -73.42,
+                    "source_category": "groceries",
+                },
+            ]
+        )
+        write_uploaded_category_review(raw_upload, review_path, source_file="checking.csv")
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(SCRIPT),
+                "--reviewed-input",
+                str(review_path),
+                "--output",
+                str(output_path),
+                "--charts-dir",
+                str(charts_dir),
+            ],
+            cwd=PROJECT_ROOT,
+            text=True,
+            capture_output=True,
+            check=True,
+        )
+
+        text, page_count = extract_pdf_text(output_path)
+        assert "Personal report self-checks passed" in result.stdout
+        assert page_count >= 1
+        assert "Draft Personal CFO Report" in text
+        assert "Uploaded Payroll" in text
+        assert "Food & Dining" in text
+        assert "Local reviewed personal data" in text
+        assert "sample or fictional data only" not in text.lower()
+    finally:
+        review_path.unlink(missing_ok=True)
+        output_path.unlink(missing_ok=True)
+        if charts_dir.exists():
+            for child in charts_dir.iterdir():
+                child.unlink()
+            charts_dir.rmdir()
 
 
 def test_personal_report_script_rejects_unsafe_output(tmp_path):

@@ -17,11 +17,13 @@ outputs/*.png
 # Generated multi-persona stress-test result folders. Regenerate on demand.
 outputs/stress_tests/
 
-# Generated portfolio screenshot demo intermediates. The selected README images
+# Generated complex-household screenshot intermediates. The selected README images
 # under docs/screenshots/ are tracked; these can be regenerated on demand.
 data/portfolio_demo_morgan_patel_household_categorized.csv
 outputs/portfolio_demo/
 outputs/portfolio_demo_review/
+outputs/complex_household/
+outputs/complex_household_review/
 
 # Generated report JSON contracts for the UI layer. Regenerate on demand with
 # scripts/generate_report_json.py. The schema is documented in docs/REPORT_JSON_CONTRACT.md.

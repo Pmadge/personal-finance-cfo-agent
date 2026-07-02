@@ -27,8 +27,8 @@ python3 scripts/generate_report_json.py
 Outputs (Git-ignored, regenerate on demand):
 
 ```text
-outputs/report_json/report_<month>.json            # default Alex Rivera report
-outputs/report_json/portfolio_demo_<month>.json    # richer Morgan household
+test_personas/starter_person/outputs/report.json      # simple starter-person report
+test_personas/complex_household/outputs/report.json    # richer household report
 ```
 
 ## Top-level shape
@@ -53,7 +53,7 @@ outputs/report_json/portfolio_demo_<month>.json    # richer Morgan household
   "self_check": { "checks_passed": 11, "checks_total": 11, "all_passed": true },
   "headline": { /* the <10-second Home Dashboard read */ },
   "sections": { /* the full Monthly Report Reader data */ },
-  "sources":  { "artifacts": ["report_2026-03.json", "..._cfo_report_2026_03.pdf"], "note": "..." }
+  "sources":  { "artifacts": ["report.json", "monthly_cfo_report.pdf"], "note": "..." }
 }
 ```
 

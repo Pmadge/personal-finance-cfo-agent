@@ -280,15 +280,16 @@ def check_personal_report_duplicates(review_df, report_df):
             f"Missing final statement columns: {', '.join(missing_statement_columns)}",
         )
     amount_fingerprint = pd.Series(pd.to_numeric(report_df["amount"], errors="coerce"), index=report_df.index)
-    statement_fingerprint = pd.DataFrame(
-        {
-            "date": _normalized_text_series(report_df["date"]),
-            "vendor": _normalized_text_series(report_df["vendor"]),
-            "amount": amount_fingerprint.round(2).astype(str),
-            "raw_category": _normalized_text_series(report_df["raw_category"]),
-            "assigned_category": _normalized_text_series(report_df["assigned_category"]),
-        }
-    )
+    fingerprint_columns = {
+        "date": _normalized_text_series(report_df["date"]),
+        "vendor": _normalized_text_series(report_df["vendor"]),
+        "amount": amount_fingerprint.round(2).astype(str),
+        "raw_category": _normalized_text_series(report_df["raw_category"]),
+        "assigned_category": _normalized_text_series(report_df["assigned_category"]),
+    }
+    if "transaction_id" in report_df.columns:
+        fingerprint_columns["transaction_id"] = _normalized_text_series(report_df["transaction_id"])
+    statement_fingerprint = pd.DataFrame(fingerprint_columns)
     duplicate_statement_rows = int(statement_fingerprint.duplicated().sum())
     if duplicate_statement_rows:
         return _result(

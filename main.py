@@ -13,13 +13,13 @@ from modules.analytics import (
 from modules.categorizer import categorize_file
 from modules.charts import generate_all_charts, validate_chart_specs
 from modules.config import (
-    ALEX_ASSETS,
-    ALEX_BUDGET,
-    ALEX_GOALS,
-    ALEX_HOME_TARGET,
-    ALEX_LIABILITIES,
-    ALEX_MAJOR_PURCHASE,
-    ALEX_SCENARIOS,
+    STARTER_PERSON_ASSETS,
+    STARTER_PERSON_BUDGET,
+    STARTER_PERSON_GOALS,
+    STARTER_PERSON_HOME_TARGET,
+    STARTER_PERSON_LIABILITIES,
+    STARTER_PERSON_MAJOR_PURCHASE,
+    STARTER_PERSON_SCENARIOS,
     APPROVED_CATEGORIES,
     MONTH_LABELS,
     REPORT_MONTH,
@@ -48,18 +48,18 @@ from modules.validation import build_audit_log
 def main():
     """Start the CFO Agent scaffold."""
     project_root = Path(__file__).parent
-    input_path = project_root / "data" / "alex_rivera_transactions.csv"
-    output_path = project_root / "data" / "alex_rivera_transactions_categorized.csv"
+    input_path = project_root / "test_personas" / "starter_person" / "transactions.csv"
+    output_path = project_root / "test_personas" / "starter_person" / "transactions_categorized.csv"
     charts_output_dir = project_root / "outputs"
     month_2 = "2026-02"
     month_3 = REPORT_MONTH
-    alex_debts = [
+    starter_person_debts = [
         {
             "name": debt_name,
             "balance": debt_details["balance"],
             "interest_rate": debt_details["interest_rate"],
         }
-        for debt_name, debt_details in ALEX_LIABILITIES.items()
+        for debt_name, debt_details in STARTER_PERSON_LIABILITIES.items()
     ]
 
     print("CFO Agent initialized")
@@ -92,7 +92,7 @@ def main():
 
     print(f"\nMonth 3 monthly summary ({month_3}):")
     month_3_summary = monthly_summary(categorized_df, month_3)
-    month_3_budget = budget_vs_actual(categorized_df, month_3, ALEX_BUDGET)
+    month_3_budget = budget_vs_actual(categorized_df, month_3, STARTER_PERSON_BUDGET)
     upcoming_df = upcoming_obligations(categorized_df)
     print(month_3_summary)
     print(f"\nMonth 3 budget vs actual ({month_3}):")
@@ -102,11 +102,11 @@ def main():
     print("\nUpcoming obligations due in next 30 days:")
     print(upcoming_df.to_string(index=False))
     print("\n3-month cumulative budget vs actual:")
-    print(cumulative_budget_vs_actual(categorized_df, ALEX_BUDGET).to_string(index=False))
+    print(cumulative_budget_vs_actual(categorized_df, STARTER_PERSON_BUDGET).to_string(index=False))
     print("\nRolling forecast scenarios:")
     print(forecast_cash_flow(categorized_df).to_string(index=False))
 
-    liquid_cash = ALEX_ASSETS["Checking"] + ALEX_ASSETS["Savings"]
+    liquid_cash = STARTER_PERSON_ASSETS["Checking"] + STARTER_PERSON_ASSETS["Savings"]
     print("\nCash runway:")
     for label, value in cash_runway(categorized_df, liquid_cash).items():
         print(f"  {label}: {value}")
@@ -118,23 +118,23 @@ def main():
     )
 
     print("\nWhat-if scenarios:")
-    print(compare_scenarios(categorized_df, liquid_cash, ALEX_SCENARIOS).to_string(index=False))
+    print(compare_scenarios(categorized_df, liquid_cash, STARTER_PERSON_SCENARIOS).to_string(index=False))
 
-    risk_register = build_risk_register(categorized_df, ALEX_ASSETS, ALEX_LIABILITIES, liquid_cash)
+    risk_register = build_risk_register(categorized_df, STARTER_PERSON_ASSETS, STARTER_PERSON_LIABILITIES, liquid_cash)
     _, risk_overall = risk_summary(risk_register)
     print("\nRisk register:")
     print(risk_register[["Risk", "Level", "Finding"]].to_string(index=False))
     print(f"Overall: {risk_overall}")
 
-    home = home_purchase_readiness(categorized_df, ALEX_ASSETS, **ALEX_HOME_TARGET)
+    home = home_purchase_readiness(categorized_df, STARTER_PERSON_ASSETS, **STARTER_PERSON_HOME_TARGET)
     print(f"\nCapital event - home purchase readiness: {home['verdict']}")
     print(f"  Home ${home['home_price']:,.0f} | cash needed ${home['cash_needed']:,.0f} | "
           f"payment ${home['monthly_payment_piti']:,.0f}/mo ({home['payment_to_income']}% of income)")
     for gap in home["gaps"]:
         print(f"  - {gap}")
-    purchase = major_purchase_check(categorized_df, ALEX_ASSETS, ALEX_MAJOR_PURCHASE, liquid_cash=liquid_cash)
-    print(f"Capital event - ${ALEX_MAJOR_PURCHASE:,.0f} purchase: {purchase['verdict']} - {purchase['note']}")
-    rent_buy = rent_vs_buy(categorized_df, **ALEX_HOME_TARGET)
+    purchase = major_purchase_check(categorized_df, STARTER_PERSON_ASSETS, STARTER_PERSON_MAJOR_PURCHASE, liquid_cash=liquid_cash)
+    print(f"Capital event - ${STARTER_PERSON_MAJOR_PURCHASE:,.0f} purchase: {purchase['verdict']} - {purchase['note']}")
+    rent_buy = rent_vs_buy(categorized_df, **STARTER_PERSON_HOME_TARGET)
     print(f"Capital event - rent vs buy ({rent_buy['horizon_years']}yr): "
           f"rent ${rent_buy['rent_net_cost']:,.0f} vs buy net ${rent_buy['buy_net_cost']:,.0f} "
           f"-> {rent_buy['cheaper']} cheaper")
@@ -143,15 +143,15 @@ def main():
     print(outcomes_scorecard(categorized_df, month_3, month_2).to_string(index=False))
     print(f"\n{ENGAGEMENT_CADENCE}")
 
-    net_worth = net_worth_snapshot(ALEX_ASSETS, ALEX_LIABILITIES)
+    net_worth = net_worth_snapshot(STARTER_PERSON_ASSETS, STARTER_PERSON_LIABILITIES)
     print("\nNet worth snapshot:")
     print(net_worth)
     print("\nDebt payoff comparison:")
-    print(debt_payoff_comparison(alex_debts).to_string(index=False))
+    print(debt_payoff_comparison(starter_person_debts).to_string(index=False))
 
     # Goal tracker: fill the live net-worth and savings-rate values, then report
     # progress toward each personal goal for the report month.
-    live_goals = [dict(goal) for goal in ALEX_GOALS]
+    live_goals = [dict(goal) for goal in STARTER_PERSON_GOALS]
     for goal in live_goals:
         if goal["type"] == "net_worth":
             goal["current_amount"] = net_worth["Net Worth"]
@@ -173,18 +173,18 @@ def main():
         "upcoming_count": len(upcoming_df),
         "month_label": MONTH_LABELS[month_3],
     }
-    alex_commentary = cfo_commentary(month_data)
+    starter_person_commentary = cfo_commentary(month_data)
     print("\nMonth 3 executive summary:")
     print(executive_summary(month_data))
-    print("\nMonth 3 CFO commentary from Alex:")
-    print(alex_commentary)
+    print("\nMonth 3 CFO commentary from starter person:")
+    print(starter_person_commentary)
     print("\nCommentary human-sound evaluation:")
-    print(evaluate_commentary(alex_commentary))
+    print(evaluate_commentary(starter_person_commentary))
 
     print(f"\nMonth 2 prioritized action items ({month_2}):")
-    print(generate_action_items(categorized_df, month_2, ALEX_BUDGET).to_string(index=False))
+    print(generate_action_items(categorized_df, month_2, STARTER_PERSON_BUDGET).to_string(index=False))
 
-    chart_metadata = generate_all_charts(categorized_df, ALEX_BUDGET, charts_output_dir)
+    chart_metadata = generate_all_charts(categorized_df, STARTER_PERSON_BUDGET, charts_output_dir)
     print("\nGenerated chart files:")
     print(chart_metadata[["Chart", "Path"]].to_string(index=False))
     print("\nChart validation results:")

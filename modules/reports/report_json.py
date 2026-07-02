@@ -185,7 +185,7 @@ def build_report_json(output_dir=None, report_config=None) -> dict:
         },
         "sources": {
             "artifacts": [
-                f"report_{REPORT_MONTH}.json",
+                "report.json",
                 Path(report_config["pdf_path"]).name,
             ],
             "note": "Source artifacts are referenced by basename only; no local paths are exposed.",

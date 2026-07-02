@@ -1,4 +1,4 @@
-"""Net worth and debt payoff analysis for fictional Alex Rivera data."""
+"""Net worth and debt payoff analysis for fictional starter-person data."""
 
 import pandas as pd
 

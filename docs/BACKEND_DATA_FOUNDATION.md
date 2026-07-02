@@ -6,11 +6,12 @@ This project should treat the backend/data layer as the source of truth. Reports
 
 ```text
 Personal_Finance_CFO_Agent/
+├── test_personas/
+│   ├── starter_person/                           # simple fixture + full outputs
+│   ├── complex_household/                        # richer fixture + full outputs
 ├── data/
-│   ├── alex_rivera_transactions.csv              # fictional raw demo input
-│   ├── alex_rivera_transactions_categorized.csv  # regenerated demo output
-│   ├── personal/                                 # Git-ignored future real inputs
-│   ├── processed/                                # Git-ignored future real processed data
+│   ├── personal/                                 # Git-ignored real local inputs
+│   ├── processed/                                # Git-ignored reviewed/processed upload outputs
 │   └── sample/                                   # safe templates/fixtures
 ├── modules/
 │   ├── validation.py                             # input validation and audit log
@@ -19,6 +20,8 @@ Personal_Finance_CFO_Agent/
 │   ├── analytics.py                              # monthly/budget/cash-flow math
 │   ├── detectors.py                              # recurring and unusual transaction detection
 │   ├── reports/                                  # PDF builders
+│   ├── importers/                                # local CSV and CoastHills Visa PDF normalization
+│   ├── ui/                                       # Streamlit trust/upload models
 │   └── ...
 ├── outputs/
 │   ├── personal/                                 # Git-ignored future real reports
@@ -46,6 +49,20 @@ Current self-checks verify:
 - duplicate transaction rows are caught
 - assigned categories stay inside the approved category list
 - monthly income, expenses, net cash flow, and savings rate reconcile back to source transactions
+
+## Current upload/report path
+
+The Streamlit Upload Transactions screen now routes manual files through the same deterministic checks:
+
+1. parse one CSV, one CoastHills Visa PDF, or multiple CoastHills Visa PDFs
+2. normalize to the internal transaction schema
+3. preview rows locally
+4. build a category review CSV
+5. optionally bulk-fill blanks with simple merchant keyword rules
+6. require final approved categories before report generation
+7. run personal report self-checks before writing PDF/charts under `outputs/personal/`
+
+Real uploads are local-only and Git-ignored. Bank-login automation, cloud parsing, hosted databases, and cloud AI remain out of scope.
 
 ## Accuracy control philosophy
 

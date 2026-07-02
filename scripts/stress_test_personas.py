@@ -721,6 +721,7 @@ def run_persona(persona: dict[str, Any], persona_dir: Path) -> dict[str, Any]:
     (persona_dir / "step_results.json").write_text(json.dumps(_jsonable(results), indent=2, ensure_ascii=False))
     summary = _persona_summary(persona, results, outputs, accuracy, misc_rate)
     (persona_dir / "report_summary.md").write_text(_persona_markdown(persona, summary, results, outputs))
+    (persona_dir / "full_report.md").write_text(_persona_full_markdown(persona, summary, results, outputs))
     return summary
 
 
@@ -817,6 +818,135 @@ def _persona_markdown(
     return "\n".join(lines) + "\n"
 
 
+def _display_value(value: Any) -> str:
+    """Render missing report values as review-friendly blanks."""
+    if value is None or value == "None":
+        return "N/A"
+    if isinstance(value, float) and math.isnan(value):
+        return "N/A"
+    return str(value)
+
+
+def _format_money(value: Any) -> str:
+    """Format stress-report money values without hiding missing data."""
+    return "N/A" if value is None else f"${float(value):,.2f}"
+
+
+def _format_percent(value: Any) -> str:
+    """Format stress-report percent values without hiding missing data."""
+    return "N/A" if value is None else f"{float(value):,.2f}%"
+
+
+def _markdown_table(df: pd.DataFrame, max_rows: int = 12) -> list[str]:
+    """Render a small Markdown table with stdlib string joins, no extra dependency."""
+    if df.empty:
+        return ["_No rows._"]
+    shown = df.head(max_rows).fillna("N/A")
+    headers = list(shown.columns)
+    rows = ["| " + " | ".join(headers) + " |", "| " + " | ".join(["---"] * len(headers)) + " |"]
+    for _, row in shown.iterrows():
+        rows.append("| " + " | ".join(_display_value(row[col]).replace("\n", " ") for col in headers) + " |")
+    if len(df) > max_rows:
+        rows.append(f"\n_Showing first {max_rows} of {len(df)} rows. Full table saved in `tables/`._")
+    return rows
+
+
+def _output_section(title: str, output: Any) -> list[str]:
+    """Render a compact section for any saved stress-test output."""
+    lines = [f"## {title}", ""]
+    if isinstance(output, pd.DataFrame):
+        lines.extend(_markdown_table(output))
+    elif isinstance(output, dict):
+        for key, value in output.items():
+            if isinstance(value, list):
+                lines.append(f"- {key}: {', '.join(_display_value(item) for item in value) if value else 'none'}")
+            else:
+                lines.append(f"- {key}: {_display_value(value)}")
+    elif isinstance(output, tuple):
+        lines.append("```json")
+        lines.append(json.dumps(_jsonable(output), indent=2, ensure_ascii=False))
+        lines.append("```")
+    elif output is None:
+        lines.append("_Not available._")
+    else:
+        lines.append(str(output))
+    lines.append("")
+    return lines
+
+
+def _persona_full_markdown(
+    persona: dict[str, Any],
+    summary: dict[str, Any],
+    results: list[dict[str, Any]],
+    outputs: dict[str, Any],
+) -> str:
+    """Create the saved full review report for one stress-test persona."""
+    lines = [
+        f"# Full CFO Stress Report - {persona['display_name']}",
+        "",
+        "Fictional/sample data only. No real personal financial data is used.",
+        "",
+        "## Saved artifacts",
+        "- `input_transactions.csv` - generated source transactions",
+        "- `categorized_transactions.csv` - categorized pipeline output",
+        "- `profile.json` - generated financial profile and assumptions",
+        "- `step_results.json` - pass/fail status for each pipeline step",
+        "- `report_summary.md` - short human summary",
+        "- `tables/` - full CSV/JSON analysis outputs",
+        "",
+        "## Profile",
+        f"- Persona ID: {persona['persona_id']}",
+        f"- Life stage: {persona['life_stage']}",
+        f"- Career: {persona['career']}",
+        f"- Wealth profile: {persona['wealth_profile']}",
+        f"- Spending style: {persona['spending_style']}",
+        f"- Plan/goal: {persona['plan_type']}",
+        f"- Transactions: {summary['transaction_count']}",
+        "",
+        "## Executive readout",
+        f"- Status: {summary['status']}",
+        f"- Income: {_format_money(summary.get('income'))}",
+        f"- Expenses: {_format_money(summary.get('expenses'))}",
+        f"- Net cash flow: {_format_money(summary.get('net_cash_flow'))}",
+        f"- Savings rate: {_format_percent(summary.get('savings_rate'))}",
+        f"- Net worth: {_format_money(summary.get('net_worth'))}",
+        f"- Emergency runway: {summary.get('emergency_runway_months')} months",
+        f"- Risk summary: {summary.get('risk_overall')}",
+        "",
+        "## Step results",
+        "",
+    ]
+    lines.extend(_markdown_table(pd.DataFrame(results), max_rows=40))
+    lines.append("")
+    for key, title in [
+        ("action_items", "Prioritized action items"),
+        ("scorecard", "Outcomes scorecard"),
+        ("monthly_summary", "Monthly summary"),
+        ("prior_month_summary", "Prior-month summary"),
+        ("budget_vs_actual", "Budget vs actual"),
+        ("cumulative_budget_vs_actual", "Cumulative budget vs actual"),
+        ("mom_comparison", "Month-over-month comparison"),
+        ("cash_runway", "Cash runway"),
+        ("forecast_cash_flow", "Forecast cash flow"),
+        ("cash_projection", "12-month cash projection"),
+        ("risk_summary", "Risk summary"),
+        ("risk_register", "Risk register"),
+        ("goals", "Goals"),
+        ("scenarios", "What-if scenarios"),
+        ("home_purchase", "Home purchase readiness"),
+        ("major_purchase", "Major purchase readiness"),
+        ("net_worth", "Net worth"),
+        ("debt_payoff", "Debt payoff"),
+        ("recurring", "Recurring transactions"),
+        ("unusual", "Unusual transactions"),
+        ("upcoming_obligations", "Upcoming obligations"),
+        ("value_invariants", "Value invariant checks"),
+    ]:
+        if key in outputs:
+            lines.extend(_output_section(title, outputs[key]))
+    return "\n".join(lines).rstrip() + "\n"
+
+
 def _aggregate_json(summary_rows: list[dict[str, Any]], seed: int) -> dict[str, Any]:
     """Create run-level summary metadata."""
     failed = [row for row in summary_rows if row["status"] != "PASS"]
@@ -860,6 +990,7 @@ def _write_run_readme(output_dir: Path, aggregate: dict[str, Any]) -> None:
         "- `personas/<persona_id>/step_results.json` - PASS/FAIL/TIMEOUT by pipeline step.",
         "- `personas/<persona_id>/tables/` - CSV/JSON outputs from each analysis module.",
         "- `personas/<persona_id>/report_summary.md` - human-readable one-person summary.",
+        "- `personas/<persona_id>/full_report.md` - full saved final-output review report.",
         "",
         "## Coverage",
     ]

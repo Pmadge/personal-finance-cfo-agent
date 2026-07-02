@@ -1,8 +1,8 @@
-"""Shared assumptions for the fictional Alex Rivera CFO Agent."""
+"""Shared assumptions for the fictional starter-person CFO Agent."""
 
 MODEL_VERSION = "CFO Agent v1.1"
-PERSONA_NAME = "Alex Rivera"
-FICTIONAL_DATA_NOTICE = "fictional Alex Rivera data"
+PERSONA_NAME = "Starter Person"
+FICTIONAL_DATA_NOTICE = "fictional starter-person data"
 
 REPORT_MONTH = "2026-03"
 REPORT_MONTH_LABEL = "March 2026"
@@ -27,7 +27,7 @@ APPROVED_CATEGORIES = [
     "Misc",
 ]
 
-ALEX_BUDGET = {
+STARTER_PERSON_BUDGET = {
     "Housing": 900,
     "Food": 250,
     "Transport": 80,
@@ -37,13 +37,13 @@ ALEX_BUDGET = {
     "Misc": 50,
 }
 
-ALEX_ASSETS = {
+STARTER_PERSON_ASSETS = {
     "Checking": 1200,
     "Savings": 3400,
     "Investments": 0,
 }
 
-ALEX_LIABILITIES = {
+STARTER_PERSON_LIABILITIES = {
     "Student Loan": {"balance": 18000, "interest_rate": 5.5},
     "Car Loan": {"balance": 6500, "interest_rate": 7.2},
     "Credit Card": {"balance": 0, "interest_rate": 0},
@@ -83,21 +83,21 @@ SAVINGS_RATE_TARGET = 10.00
 # Sample personal goals for the fictional persona. current_amount values for the
 # net-worth and savings-rate goals are placeholders; main.py fills them from live
 # computed numbers so the tracker reflects the actual report month.
-ALEX_GOALS = [
+STARTER_PERSON_GOALS = [
     {
         "name": "Emergency Fund",
         "type": "savings",
         "target_amount": 6000.00,
-        "current_amount": ALEX_ASSETS["Savings"],
+        "current_amount": STARTER_PERSON_ASSETS["Savings"],
         "target_date": "2026-12-31",
     },
     {
         "name": "Pay Off Car Loan",
         "type": "debt_payoff",
         "target_amount": 0.00,
-        "current_amount": ALEX_LIABILITIES["Car Loan"]["balance"],
-        "starting_amount": ALEX_LIABILITIES["Car Loan"]["balance"],
-        "interest_rate": ALEX_LIABILITIES["Car Loan"]["interest_rate"],
+        "current_amount": STARTER_PERSON_LIABILITIES["Car Loan"]["balance"],
+        "starting_amount": STARTER_PERSON_LIABILITIES["Car Loan"]["balance"],
+        "interest_rate": STARTER_PERSON_LIABILITIES["Car Loan"]["interest_rate"],
         "monthly_contribution": 300.00,
         "target_date": "2028-12-31",
     },
@@ -118,7 +118,7 @@ ALEX_GOALS = [
 
 # Sample what-if scenarios for the fictional persona. Each flexes the baseline
 # monthly picture; see modules/scenarios.py for the supported adjustment keys.
-ALEX_SCENARIOS = [
+STARTER_PERSON_SCENARIOS = [
     {"name": "Lose job (no income)", "monthly_income": 0.00},
     {"name": "Get a $500/mo raise", "monthly_income_change": 500.00},
     {"name": "Move (+$400/mo rent)", "monthly_expense_change": 400.00},
@@ -127,18 +127,18 @@ ALEX_SCENARIOS = [
 ]
 
 # Sample capital-event inputs for the fictional persona.
-ALEX_HOME_TARGET = {
+STARTER_PERSON_HOME_TARGET = {
     "home_price": 350000.00,
     "down_payment_pct": 20.0,
     "mortgage_rate": 7.0,
     "term_years": 30,
 }
-ALEX_MAJOR_PURCHASE = 8000.00  # e.g. a used car bought from cash
+STARTER_PERSON_MAJOR_PURCHASE = 8000.00  # e.g. a used car bought from cash
 
 # Fictional financial profile that feeds the full pillar suite into the draft
 # PERSONAL report. These sample assets/liabilities/goals stand in until a real
 # personal-data workflow is approved; they are intentionally a different persona
-# from Alex so the personal report path is exercised on its own inputs.
+# from the starter-person fixture so the personal report path is exercised on its own inputs.
 SAMPLE_PERSONAL_PROFILE = {
     "assets": {"Checking": 3000.00, "Savings": 9000.00, "Investments": 12000.00},
     "liabilities": {
@@ -170,14 +170,14 @@ SAMPLE_PERSONAL_PROFILE = {
 
 # Richer fictional household used for portfolio screenshots. This is still sample
 # data only, but it better demonstrates that the engine handles a more realistic
-# adult household than the simple Alex Rivera baseline.
-PORTFOLIO_DEMO_PERSONA_NAME = "Morgan Patel Household"
-PORTFOLIO_DEMO_FICTIONAL_DATA_NOTICE = "fictional Morgan Patel household data"
-PORTFOLIO_DEMO_TRANSACTIONS = "data/portfolio_demo_morgan_patel_household.csv"
-PORTFOLIO_DEMO_CATEGORIZED = "data/portfolio_demo_morgan_patel_household_categorized.csv"
-PORTFOLIO_DEMO_PDF = "outputs/portfolio_demo_morgan_patel_monthly_cfo_report_2026_03.pdf"
+# adult household than the simple starter-person baseline.
+COMPLEX_HOUSEHOLD_PERSONA_NAME = "Complex Household"
+COMPLEX_HOUSEHOLD_FICTIONAL_DATA_NOTICE = "fictional complex-household data"
+COMPLEX_HOUSEHOLD_TRANSACTIONS = "test_personas/complex_household/transactions.csv"
+COMPLEX_HOUSEHOLD_CATEGORIZED = "test_personas/complex_household/transactions_categorized.csv"
+COMPLEX_HOUSEHOLD_PDF = "test_personas/complex_household/outputs/monthly_cfo_report.pdf"
 
-PORTFOLIO_DEMO_BUDGET = {
+COMPLEX_HOUSEHOLD_BUDGET = {
     "Housing": 3600,
     "Food": 1450,
     "Transport": 850,
@@ -190,33 +190,33 @@ PORTFOLIO_DEMO_BUDGET = {
     "Misc": 550,
 }
 
-PORTFOLIO_DEMO_ASSETS = {
+COMPLEX_HOUSEHOLD_ASSETS = {
     "Checking": 8500,
     "Savings": 42000,
     "Investments": 165000,
 }
 
-PORTFOLIO_DEMO_LIABILITIES = {
+COMPLEX_HOUSEHOLD_LIABILITIES = {
     "Credit Card": {"balance": 6200, "interest_rate": 22.5},
     "Student Loan": {"balance": 38000, "interest_rate": 5.8},
     "Auto Loan": {"balance": 21000, "interest_rate": 6.9},
 }
 
-PORTFOLIO_DEMO_GOALS = [
+COMPLEX_HOUSEHOLD_GOALS = [
     {
         "name": "First Home Down Payment",
         "type": "savings",
         "target_amount": 90000.00,
-        "current_amount": PORTFOLIO_DEMO_ASSETS["Savings"],
+        "current_amount": COMPLEX_HOUSEHOLD_ASSETS["Savings"],
         "target_date": "2027-12-31",
     },
     {
         "name": "Pay Off Credit Card",
         "type": "debt_payoff",
         "target_amount": 0.00,
-        "current_amount": PORTFOLIO_DEMO_LIABILITIES["Credit Card"]["balance"],
-        "starting_amount": PORTFOLIO_DEMO_LIABILITIES["Credit Card"]["balance"],
-        "interest_rate": PORTFOLIO_DEMO_LIABILITIES["Credit Card"]["interest_rate"],
+        "current_amount": COMPLEX_HOUSEHOLD_LIABILITIES["Credit Card"]["balance"],
+        "starting_amount": COMPLEX_HOUSEHOLD_LIABILITIES["Credit Card"]["balance"],
+        "interest_rate": COMPLEX_HOUSEHOLD_LIABILITIES["Credit Card"]["interest_rate"],
         "monthly_contribution": 900.00,
         "target_date": "2026-12-31",
     },
@@ -235,7 +235,7 @@ PORTFOLIO_DEMO_GOALS = [
     },
 ]
 
-PORTFOLIO_DEMO_SCENARIOS = [
+COMPLEX_HOUSEHOLD_SCENARIOS = [
     {"name": "One income paused for 3 months", "monthly_income_change": -6500.00},
     {"name": "Childcare rises $600/mo", "monthly_expense_change": 600.00},
     {"name": "Cut discretionary spending 20%", "variable_spend_pct": -0.20},
@@ -243,10 +243,10 @@ PORTFOLIO_DEMO_SCENARIOS = [
     {"name": "New role adds $1,500/mo", "monthly_income_change": 1500.00},
 ]
 
-PORTFOLIO_DEMO_HOME_TARGET = {
+COMPLEX_HOUSEHOLD_HOME_TARGET = {
     "home_price": 875000.00,
     "down_payment_pct": 15.0,
     "mortgage_rate": 6.8,
     "term_years": 30,
 }
-PORTFOLIO_DEMO_MAJOR_PURCHASE = 12000.00
+COMPLEX_HOUSEHOLD_MAJOR_PURCHASE = 12000.00

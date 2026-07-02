@@ -1,5 +1,15 @@
 # Tests Folder
 
-This folder will hold quality-control scripts and spot-check tools.
+This folder holds regression and trust-boundary tests for the CFO Agent.
 
-The goal of these tests is to confirm the CFO Agent is reading, categorizing, analyzing, and reporting fictional Alex Rivera data correctly.
+The tests cover:
+
+- fictional sample reports and charts
+- local CSV importer behavior
+- CoastHills Visa PDF parsing and multi-PDF merge
+- category review editing and merchant-rule bulk fill
+- gated personal report generation after final categories are approved
+- privacy/path checks for Git-ignored personal outputs
+- Streamlit model behavior and app smoke checks
+
+Tests use committed fictional fixtures plus explicitly provided local PDF statements when testing the manual local-upload path. No bank login or cloud service is required.

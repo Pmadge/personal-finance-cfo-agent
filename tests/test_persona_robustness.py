@@ -2,7 +2,7 @@
 
 These lock the fixes found by the multi-persona stress test: the forecast must
 keep rent/housing in the model, debt payoff must never infinite-loop, and action
-items must not crash for people who lack Alex's specific spending categories.
+items must not crash for people who lack the starter person's specific spending categories.
 """
 
 from pathlib import Path
@@ -76,7 +76,7 @@ def test_debt_payoff_still_amortizes_with_sufficient_payment():
     assert (result["Months to Payoff"] > 0).all()
 
 
-# --- Fix 3: action items must not crash for non-Alex spending shapes ---------
+# --- Fix 3: action items must not crash for non-starter-person spending shapes ---------
 
 def test_action_items_no_crash_without_shopping_category():
     df = _three_month([
