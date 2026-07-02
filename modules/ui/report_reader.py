@@ -112,6 +112,7 @@ def build_home_dashboard_model(data: dict[str, Any]) -> dict[str, Any]:
     headline = data["headline"]
     persona = data["persona"]
     period = data["period"]
+    risk_counts = headline["risk_counts"]
 
     return {
         "title": persona["name"],
@@ -126,7 +127,12 @@ def build_home_dashboard_model(data: dict[str, Any]) -> dict[str, Any]:
             {"label": "Net worth", "value": _money(headline["net_worth"])},
         ],
         "runway_status": headline["runway_status"],
-        "risk_counts": headline["risk_counts"],
+        "risk_counts": risk_counts,
+        "risk_metrics": [
+            {"label": "High risk", "value": str(risk_counts.get("high", 0))},
+            {"label": "Medium risk", "value": str(risk_counts.get("medium", 0))},
+            {"label": "Low risk", "value": str(risk_counts.get("low", 0))},
+        ],
         "top_risk": headline.get("top_risk"),
         "top_goal": headline.get("top_goal"),
         "next_action": (headline.get("next_action") or {}).get("Action Item", "No open action item."),

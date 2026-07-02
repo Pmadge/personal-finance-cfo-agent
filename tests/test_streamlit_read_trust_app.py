@@ -175,6 +175,11 @@ def test_home_dashboard_model_is_read_only_engine_verified():
         {"label": "Net worth", "value": "$150,300.00"},
     ]
     assert model["risk_counts"] == {"high": 0, "medium": 2, "low": 4}
+    assert model["risk_metrics"] == [
+        {"label": "High risk", "value": "0"},
+        {"label": "Medium risk", "value": "2"},
+        {"label": "Low risk", "value": "4"},
+    ]
     assert "Home Depot" in model["next_action"]
     assert model["source_artifacts"] == [
         "report.json",

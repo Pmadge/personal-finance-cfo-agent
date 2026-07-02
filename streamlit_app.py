@@ -115,7 +115,9 @@ def render_home_dashboard(model: dict) -> None:
         st.markdown(_escape_streamlit_markdown(model["runway_status"]))
     with right:
         st.markdown("#### Risk snapshot")
-        st.json(model["risk_counts"])
+        risk_cols = st.columns(len(model["risk_metrics"]))
+        for column, metric in zip(risk_cols, model["risk_metrics"]):
+            column.metric(metric["label"], metric["value"])
         st.markdown("#### Rent vs buy")
         st.markdown(_escape_streamlit_markdown(model["rent_vs_buy"]["recommendation"]))
 
