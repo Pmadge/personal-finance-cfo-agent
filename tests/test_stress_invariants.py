@@ -15,7 +15,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from scripts.stress_test_personas import _check_value_invariants
+from scripts.stress_test_personas import _check_value_invariants, generate_persona, run_persona
 
 
 def test_invariants_pass_on_clean_outputs():
@@ -49,3 +49,16 @@ def test_invariants_catch_too_many_action_items():
     actions = pd.DataFrame([{"Evaluation": "PASS"}] * 4)
     with pytest.raises(AssertionError, match="more than 3"):
         _check_value_invariants({}, None, {"action_items": actions})
+
+
+def test_stress_persona_writes_full_report(tmp_path):
+    persona = generate_persona(index=1, seed=20260627)
+    summary = run_persona(persona, tmp_path / persona["persona_id"])
+
+    report = tmp_path / persona["persona_id"] / "full_report.md"
+    text = report.read_text()
+    assert summary["status"] == "PASS"
+    assert "# Full CFO Stress Report" in text
+    assert "## Prioritized action items" in text
+    assert "## Budget vs actual" in text
+    assert "tables/" in text

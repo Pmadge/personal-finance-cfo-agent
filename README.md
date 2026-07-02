@@ -61,7 +61,7 @@ The Personal Finance CFO Agent turns fictional transaction data into a family of
 Current verification status:
 
 ```text
-233 local tests passing
+234 local tests passing
 GitHub Actions passing
 100-persona fictional stress harness available
 Local CSV upload, CoastHills Visa PDF upload, multi-PDF merge, category review, and gated personal report generation verified
@@ -191,7 +191,7 @@ python3 scripts/stress_test_personas.py --count 100 --seed 20260627 --output-dir
 
 Each run writes `summary.csv`, `summary.json`, a `README.md`, and one folder per
 persona with `input_transactions.csv`, `categorized_transactions.csv`,
-`profile.json`, `step_results.json`, `report_summary.md`, and detailed analysis
+`profile.json`, `step_results.json`, `report_summary.md`, `full_report.md`, and detailed analysis
 tables. The stress-test outputs are generated/local-only and ignored by Git.
 Fictional data only.
 
