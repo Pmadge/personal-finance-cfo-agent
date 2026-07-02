@@ -818,6 +818,15 @@ def _persona_markdown(
     return "\n".join(lines) + "\n"
 
 
+def _display_value(value: Any) -> str:
+    """Render missing report values as review-friendly blanks."""
+    if value is None or value == "None":
+        return "N/A"
+    if isinstance(value, float) and math.isnan(value):
+        return "N/A"
+    return str(value)
+
+
 def _format_money(value: Any) -> str:
     """Format stress-report money values without hiding missing data."""
     return "N/A" if value is None else f"${float(value):,.2f}"
@@ -832,11 +841,11 @@ def _markdown_table(df: pd.DataFrame, max_rows: int = 12) -> list[str]:
     """Render a small Markdown table with stdlib string joins, no extra dependency."""
     if df.empty:
         return ["_No rows._"]
-    shown = df.head(max_rows).fillna("").astype(str)
+    shown = df.head(max_rows).fillna("N/A")
     headers = list(shown.columns)
     rows = ["| " + " | ".join(headers) + " |", "| " + " | ".join(["---"] * len(headers)) + " |"]
     for _, row in shown.iterrows():
-        rows.append("| " + " | ".join(row[col].replace("\n", " ") for col in headers) + " |")
+        rows.append("| " + " | ".join(_display_value(row[col]).replace("\n", " ") for col in headers) + " |")
     if len(df) > max_rows:
         rows.append(f"\n_Showing first {max_rows} of {len(df)} rows. Full table saved in `tables/`._")
     return rows
@@ -850,9 +859,9 @@ def _output_section(title: str, output: Any) -> list[str]:
     elif isinstance(output, dict):
         for key, value in output.items():
             if isinstance(value, list):
-                lines.append(f"- {key}: {', '.join(map(str, value)) if value else 'none'}")
+                lines.append(f"- {key}: {', '.join(_display_value(item) for item in value) if value else 'none'}")
             else:
-                lines.append(f"- {key}: {value}")
+                lines.append(f"- {key}: {_display_value(value)}")
     elif isinstance(output, tuple):
         lines.append("```json")
         lines.append(json.dumps(_jsonable(output), indent=2, ensure_ascii=False))

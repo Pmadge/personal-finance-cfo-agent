@@ -62,3 +62,5 @@ def test_stress_persona_writes_full_report(tmp_path):
     assert "## Prioritized action items" in text
     assert "## Budget vs actual" in text
     assert "tables/" in text
+    assert "None" not in text
+    assert "| N/A |" in text
