@@ -5,6 +5,7 @@ import hashlib
 import subprocess
 import sys
 
+import fitz
 import pandas as pd
 import pytest
 
@@ -32,13 +33,28 @@ TEMPLATE_PATH = PROJECT_ROOT / "data" / "sample" / "personal_transactions_templa
 
 
 FAKE_BANK_EXPORT_PATH = PROJECT_ROOT / "data" / "sample" / "fake_bank_export_profile.csv"
-DOWNLOADS_DIR = PROJECT_ROOT.parents[2] / "Downloads"
-COASTHILLS_STATEMENTS = [
-    DOWNLOADS_DIR / "February 2026 Statement.pdf",
-    DOWNLOADS_DIR / "March 2026 Statement.pdf",
-    DOWNLOADS_DIR / "April 2026 Statement.pdf",
-    DOWNLOADS_DIR / "May 2026 Statement.pdf",
+
+
+FAKE_PDF_ROWS = [
+    ("01/31", "02/01", "00000000000000000001", "FAKE COASTHILLS GROCERY GOLETA CA", "12.34"),
+    ("02/14", "02/15", "00000000000000000002", "FAKE COASTHILLS BOOKSTORE ISLA VISTA CA", "56.78"),
 ]
+FAKE_PDF_ROWS_LATER = [
+    ("03/01", "03/02", "00000000000000000003", "FAKE COASTHILLS COFFEE GOLETA CA", "9.99"),
+]
+
+
+def _fake_coasthills_pdf_bytes(rows):
+    """Build a tiny text-based statement PDF fixture with no real financial data."""
+    lines = []
+    for transaction_date, posted_date, reference, vendor, amount in rows:
+        lines.extend([transaction_date, posted_date, "PPLN", reference, vendor, "$", amount])
+    doc = fitz.open()
+    page = doc.new_page()
+    page.insert_text((72, 72), "\n".join(lines), fontsize=10)
+    data = doc.tobytes()
+    doc.close()
+    return data
 
 
 def test_fake_bank_export_profile_fixture_exists_and_is_fake_only():
@@ -256,48 +272,42 @@ def test_normalize_uploaded_transactions_rejects_unknown_columns():
 
 
 def test_parse_coasthills_visa_pdf_extracts_statement_purchases():
-    expected = {
-        "February 2026 Statement.pdf": (29, -339.23, "GITHUB, INC. GITHUB.COM CA"),
-        "March 2026 Statement.pdf": (40, -586.49, "PY *IV DELI MART ISLA VISTA CA"),
-        "April 2026 Statement.pdf": (24, -344.41, "COSTCO WHSE #0474 GOLETA CA"),
-        "May 2026 Statement.pdf": (29, -497.23, "BEVERAGES & MORE #144 GOLETA CA"),
-    }
-    for statement in COASTHILLS_STATEMENTS:
-        assert statement.exists(), statement
-        parsed = parse_coasthills_visa_pdf(statement)
-        row_count, total, first_vendor = expected[statement.name]
-        assert len(parsed) == row_count
-        assert round(parsed["amount"].sum(), 2) == total
-        assert parsed.loc[0, "description"] == first_vendor
-        assert set(["posted_date", "description", "amount", "source_category", "transaction_id"]).issubset(parsed.columns)
+    parsed = parse_coasthills_visa_pdf(_fake_coasthills_pdf_bytes(FAKE_PDF_ROWS))
+
+    assert len(parsed) == 2
+    assert round(parsed["amount"].sum(), 2) == -69.12
+    assert parsed.loc[0, "description"] == "FAKE COASTHILLS GROCERY GOLETA CA"
+    assert parsed.loc[0, "transaction_id"] == "00000000000000000001"
+    assert set(["posted_date", "description", "amount", "source_category", "transaction_id"]).issubset(parsed.columns)
 
 
 def test_normalize_uploaded_statement_file_accepts_pdf_upload_bytes():
-    statement = DOWNLOADS_DIR / "May 2026 Statement.pdf"
-
     profile, normalized = normalize_uploaded_statement_file(
-        statement.read_bytes(),
-        source_file=statement.name,
+        _fake_coasthills_pdf_bytes(FAKE_PDF_ROWS),
+        source_file="Fake CoastHills Statement.pdf",
     )
 
     assert profile == "coasthills-visa-pdf"
-    assert len(normalized) == 29
-    assert round(normalized["amount"].sum(), 2) == -497.23
-    assert normalized.loc[0, "source_file"] == "May 2026 Statement.pdf"
-    assert normalized.loc[0, "vendor"] == "BEVERAGES & MORE #144 GOLETA CA"
+    assert len(normalized) == 2
+    assert round(normalized["amount"].sum(), 2) == -69.12
+    assert normalized.loc[0, "source_file"] == "Fake CoastHills Statement.pdf"
+    assert normalized.loc[0, "vendor"] == "FAKE COASTHILLS GROCERY GOLETA CA"
 
 
 def test_normalize_uploaded_files_merges_multiple_pdf_statements():
-    uploads = [(statement.read_bytes(), statement.name) for statement in COASTHILLS_STATEMENTS]
+    uploads = [
+        (_fake_coasthills_pdf_bytes(FAKE_PDF_ROWS), "Fake February Statement.pdf"),
+        (_fake_coasthills_pdf_bytes(FAKE_PDF_ROWS_LATER), "Fake March Statement.pdf"),
+    ]
 
     source_label, profile, normalized = normalize_uploaded_files(uploads)
 
     assert profile == "coasthills-visa-pdf-batch"
-    assert source_label == "February 2026 Statement.pdf + March 2026 Statement.pdf + April 2026 Statement.pdf + May 2026 Statement.pdf"
-    assert len(normalized) == 122
-    assert round(normalized["amount"].sum(), 2) == -1767.36
-    assert normalized.loc[0, "vendor"] == "GITHUB, INC. GITHUB.COM CA"
-    assert normalized.loc[len(normalized) - 1, "vendor"] == "CHEVRON 0092580 GOLETA CA"
+    assert source_label == "Fake February Statement.pdf + Fake March Statement.pdf"
+    assert len(normalized) == 3
+    assert round(normalized["amount"].sum(), 2) == -79.11
+    assert normalized.loc[0, "vendor"] == "FAKE COASTHILLS GROCERY GOLETA CA"
+    assert normalized.loc[len(normalized) - 1, "vendor"] == "FAKE COASTHILLS COFFEE GOLETA CA"
 
 
 def test_normalize_uploaded_files_rejects_multiple_csv_uploads():
