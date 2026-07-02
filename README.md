@@ -22,7 +22,7 @@ Most finance demos stop at spending charts. This project adds CFO-style variance
 
 ## Feature snapshot
 
-- Local CSV/Excel/PDF upload with no bank login, cloud sync, or cloud AI.
+- Local CSV/Excel/PDF upload, including brokerage activity exports, with no bank login, cloud sync, or cloud AI.
 - Editable category review before any uploaded rows become report-ready.
 - Merchant-rule bulk fill for repeat vendors.
 - Deterministic self-checks for schema, categories, duplicates, and math reconciliation.
@@ -40,7 +40,7 @@ Most finance demos stop at spending charts. This project adds CFO-style variance
 
 ### Local Read & Trust App
 
-![Local Read & Trust Streamlit Home Dashboard](docs/screenshots/streamlit_home_dashboard.png)
+![Local Read & Trust Streamlit Example Reports dashboard](docs/screenshots/streamlit_home_dashboard.png)
 
 ### CFO Report Highlights
 
@@ -61,10 +61,10 @@ The Personal Finance CFO Agent turns fictional transaction data into a family of
 Current verification status:
 
 ```text
-238 local tests passing
+241 local tests passing
 GitHub Actions passing
 100-persona fictional stress harness available
-Local CSV/Excel upload, CoastHills Visa PDF upload, multi-PDF merge, category review, and gated personal report generation verified
+Local CSV/Excel bank and brokerage upload, CoastHills Visa PDF upload, multi-PDF merge, category review, and gated personal report generation verified
 ```
 
 ## What It Produces
@@ -86,7 +86,7 @@ Selected screenshots are committed under `docs/screenshots/` for GitHub display.
 
 ```mermaid
 flowchart LR
-    A[CSV/Excel/PDF upload] --> B[Importer normalization]
+    A[CSV/Excel/PDF bank or brokerage upload] --> B[Importer normalization]
     B --> C[Category review + merchant rules]
     C --> D[Reviewed rows]
     D --> E[Self-check gates]
@@ -127,11 +127,12 @@ python3 scripts/generate_report_json.py
 
 ### Local Read & Trust app
 
-The local Streamlit app starts with a first-run setup when `config/personal_profile.json` does not exist, then reads the verified sample report JSON and supports local uploads. Uploads never leave the machine. Supported upload paths now include:
+The local Streamlit app starts with a blank first-run setup when `config/personal_profile.json` does not exist. It does not show sample numbers on first boot. Fictional numbers live under Example Reports, where you can choose a committed test persona. Uploads never leave the machine. Supported upload paths now include:
 
 - one personal-template CSV or Excel workbook
 - one Debit/Credit CSV export
 - one Debit/Credit Excel workbook
+- one brokerage activity CSV or Excel export with date, amount, and action/description/symbol columns
 - one CoastHills FCU Visa statement PDF
 - multiple CoastHills FCU Visa statement PDFs merged into one review file
 
@@ -148,13 +149,14 @@ streamlit run streamlit_app.py
 Current screens:
 
 1. First Run Setup — local baseline questions for goals, current balances, debt, and future planning.
-2. Home Dashboard — the 10-second CFO verdict and headline metrics.
-3. Upload Transactions — local CSV/Excel/PDF upload, category review editing, merchant-rule bulk fill, and gated report generation.
-4. Monthly Report — section navigation over the verified report JSON sections.
-5. Category Review — read-only Workbench table over the local sample review CSV.
-6. Stress Test Explorer — read-only Workbench grid over generated fictional stress-test results.
-7. Local AI Memo — disabled placeholder only; no AI call, no cloud fallback, no generated memo.
-8. Settings / Privacy — sample/local-only trust settings and self-check status.
+2. Home Dashboard — empty personal state until a local report exists.
+3. Upload Transactions — local CSV/Excel/PDF bank or brokerage upload, category review editing, merchant-rule bulk fill, and gated report generation.
+4. Monthly Report — empty personal state until a local report exists.
+5. Category Review — empty personal state until a local upload review exists.
+6. Example Reports — choose a fictional test persona and inspect sample dashboard/monthly report numbers.
+7. Stress Test Explorer — read-only Workbench grid over generated fictional stress-test results.
+8. Local AI Memo — disabled placeholder only; no AI call, no cloud fallback, no generated memo.
+9. Settings / Privacy — sample/local-only trust settings and self-check status.
 
 ### Personalize the report (optional)
 
@@ -173,7 +175,7 @@ your private files are Git-ignored, and prints the next commands. Edit it with
 your numbers, or use the First Run Setup screen in the app.
 
 `config/personal_profile.json` is Git-ignored and stays local. If it is absent,
-the report falls back to the fictional sample. Real transaction files are handled only through explicit local upload/review paths and Git-ignored folders.
+the app starts blank instead of showing sample numbers. Real transaction files are handled only through explicit local upload/review paths and Git-ignored folders.
 
 ### Robustness stress test
 

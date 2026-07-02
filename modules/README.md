@@ -4,7 +4,7 @@ This folder contains the reusable Python engine for the Personal Finance CFO Age
 
 Key areas:
 
-- `importers/` normalizes local CSV/Excel uploads and supported CoastHills Visa PDF statements.
+- `importers/` normalizes local CSV/Excel bank/brokerage uploads and supported CoastHills Visa PDF statements.
 - `ui/` builds Streamlit trust/upload models without becoming a separate calculation layer.
 - `reports/` builds PDFs and charts from checked data.
 - `self_checks.py` fails closed before reports trust malformed, duplicate, or unreviewed data.

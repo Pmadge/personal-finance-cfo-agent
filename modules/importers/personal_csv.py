@@ -95,6 +95,15 @@ FAKE_BANK_EXPORT_COLUMNS = [
     "Account Name",
     "Transaction ID",
 ]
+BROKERAGE_DATE_COLUMNS = ["Date", "Activity Date", "Trade Date", "Settlement Date"]
+BROKERAGE_ACTION_COLUMNS = ["Action", "Type", "Activity", "Transaction Type"]
+BROKERAGE_DESCRIPTION_COLUMNS = ["Description", "Security Description", "Name"]
+BROKERAGE_SYMBOL_COLUMNS = ["Symbol", "Ticker"]
+BROKERAGE_AMOUNT_COLUMNS = ["Amount", "Net Amount", "Net Cash", "Cash Amount"]
+BROKERAGE_QUANTITY_COLUMNS = ["Quantity", "Qty", "Shares"]
+BROKERAGE_PRICE_COLUMNS = ["Price", "Share Price"]
+BROKERAGE_FEE_COLUMNS = ["Fees", "Fee", "Commission"]
+BROKERAGE_ACCOUNT_COLUMNS = ["Account", "Account Name"]
 STATEMENT_DATE_RE = re.compile(r"^\d{2}/\d{2}$")
 STATEMENT_REFERENCE_RE = re.compile(r"^\d{20,}$")
 STATEMENT_MONEY_RE = re.compile(r"^\$?\s*\d{1,3}(?:,\d{3})*\.\d{2}-?$")
@@ -135,6 +144,80 @@ def normalize_fake_bank_export(
     )
     return normalize_personal_transactions(
         template_df,
+        source_file=source_file,
+        import_batch_id=import_batch_id,
+        source_row_start=source_row_start,
+    )
+
+
+def _first_existing_column(df, candidates):
+    columns_by_lower = {str(column).strip().lower(): column for column in df.columns}
+    for candidate in candidates:
+        column = columns_by_lower.get(candidate.lower())
+        if column is not None:
+            return column
+    return None
+
+
+def _signed_money_to_float(value):
+    text = "" if pd.isna(value) else str(value).strip()
+    if not text:
+        return 0.0
+    negative = text.startswith("(") and text.endswith(")") or text.endswith("-") or text.startswith("-")
+    cleaned = text.replace("$", "").replace(",", "").replace("(", "").replace(")", "").replace("-", "")
+    number = float(cleaned or 0)
+    return -number if negative else number
+
+
+def normalize_brokerage_activity_export(
+    df,
+    source_file="brokerage_activity.csv",
+    import_batch_id="manual_brokerage",
+    source_row_start=2,
+):
+    """Normalize a brokerage activity CSV/Excel export into reviewable cash-flow rows."""
+    date_col = _first_existing_column(df, BROKERAGE_DATE_COLUMNS)
+    amount_col = _first_existing_column(df, BROKERAGE_AMOUNT_COLUMNS)
+    action_col = _first_existing_column(df, BROKERAGE_ACTION_COLUMNS)
+    description_col = _first_existing_column(df, BROKERAGE_DESCRIPTION_COLUMNS)
+    symbol_col = _first_existing_column(df, BROKERAGE_SYMBOL_COLUMNS)
+    if not date_col or not amount_col or not (action_col or description_col or symbol_col):
+        raise ValueError("Missing brokerage activity columns: date, amount, and action/description/symbol")
+
+    quantity_col = _first_existing_column(df, BROKERAGE_QUANTITY_COLUMNS)
+    price_col = _first_existing_column(df, BROKERAGE_PRICE_COLUMNS)
+    fee_col = _first_existing_column(df, BROKERAGE_FEE_COLUMNS)
+    account_col = _first_existing_column(df, BROKERAGE_ACCOUNT_COLUMNS)
+
+    rows = []
+    negative_actions = {"buy", "reinvest", "fee", "withdrawal", "transfer out"}
+    positive_actions = {"sell", "dividend", "interest", "deposit", "transfer in"}
+    for _, row in df.iterrows():
+        action = "" if action_col is None or pd.isna(row.get(action_col)) else str(row.get(action_col)).strip()
+        symbol = "" if symbol_col is None or pd.isna(row.get(symbol_col)) else str(row.get(symbol_col)).strip()
+        description = "" if description_col is None or pd.isna(row.get(description_col)) else str(row.get(description_col)).strip()
+        amount = _signed_money_to_float(row.get(amount_col))
+        action_key = action.lower()
+        if amount >= 0 and action_key in negative_actions:
+            amount = -abs(amount)
+        elif amount <= 0 and action_key in positive_actions:
+            amount = abs(amount)
+        details = [part for part in [action, symbol, description] if part]
+        for label, column in (("Qty", quantity_col), ("Price", price_col), ("Fees", fee_col)):
+            if column is not None and not pd.isna(row.get(column)) and str(row.get(column)).strip():
+                details.append(f"{label} {row.get(column)}")
+        rows.append(
+            {
+                "posted_date": row.get(date_col),
+                "description": " | ".join(details) or "Brokerage activity",
+                "amount": amount,
+                "source_category": f"investment_{action_key}" if action_key else "investment_activity",
+                "source_account": row.get(account_col) if account_col is not None else "Brokerage",
+            }
+        )
+
+    return normalize_personal_transactions(
+        pd.DataFrame(rows),
         source_file=source_file,
         import_batch_id=import_batch_id,
         source_row_start=source_row_start,
@@ -282,9 +365,19 @@ def normalize_uploaded_transactions(df, source_file="uploaded.csv"):
             source_file=source_file,
             import_batch_id="upload_preview",
         )
+    brokerage_date_col = _first_existing_column(df, BROKERAGE_DATE_COLUMNS)
+    brokerage_amount_col = _first_existing_column(df, BROKERAGE_AMOUNT_COLUMNS)
+    brokerage_identity_col = _first_existing_column(df, BROKERAGE_ACTION_COLUMNS + BROKERAGE_DESCRIPTION_COLUMNS + BROKERAGE_SYMBOL_COLUMNS)
+    if brokerage_date_col and brokerage_amount_col and brokerage_identity_col:
+        return "brokerage-activity", normalize_brokerage_activity_export(
+            df,
+            source_file=source_file,
+            import_batch_id="upload_preview",
+        )
     raise ValueError(
         "Unsupported upload columns. Use either "
-        f"{', '.join(REQUIRED_IMPORT_COLUMNS)} or {', '.join(FAKE_BANK_EXPORT_COLUMNS)}."
+        f"{', '.join(REQUIRED_IMPORT_COLUMNS)}, {', '.join(FAKE_BANK_EXPORT_COLUMNS)}, "
+        "or a brokerage activity export with date, amount, and action/description/symbol columns."
     )
 
 

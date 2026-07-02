@@ -49,16 +49,19 @@ Do **not** build three separate apps. Instead:
 
 Streamlit over the report JSON contract (`docs/REPORT_JSON_CONTRACT.md`) plus a local manual upload workflow. No AI, no bank login, no cloud storage.
 
-Screens in build order:
+Current MVP screens:
 
-1. **Home Dashboard** — the 10-second CFO verdict + headline metrics.
-2. **Upload Transactions** — local CSV/Excel/PDF upload, multi-PDF merge, merchant-rule bulk fill, editable category review, and gated report generation.
-3. **Settings / Privacy** — built early on purpose: the local-only/safety model must be architectural, not bolted on later.
-4. **Monthly Report Reader** — section nav over `sections.*`.
+1. **First Run Setup** — blank local baseline form; no sample numbers on first boot.
+2. **Home Dashboard** — empty personal state until a local report exists.
+3. **Upload Transactions** — local CSV/Excel/PDF bank or brokerage upload, multi-PDF merge, merchant-rule bulk fill, editable category review, and gated report generation.
+4. **Monthly Report Reader** — empty personal state until a local report exists.
+5. **Category Review** — empty personal state until a local upload review exists.
+6. **Example Reports** — explicit fictional test-persona picker for sample dashboard/report numbers.
+7. **Settings / Privacy** — built early on purpose: the local-only/safety model must be architectural, not bolted on later.
 
 MVP shared elements: the privacy banner, verified markers, artifact trust gates,
 local upload parsing, and fail-closed category/report checks. Month switching and export are
-deferred; the current app reads the approved March 2026 sample artifacts and writes uploaded personal artifacts only under Git-ignored local folders.
+deferred; the current app keeps personal mode blank until setup/upload/report generation and writes uploaded personal artifacts only under Git-ignored local folders.
 
 ### Build order (revised from the original guess)
 
@@ -71,13 +74,14 @@ Original guess was Dashboard → Report Reader → Settings. Two corrections:
 Full order:
 
 ```text
-1. Home Dashboard
-2. Upload Transactions     (local import, category edit, merchant rules, report button)
-3. Settings / Privacy
+1. First Run Setup         (blank local baseline; no prefilled numbers)
+2. Home Dashboard          (personal state, no sample fallback)
+3. Upload Transactions     (bank/brokerage import, category edit, merchant rules, report button)
 4. Monthly Report Reader
 5. Category Review         (Workbench-mode table; you approve)
-6. Stress Test Explorer    (Workbench-mode persona grid)
-7. Local AI Memo           (last; optional; off by default)
+6. Example Reports         (explicit fictional persona picker)
+7. Stress Test Explorer    (Workbench-mode persona grid)
+8. Local AI Memo           (last; optional; off by default)
 ```
 
 ## 4. What goes where

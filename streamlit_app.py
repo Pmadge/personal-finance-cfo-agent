@@ -49,6 +49,10 @@ DEFAULT_UPLOAD_CATEGORY_REVIEW = Path("data/processed/uploaded_category_review.c
 DEFAULT_UPLOAD_REPORT = Path("outputs/personal/uploaded_personal_cfo_report.pdf")
 DEFAULT_UPLOAD_CHARTS = Path("outputs/personal/uploaded_charts")
 DEFAULT_PERSONAL_PROFILE = DEFAULT_PROFILE_PATH
+SAMPLE_REPORTS = {
+    "Complex Household sample": Path("test_personas/complex_household/outputs/report.json"),
+    "Starter Person sample": Path("test_personas/starter_person/outputs/report.json"),
+}
 
 
 st.set_page_config(page_title="Personal Finance CFO Agent", page_icon="📊", layout="wide", initial_sidebar_state="collapsed")
@@ -56,40 +60,31 @@ st.set_page_config(page_title="Personal Finance CFO Agent", page_icon="📊", la
 
 def main() -> None:
     st.title("Personal Finance CFO Agent")
-    st.caption("Local-first Read & Trust app over verified sample report JSON.")
+    st.caption("Local-first CFO workspace. Your numbers appear only after local setup, upload, review, and report generation.")
 
-    st.sidebar.caption("Local-first MVP: sample reports plus local upload/review.")
+    st.sidebar.caption("Local-first MVP: private setup, local upload/review, optional sample reports.")
     report_path = DEFAULT_REPORT_JSON
     category_review_path = DEFAULT_CATEGORY_REVIEW
     stress_test_path = DEFAULT_STRESS_TEST_RUN
-    screens = ["First Run Setup", "Home Dashboard", "Upload Transactions", "Monthly Report", "Category Review", "Stress Test Explorer", "Local AI Memo", "Settings / Privacy"]
+    screens = ["First Run Setup", "Home Dashboard", "Upload Transactions", "Monthly Report", "Category Review", "Example Reports", "Stress Test Explorer", "Local AI Memo", "Settings / Privacy"]
     requested_screen = st.query_params.get("screen", "")
     default_screen = "Home Dashboard" if DEFAULT_PERSONAL_PROFILE.exists() else "First Run Setup"
     page = st.sidebar.radio("Screen", screens, index=screens.index(requested_screen) if requested_screen in screens else screens.index(default_screen))
-
-    try:
-        contract = load_report_contract(report_path)
-    except (OSError, ValueError, ContractTrustError) as error:
-        st.error(f"Report JSON is not trusted: {error}")
-        return
 
     _privacy_banner()
 
     if page == "First Run Setup":
         render_first_run_setup(DEFAULT_PERSONAL_PROFILE)
     elif page == "Home Dashboard":
-        render_home_dashboard(build_home_dashboard_model(contract))
+        render_personal_report_placeholder("Home Dashboard")
     elif page == "Upload Transactions":
         render_upload_transactions()
     elif page == "Monthly Report":
-        render_monthly_report(build_monthly_report_model(contract))
+        render_personal_report_placeholder("Monthly Report")
     elif page == "Category Review":
-        try:
-            rows = load_category_review_rows(category_review_path)
-        except (OSError, ValueError, ContractTrustError) as error:
-            st.error(f"Category review CSV is not trusted: {error}")
-            return
-        render_category_review(build_category_review_model(contract, rows))
+        render_personal_report_placeholder("Category Review")
+    elif page == "Example Reports":
+        render_example_reports()
     elif page == "Stress Test Explorer":
         try:
             run = load_stress_test_summary(stress_test_path)
@@ -98,9 +93,13 @@ def main() -> None:
             return
         render_stress_test_explorer(build_stress_test_model(run))
     elif page == "Local AI Memo":
-        render_local_ai_memo(build_local_ai_memo_model(contract))
+        contract = _load_trusted_report(report_path)
+        if contract:
+            render_local_ai_memo(build_local_ai_memo_model(contract))
     else:
-        render_privacy_settings(build_privacy_settings_model(contract))
+        contract = _load_trusted_report(report_path)
+        if contract:
+            render_privacy_settings(build_privacy_settings_model(contract))
 
 
 def render_first_run_setup(profile_path: Path) -> None:
@@ -115,35 +114,35 @@ def render_first_run_setup(profile_path: Path) -> None:
         return
 
     with st.form("first_run_profile"):
-        household_name = st.text_input("What should we call this household/profile?", "My Household")
-        current_state = st.text_area("Where are you now?", "Example: student, building emergency fund, paying down debt")
+        household_name = st.text_input("What should we call this household/profile?", placeholder="Optional")
+        current_state = st.text_area("Where are you now?", placeholder="Optional: school, work, debt payoff, emergency fund, buying a home, etc.")
         st.markdown("#### Current balances")
         assets_left, assets_mid, assets_right = st.columns(3)
-        checking = assets_left.number_input("Checking", min_value=0.0, value=0.0, step=100.0)
-        savings = assets_mid.number_input("Savings", min_value=0.0, value=0.0, step=100.0)
-        investments = assets_right.number_input("Investments", min_value=0.0, value=0.0, step=100.0)
+        checking = assets_left.text_input("Checking", placeholder="Leave blank if unknown")
+        savings = assets_mid.text_input("Savings", placeholder="Leave blank if unknown")
+        investments = assets_right.text_input("Investments", placeholder="Leave blank if unknown")
 
         st.markdown("#### Debt")
         debt_left, debt_mid, debt_right = st.columns(3)
-        credit_card_debt = debt_left.number_input("Credit card debt", min_value=0.0, value=0.0, step=100.0)
-        student_loan_debt = debt_mid.number_input("Student loan debt", min_value=0.0, value=0.0, step=100.0)
-        other_debt = debt_right.number_input("Other debt", min_value=0.0, value=0.0, step=100.0)
-        monthly_debt_payment = st.number_input("Monthly debt payment target", min_value=0.0, value=0.0, step=50.0)
+        credit_card_debt = debt_left.text_input("Credit card debt", placeholder="Leave blank if none/unknown")
+        student_loan_debt = debt_mid.text_input("Student loan debt", placeholder="Leave blank if none/unknown")
+        other_debt = debt_right.text_input("Other debt", placeholder="Leave blank if none/unknown")
+        monthly_debt_payment = st.text_input("Monthly debt payment target", placeholder="Optional")
 
         st.markdown("#### Goals")
-        primary_goal = st.text_input("Main goal", "Build financial stability")
+        primary_goal = st.text_input("Main goal", placeholder="Optional")
         goal_left, goal_mid, goal_right = st.columns(3)
-        primary_goal_target = goal_left.number_input("Main goal target amount", min_value=0.0, value=0.0, step=100.0)
-        primary_goal_current = goal_mid.number_input("Main goal current amount", min_value=0.0, value=0.0, step=100.0)
-        emergency_fund_target = goal_right.number_input("Emergency fund target", min_value=0.0, value=0.0, step=100.0)
-        savings_rate_target = st.number_input("Savings-rate target (%)", min_value=0.0, value=10.0, step=1.0)
-        target_date = st.text_input("Target date, optional", "")
+        primary_goal_target = goal_left.text_input("Main goal target amount", placeholder="Optional")
+        primary_goal_current = goal_mid.text_input("Main goal current amount", placeholder="Optional")
+        emergency_fund_target = goal_right.text_input("Emergency fund target", placeholder="Optional")
+        savings_rate_target = st.text_input("Savings-rate target (%)", placeholder="Optional")
+        target_date = st.text_input("Target date", placeholder="Optional")
 
         st.markdown("#### Optional future planning")
         future_left, future_mid, future_right = st.columns(3)
-        home_price = future_left.number_input("Future home price target", min_value=0.0, value=0.0, step=10000.0)
-        major_purchase = future_mid.number_input("Major purchase to plan for", min_value=0.0, value=0.0, step=500.0)
-        down_payment_pct = future_right.number_input("Down payment target (%)", min_value=0.0, value=20.0, step=1.0)
+        home_price = future_left.text_input("Future home price target", placeholder="Optional")
+        major_purchase = future_mid.text_input("Major purchase to plan for", placeholder="Optional")
+        down_payment_pct = future_right.text_input("Down payment target (%)", placeholder="Optional")
 
         submitted = st.form_submit_button("Save local baseline")
 
@@ -171,6 +170,40 @@ def render_first_run_setup(profile_path: Path) -> None:
         write_personal_profile(profile, profile_path)
         st.success(f"Saved local baseline to {profile_path.relative_to(Path.cwd())}")
         st.caption("Next: upload transactions, review categories, then generate reports from the saved review file.")
+
+
+def _load_trusted_report(report_path: Path):
+    try:
+        return load_report_contract(report_path)
+    except (OSError, ValueError, ContractTrustError) as error:
+        st.error(f"Report JSON is not trusted: {error}")
+        return None
+
+
+def render_personal_report_placeholder(screen_name: str) -> None:
+    st.subheader(screen_name)
+    st.info(
+        "No personal report numbers are shown yet. Start with First Run Setup, upload CSV/Excel/PDF statements, "
+        "review final categories, then generate your local CFO report."
+    )
+    if DEFAULT_UPLOAD_CATEGORY_REVIEW.exists():
+        _render_uploaded_report_action()
+    else:
+        st.caption("If you want to inspect fictional data, open Example Reports and choose a test persona.")
+
+
+def render_example_reports() -> None:
+    st.subheader("Example Reports")
+    st.info("Fictional/sample personas only. These numbers are examples and are separate from your private setup.")
+    selected = st.selectbox("Choose a test persona", list(SAMPLE_REPORTS))
+    view = st.radio("View", ["Dashboard", "Monthly Report"], horizontal=True)
+    contract = _load_trusted_report(SAMPLE_REPORTS[selected])
+    if not contract:
+        return
+    if view == "Dashboard":
+        render_home_dashboard(build_home_dashboard_model(contract))
+    else:
+        render_monthly_report(build_monthly_report_model(contract))
 
 
 def render_home_dashboard(model: dict) -> None:
@@ -204,12 +237,12 @@ def render_upload_transactions() -> None:
     st.subheader("Upload Transactions")
     st.info("Local upload flow. Files are not sent anywhere; reports require saved final categories first.")
     uploaded_files = st.file_uploader(
-        "CSV, Excel, or PDF statement/transaction history",
+        "CSV, Excel, or PDF statement/transaction/brokerage history",
         type=["csv", "xlsx", "xlsm", "pdf"],
         accept_multiple_files=True,
     )
     if not uploaded_files:
-        st.caption("Supported now: one CSV, one Excel workbook, one PDF, or multiple CoastHills FCU Visa PDF statements.")
+        st.caption("Supported now: one bank/brokerage CSV or Excel workbook, one PDF, or multiple CoastHills FCU Visa PDF statements.")
         _render_uploaded_report_action()
         return
 

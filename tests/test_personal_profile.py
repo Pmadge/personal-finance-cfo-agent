@@ -81,6 +81,15 @@ def test_build_onboarding_profile_creates_valid_local_baseline():
     assert set(["assets", "liabilities", "goals", "scenarios", "home_target"]).issubset(profile)
 
 
+def test_build_onboarding_profile_has_no_default_money_or_goal_answers():
+    profile = build_onboarding_profile()
+
+    assert profile["assets"] == {"Checking": 0.0, "Savings": 0.0, "Investments": 0.0}
+    assert profile["liabilities"] == {}
+    assert profile["goals"] == []
+    assert profile["home_target"] == {"home_price": 0.0, "down_payment_pct": 0.0, "mortgage_rate": 0.0, "term_years": 30}
+
+
 def test_write_personal_profile_round_trips_onboarding_profile(tmp_path):
     path = tmp_path / "personal_profile.json"
     profile = build_onboarding_profile(household_name="Round Trip", savings=1000, emergency_fund_target=2000)

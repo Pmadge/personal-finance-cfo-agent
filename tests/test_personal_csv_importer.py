@@ -17,6 +17,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from modules.importers.personal_csv import (
     IDENTITY_COLUMNS,
     IMPORT_TEMPLATE_COLUMNS,
+    normalize_brokerage_activity_export,
     normalize_fake_bank_export,
     normalize_personal_csv,
     normalize_personal_transactions,
@@ -299,6 +300,61 @@ def test_normalize_uploaded_transactions_rejects_unknown_columns():
 
     with pytest.raises(ValueError, match="Unsupported upload columns"):
         normalize_uploaded_transactions(raw, source_file="unknown.csv")
+
+
+def test_normalize_uploaded_transactions_detects_brokerage_activity_export():
+    """Brokerage activity exports should preserve common statement fields for review."""
+    raw = pd.DataFrame(
+        [
+            {
+                "Activity Date": "2026-04-01",
+                "Action": "Buy",
+                "Symbol": "VTI",
+                "Security Description": "Vanguard Total Stock Market ETF",
+                "Quantity": "2",
+                "Price": "250.00",
+                "Fees": "1.00",
+                "Amount": "501.00",
+                "Account": "Brokerage",
+            },
+            {
+                "Activity Date": "2026-04-15",
+                "Action": "Dividend",
+                "Symbol": "VTI",
+                "Security Description": "Vanguard Total Stock Market ETF",
+                "Amount": "12.34",
+                "Account": "Brokerage",
+            },
+        ]
+    )
+
+    profile, normalized = normalize_uploaded_transactions(raw, source_file="brokerage.xlsx")
+
+    assert profile == "brokerage-activity"
+    assert normalized.loc[0, "amount"] == -501.0
+    assert normalized.loc[0, "raw_category"] == "investment_buy"
+    assert "VTI" in normalized.loc[0, "vendor"]
+    assert "Qty 2" in normalized.loc[0, "vendor"]
+    assert normalized.loc[1, "amount"] == 12.34
+
+
+def test_normalize_brokerage_activity_export_handles_parentheses_and_sells():
+    raw = pd.DataFrame(
+        [
+            {
+                "Date": "2026-04-20",
+                "Type": "Sell",
+                "Ticker": "AAPL",
+                "Description": "Apple Inc.",
+                "Net Amount": "($25.00)",
+            }
+        ]
+    )
+
+    normalized = normalize_brokerage_activity_export(raw, source_file="brokerage.csv")
+
+    assert normalized.loc[0, "amount"] == 25.0
+    assert normalized.loc[0, "raw_category"] == "investment_sell"
 
 
 def test_parse_coasthills_visa_pdf_extracts_statement_purchases():

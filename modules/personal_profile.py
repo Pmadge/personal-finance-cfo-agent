@@ -26,14 +26,16 @@ REQUIRED_KEYS = ("assets", "liabilities", "goals", "scenarios", "home_target")
 def _money(value):
     """Return a non-negative float for simple local setup form inputs."""
     try:
-        return max(float(value or 0), 0.0)
+        text = "" if value is None else str(value).strip()
+        cleaned = text.replace("$", "").replace(",", "").replace("(", "").replace(")", "")
+        return max(float(cleaned or 0), 0.0)
     except (TypeError, ValueError):
         return 0.0
 
 
 def build_onboarding_profile(
     *,
-    household_name="My Household",
+    household_name="",
     current_state="",
     checking=0.0,
     savings=0.0,
@@ -42,15 +44,15 @@ def build_onboarding_profile(
     student_loan_debt=0.0,
     other_debt=0.0,
     monthly_debt_payment=0.0,
-    primary_goal="Build financial stability",
+    primary_goal="",
     primary_goal_target=0.0,
     primary_goal_current=0.0,
     emergency_fund_target=0.0,
-    savings_rate_target=10.0,
+    savings_rate_target="",
     target_date="",
     home_price=0.0,
-    down_payment_pct=20.0,
-    mortgage_rate=7.0,
+    down_payment_pct="",
+    mortgage_rate="",
     major_purchase=0.0,
 ):
     """Build the first-run local profile from plain-English onboarding answers."""
@@ -105,14 +107,16 @@ def build_onboarding_profile(
                 "target_date": target_date,
             }
         )
-    goals.append(
-        {
-            "name": "Hit Savings Rate Target",
-            "type": "savings_rate",
-            "target_amount": _money(savings_rate_target),
-            "current_amount": 0.0,
-        }
-    )
+    savings_target = _money(savings_rate_target)
+    if savings_target:
+        goals.append(
+            {
+                "name": "Hit Savings Rate Target",
+                "type": "savings_rate",
+                "target_amount": savings_target,
+                "current_amount": 0.0,
+            }
+        )
 
     return {
         "_note": "Local profile created by first-run Streamlit onboarding. This file is Git-ignored and stays on this Mac.",

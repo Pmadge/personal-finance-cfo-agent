@@ -10,7 +10,7 @@ The default design should work without cloud accounts, hosted databases, externa
 
 1. **Local by default**: all processing happens locally unless explicitly approved.
 2. **No credentials in the app**: no bank passwords, OAuth tokens, API keys, or brokerage credentials.
-3. **Manual import first**: exported CSV files before any bank integration is even considered.
+3. **Manual import first**: exported bank/brokerage files before any account integration is even considered.
 4. **Fictional committed assets**: repo data and screenshots stay fictional/sample-only; explicitly provided local uploads may be processed in Git-ignored folders.
 5. **Clear private folders**: real inputs, processed data, local rules, and personal outputs stay in Git-ignored folders.
 6. **No accidental sharing**: no portfolio screenshot or committed artifact may show real vendors, accounts, balances, or spending.
@@ -84,6 +84,7 @@ Status: **local upload path active for approved manual files**
 - [x] Add fake bank-export profile coverage.
 - [x] Add tests with fake personal-style CSV fixtures only.
 - [x] Add local Streamlit upload support for one CSV, one Excel workbook, one CoastHills Visa PDF, or multiple CoastHills Visa PDFs merged into one review file.
+- [x] Add brokerage activity CSV/Excel normalization for buys, sells, dividends, interest, fees, deposits, withdrawals, symbols, quantities, prices, and fees.
 - [x] Reconcile the attached February-May 2026 PDF statement totals against parsed purchase rows.
 
 Bank-login automation remains out of scope; manual local uploads are the approved path.
@@ -146,7 +147,7 @@ These are wired into both:
 Current verification:
 
 ```text
-238 local tests passing
+241 local tests passing
 GitHub Actions passing
 100-persona stress harness available
 value-invariant checks added to the stress harness
@@ -162,6 +163,7 @@ Status: **v1 complete**
 - [x] Add `scripts/setup_personal.py` to create the local profile and verify private paths.
 - [x] Add tests for the setup flow and profile loader.
 - [x] Add Streamlit first-run setup for goals, current balances, debt, and future planning.
+- [x] Keep first-run setup blank; sample numbers are only shown under explicitly selected Example Reports.
 
 This lets local assets, liabilities, goals, scenarios, home target, major purchase, and monthly debt payment be personalized without committing private values.
 
@@ -217,14 +219,15 @@ The first safe feature should be a local AI CFO memo from generated fake/sample 
 
 Status: **Streamlit local upload/report MVP active**
 
-The app is a wrapper around tested modules and approved artifacts. It renders verified sample report JSON, sample category review CSV, and fictional stress-test summaries. It also supports a local Upload Transactions flow for explicitly selected files.
+The app is a wrapper around tested modules and approved artifacts. It starts personal mode blank, renders fictional test personas only under Example Reports, and supports a local Upload Transactions flow for explicitly selected files.
 
 Current screens:
 
 - Home Dashboard
-- Upload Transactions with one CSV, one PDF, multi-PDF merge, category editing, merchant-rule bulk fill, and gated report generation
+- Upload Transactions with one CSV/Excel bank or brokerage export, one PDF, multi-PDF merge, category editing, merchant-rule bulk fill, and gated report generation
 - Monthly Report
 - Category Review
+- Example Reports
 - Stress Test Explorer
 - Local AI Memo placeholder, disabled by default
 - Settings / Privacy

@@ -5,7 +5,8 @@ This folder holds regression and trust-boundary tests for the CFO Agent.
 The tests cover:
 
 - fictional sample reports and charts
-- local CSV importer behavior
+- local CSV/Excel importer behavior
+- brokerage activity CSV/Excel importer behavior
 - CoastHills Visa PDF parsing and multi-PDF merge
 - category review editing and merchant-rule bulk fill
 - gated personal report generation after final categories are approved
