@@ -172,4 +172,4 @@ Python, pandas, matplotlib, reportlab, PyMuPDF, Streamlit, pytest, GitHub Action
 
 ## Next planned step
 
-Choose repo visibility, then update `docs/LINKEDIN_LAUNCH_DRAFT.md` with the repo URL before posting.
+Keep the repo private until the project is fully ready for public review. Next, run one outside-viewer readiness pass before revisiting public visibility.

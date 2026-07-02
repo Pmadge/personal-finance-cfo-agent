@@ -4,12 +4,10 @@
 
 Current repo visibility: private.
 
-Before posting, choose one:
+Keep the repo private until the project is fully ready for public review.
+Use screenshots or a private walkthrough only until then.
 
-- Keep the repo private and share screenshots only.
-- Make the repo public after a final GitHub README review.
-
-Do not publish this post until the visibility choice is settled.
+Do not publish this post with a repo link until public visibility is explicitly approved.
 
 ## Draft post
 
@@ -34,7 +32,7 @@ All portfolio screenshots use fictional sample personas.
 
 This started as a small finance automation project, but it became a good exercise in local-first product design, data validation, and building something that is useful without pretending to be a magic black box.
 
-Repo: [add link after visibility decision]
+Repo: private for now
 
 ## Short version
 
@@ -44,4 +42,4 @@ It turns fictional transaction data or manually selected local statements into a
 
 No bank login. No cloud AI. Portfolio assets stay fictional; local uploads stay Git-ignored.
 
-Repo: [add link after visibility decision]
+Repo: private for now

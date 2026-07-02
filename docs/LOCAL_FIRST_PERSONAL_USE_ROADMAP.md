@@ -183,7 +183,7 @@ Recommended tasks:
   - absolute local path scan
   - staged-file check
   - private/generated path check
-- [ ] Decide whether to make the GitHub repo public.
+- [x] Keep the GitHub repo private until the project is fully ready for public review.
 - [x] Draft LinkedIn launch post.
 
 ## Phase 8: Optional local AI layer
@@ -244,4 +244,4 @@ Deferred until the product direction justifies more architecture:
 
 ## Next build task
 
-Decide whether to publish the private repo publicly. If yes, update the LinkedIn launch draft with the public repo URL and do one final public README check.
+Keep the repo private. Next, finish the remaining readiness pass: run the local app as an outside reviewer, capture any rough edges, and only revisit public visibility after that review is clean.
