@@ -156,7 +156,7 @@ Optional local profile setup:
 python3 scripts/setup_personal.py
 ```
 
-This creates `config/personal_profile.json` from the committed example. The local file is ignored by Git. Transaction data remains fake/sample-only until a real-data workflow is explicitly approved.
+This creates `config/personal_profile.json` from the committed example. The local file is ignored by Git. Committed portfolio assets remain fake/sample-only; manually selected CSV/PDF uploads are processed only in Git-ignored local folders.
 
 ## Tech stack
 

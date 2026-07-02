@@ -363,7 +363,7 @@ def test_category_review_model_rejects_source_path_leak():
             "vendor": "Fake Payroll Deposit",
             "amount": "2500.0",
             "raw_category": "income",
-            "source_file": "/Users/paulmadgett/private.csv",
+            "source_file": "/Users/example/private.csv",
             "source_row_number": "2",
             "import_batch_id": "import_fake",
             "transaction_id": "fake_txn_001",

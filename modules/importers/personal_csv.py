@@ -2,8 +2,8 @@
 
 This module is intentionally simple and offline. It turns safe bank-style CSV
 exports into the internal transaction schema used by the rest of the app.
-Direct module calls are lower-level helpers; while personal mode is disabled,
-the standalone CLI remains the fake/sample-only user entry point.
+Direct module calls and the Streamlit upload screen use these helpers; the
+standalone import CLI remains the fake/sample-only user entry point.
 """
 
 from pathlib import Path
