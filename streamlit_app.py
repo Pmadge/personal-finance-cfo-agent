@@ -20,6 +20,7 @@ import pandas as pd
 
 from modules.config import APPROVED_CATEGORIES
 from modules.importers.personal_csv import parse_coasthills_visa_pdf, read_uploaded_tabular_file, write_uploaded_transactions
+from modules.personal_profile import DEFAULT_PROFILE_PATH, build_onboarding_profile, write_personal_profile
 from modules.ui.report_reader import (
     RISK_COLORS,
     VARIANCE_COLORS,
@@ -47,6 +48,7 @@ DEFAULT_UPLOAD_NORMALIZED = Path("data/processed/uploaded_transactions_normalize
 DEFAULT_UPLOAD_CATEGORY_REVIEW = Path("data/processed/uploaded_category_review.csv")
 DEFAULT_UPLOAD_REPORT = Path("outputs/personal/uploaded_personal_cfo_report.pdf")
 DEFAULT_UPLOAD_CHARTS = Path("outputs/personal/uploaded_charts")
+DEFAULT_PERSONAL_PROFILE = DEFAULT_PROFILE_PATH
 
 
 st.set_page_config(page_title="Personal Finance CFO Agent", page_icon="📊", layout="wide", initial_sidebar_state="collapsed")
@@ -60,9 +62,10 @@ def main() -> None:
     report_path = DEFAULT_REPORT_JSON
     category_review_path = DEFAULT_CATEGORY_REVIEW
     stress_test_path = DEFAULT_STRESS_TEST_RUN
-    screens = ["Home Dashboard", "Upload Transactions", "Monthly Report", "Category Review", "Stress Test Explorer", "Local AI Memo", "Settings / Privacy"]
+    screens = ["First Run Setup", "Home Dashboard", "Upload Transactions", "Monthly Report", "Category Review", "Stress Test Explorer", "Local AI Memo", "Settings / Privacy"]
     requested_screen = st.query_params.get("screen", "")
-    page = st.sidebar.radio("Screen", screens, index=screens.index(requested_screen) if requested_screen in screens else 0)
+    default_screen = "Home Dashboard" if DEFAULT_PERSONAL_PROFILE.exists() else "First Run Setup"
+    page = st.sidebar.radio("Screen", screens, index=screens.index(requested_screen) if requested_screen in screens else screens.index(default_screen))
 
     try:
         contract = load_report_contract(report_path)
@@ -72,7 +75,9 @@ def main() -> None:
 
     _privacy_banner()
 
-    if page == "Home Dashboard":
+    if page == "First Run Setup":
+        render_first_run_setup(DEFAULT_PERSONAL_PROFILE)
+    elif page == "Home Dashboard":
         render_home_dashboard(build_home_dashboard_model(contract))
     elif page == "Upload Transactions":
         render_upload_transactions()
@@ -96,6 +101,76 @@ def main() -> None:
         render_local_ai_memo(build_local_ai_memo_model(contract))
     else:
         render_privacy_settings(build_privacy_settings_model(contract))
+
+
+def render_first_run_setup(profile_path: Path) -> None:
+    st.subheader("First Run Setup")
+    st.info(
+        "Start with your baseline before uploading transactions: goals, current balances, debt, "
+        "and what you want the CFO reports to track. This saves only to a Git-ignored local file."
+    )
+    if profile_path.exists():
+        st.success(f"Local profile already exists: {profile_path.relative_to(Path.cwd())}")
+        st.caption("To change it, edit the local JSON file or remove it and run setup again. No cloud sync or AI is used.")
+        return
+
+    with st.form("first_run_profile"):
+        household_name = st.text_input("What should we call this household/profile?", "My Household")
+        current_state = st.text_area("Where are you now?", "Example: student, building emergency fund, paying down debt")
+        st.markdown("#### Current balances")
+        assets_left, assets_mid, assets_right = st.columns(3)
+        checking = assets_left.number_input("Checking", min_value=0.0, value=0.0, step=100.0)
+        savings = assets_mid.number_input("Savings", min_value=0.0, value=0.0, step=100.0)
+        investments = assets_right.number_input("Investments", min_value=0.0, value=0.0, step=100.0)
+
+        st.markdown("#### Debt")
+        debt_left, debt_mid, debt_right = st.columns(3)
+        credit_card_debt = debt_left.number_input("Credit card debt", min_value=0.0, value=0.0, step=100.0)
+        student_loan_debt = debt_mid.number_input("Student loan debt", min_value=0.0, value=0.0, step=100.0)
+        other_debt = debt_right.number_input("Other debt", min_value=0.0, value=0.0, step=100.0)
+        monthly_debt_payment = st.number_input("Monthly debt payment target", min_value=0.0, value=0.0, step=50.0)
+
+        st.markdown("#### Goals")
+        primary_goal = st.text_input("Main goal", "Build financial stability")
+        goal_left, goal_mid, goal_right = st.columns(3)
+        primary_goal_target = goal_left.number_input("Main goal target amount", min_value=0.0, value=0.0, step=100.0)
+        primary_goal_current = goal_mid.number_input("Main goal current amount", min_value=0.0, value=0.0, step=100.0)
+        emergency_fund_target = goal_right.number_input("Emergency fund target", min_value=0.0, value=0.0, step=100.0)
+        savings_rate_target = st.number_input("Savings-rate target (%)", min_value=0.0, value=10.0, step=1.0)
+        target_date = st.text_input("Target date, optional", "")
+
+        st.markdown("#### Optional future planning")
+        future_left, future_mid, future_right = st.columns(3)
+        home_price = future_left.number_input("Future home price target", min_value=0.0, value=0.0, step=10000.0)
+        major_purchase = future_mid.number_input("Major purchase to plan for", min_value=0.0, value=0.0, step=500.0)
+        down_payment_pct = future_right.number_input("Down payment target (%)", min_value=0.0, value=20.0, step=1.0)
+
+        submitted = st.form_submit_button("Save local baseline")
+
+    if submitted:
+        profile = build_onboarding_profile(
+            household_name=household_name,
+            current_state=current_state,
+            checking=checking,
+            savings=savings,
+            investments=investments,
+            credit_card_debt=credit_card_debt,
+            student_loan_debt=student_loan_debt,
+            other_debt=other_debt,
+            monthly_debt_payment=monthly_debt_payment,
+            primary_goal=primary_goal,
+            primary_goal_target=primary_goal_target,
+            primary_goal_current=primary_goal_current,
+            emergency_fund_target=emergency_fund_target,
+            savings_rate_target=savings_rate_target,
+            target_date=target_date,
+            home_price=home_price,
+            major_purchase=major_purchase,
+            down_payment_pct=down_payment_pct,
+        )
+        write_personal_profile(profile, profile_path)
+        st.success(f"Saved local baseline to {profile_path.relative_to(Path.cwd())}")
+        st.caption("Next: upload transactions, review categories, then generate reports from the saved review file.")
 
 
 def render_home_dashboard(model: dict) -> None:

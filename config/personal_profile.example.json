@@ -1,5 +1,9 @@
 {
   "_note": "Copy this file to config/personal_profile.json and edit the values. That file is Git-ignored and stays local. All values here are fictional examples.",
+  "household": {
+    "name": "Fictional Example Household",
+    "current_state": "Building emergency savings while paying down debt"
+  },
   "assets": {
     "Checking": 3000.0,
     "Savings": 9000.0,

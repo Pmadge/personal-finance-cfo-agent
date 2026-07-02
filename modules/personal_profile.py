@@ -23,6 +23,129 @@ DEFAULT_PROFILE_PATH = PROJECT_ROOT / "config" / "personal_profile.json"
 REQUIRED_KEYS = ("assets", "liabilities", "goals", "scenarios", "home_target")
 
 
+def _money(value):
+    """Return a non-negative float for simple local setup form inputs."""
+    try:
+        return max(float(value or 0), 0.0)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def build_onboarding_profile(
+    *,
+    household_name="My Household",
+    current_state="",
+    checking=0.0,
+    savings=0.0,
+    investments=0.0,
+    credit_card_debt=0.0,
+    student_loan_debt=0.0,
+    other_debt=0.0,
+    monthly_debt_payment=0.0,
+    primary_goal="Build financial stability",
+    primary_goal_target=0.0,
+    primary_goal_current=0.0,
+    emergency_fund_target=0.0,
+    savings_rate_target=10.0,
+    target_date="",
+    home_price=0.0,
+    down_payment_pct=20.0,
+    mortgage_rate=7.0,
+    major_purchase=0.0,
+):
+    """Build the first-run local profile from plain-English onboarding answers."""
+    assets = {
+        "Checking": _money(checking),
+        "Savings": _money(savings),
+        "Investments": _money(investments),
+    }
+    liabilities = {}
+    for name, balance in {
+        "Credit Card": credit_card_debt,
+        "Student Loan": student_loan_debt,
+        "Other Debt": other_debt,
+    }.items():
+        balance = _money(balance)
+        if balance:
+            liabilities[name] = {"balance": balance, "interest_rate": 0.0}
+
+    goals = []
+    emergency_target = _money(emergency_fund_target)
+    if emergency_target:
+        goals.append(
+            {
+                "name": "Emergency Fund",
+                "type": "savings",
+                "target_amount": emergency_target,
+                "current_amount": assets["Savings"],
+                "target_date": target_date,
+            }
+        )
+    goal_target = _money(primary_goal_target)
+    if primary_goal and goal_target:
+        goals.append(
+            {
+                "name": str(primary_goal).strip(),
+                "type": "savings",
+                "target_amount": goal_target,
+                "current_amount": _money(primary_goal_current),
+                "target_date": target_date,
+            }
+        )
+    total_debt = sum(item["balance"] for item in liabilities.values())
+    if total_debt:
+        goals.append(
+            {
+                "name": "Pay Down Debt",
+                "type": "debt_payoff",
+                "target_amount": 0.0,
+                "current_amount": total_debt,
+                "starting_amount": total_debt,
+                "monthly_contribution": _money(monthly_debt_payment),
+                "target_date": target_date,
+            }
+        )
+    goals.append(
+        {
+            "name": "Hit Savings Rate Target",
+            "type": "savings_rate",
+            "target_amount": _money(savings_rate_target),
+            "current_amount": 0.0,
+        }
+    )
+
+    return {
+        "_note": "Local profile created by first-run Streamlit onboarding. This file is Git-ignored and stays on this Mac.",
+        "household": {
+            "name": str(household_name or "My Household").strip(),
+            "current_state": str(current_state or "").strip(),
+        },
+        "assets": assets,
+        "liabilities": liabilities,
+        "monthly_debt_payment": _money(monthly_debt_payment),
+        "goals": goals,
+        "scenarios": [
+            {"name": "Lose job (no income)", "monthly_income": 0.0},
+            {"name": "Unexpected $3,000 cost", "one_time_cost": 3000.0},
+        ],
+        "home_target": {
+            "home_price": _money(home_price),
+            "down_payment_pct": _money(down_payment_pct),
+            "mortgage_rate": _money(mortgage_rate),
+            "term_years": 30,
+        },
+        "major_purchase": _money(major_purchase),
+    }
+
+
+def write_personal_profile(profile, path=DEFAULT_PROFILE_PATH):
+    """Write a local personal profile JSON file. Never commits or uploads data."""
+    profile_path = Path(path)
+    profile_path.parent.mkdir(parents=True, exist_ok=True)
+    profile_path.write_text(json.dumps(profile, indent=2) + "\n", encoding="utf-8")
+    return profile_path
+
+
 def load_personal_profile(path=None):
     """Return the local profile JSON when present and valid, else the sample profile.
 

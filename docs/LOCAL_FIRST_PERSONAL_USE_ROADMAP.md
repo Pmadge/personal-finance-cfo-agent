@@ -146,7 +146,7 @@ These are wired into both:
 Current verification:
 
 ```text
-236 local tests passing
+238 local tests passing
 GitHub Actions passing
 100-persona stress harness available
 value-invariant checks added to the stress harness
@@ -161,8 +161,18 @@ Status: **v1 complete**
 - [x] Load local profile when present, otherwise fallback to fictional sample profile.
 - [x] Add `scripts/setup_personal.py` to create the local profile and verify private paths.
 - [x] Add tests for the setup flow and profile loader.
+- [x] Add Streamlit first-run setup for goals, current balances, debt, and future planning.
 
 This lets local assets, liabilities, goals, scenarios, home target, major purchase, and monthly debt payment be personalized without committing private values.
+
+## Phase 6.5: Local progress memory
+
+Status: **planned**
+
+- [ ] Save a local report history manifest under `outputs/personal/` after each generated personal report.
+- [ ] Track report-to-report changes in goals, runway, net worth, savings rate, debt payoff, risk flags, and action items.
+- [ ] Add a deterministic Progress Memory screen before enabling any local AI explanation layer.
+- [ ] Keep Local AI Memo disabled until the deterministic history is trustworthy and a local-only model path is explicitly approved.
 
 ## Phase 7: Consolidation and public-release polish
 

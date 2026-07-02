@@ -61,7 +61,7 @@ The Personal Finance CFO Agent turns fictional transaction data into a family of
 Current verification status:
 
 ```text
-236 local tests passing
+238 local tests passing
 GitHub Actions passing
 100-persona fictional stress harness available
 Local CSV/Excel upload, CoastHills Visa PDF upload, multi-PDF merge, category review, and gated personal report generation verified
@@ -127,7 +127,7 @@ python3 scripts/generate_report_json.py
 
 ### Local Read & Trust app
 
-The local Streamlit app reads the verified sample report JSON and also has a local Upload Transactions screen. Uploads never leave the machine. Supported upload paths now include:
+The local Streamlit app starts with a first-run setup when `config/personal_profile.json` does not exist, then reads the verified sample report JSON and supports local uploads. Uploads never leave the machine. Supported upload paths now include:
 
 - one personal-template CSV or Excel workbook
 - one Debit/Credit CSV export
@@ -147,20 +147,22 @@ streamlit run streamlit_app.py
 
 Current screens:
 
-1. Home Dashboard — the 10-second CFO verdict and headline metrics.
-2. Upload Transactions — local CSV/Excel/PDF upload, category review editing, merchant-rule bulk fill, and gated report generation.
-3. Monthly Report — section navigation over the verified report JSON sections.
-4. Category Review — read-only Workbench table over the local sample review CSV.
-5. Stress Test Explorer — read-only Workbench grid over generated fictional stress-test results.
-6. Local AI Memo — disabled placeholder only; no AI call, no cloud fallback, no generated memo.
-7. Settings / Privacy — sample/local-only trust settings and self-check status.
+1. First Run Setup — local baseline questions for goals, current balances, debt, and future planning.
+2. Home Dashboard — the 10-second CFO verdict and headline metrics.
+3. Upload Transactions — local CSV/Excel/PDF upload, category review editing, merchant-rule bulk fill, and gated report generation.
+4. Monthly Report — section navigation over the verified report JSON sections.
+5. Category Review — read-only Workbench table over the local sample review CSV.
+6. Stress Test Explorer — read-only Workbench grid over generated fictional stress-test results.
+7. Local AI Memo — disabled placeholder only; no AI call, no cloud fallback, no generated memo.
+8. Settings / Privacy — sample/local-only trust settings and self-check status.
 
 ### Personalize the report (optional)
 
 The personal report's pillar sections (cash runway, goals, scenarios, risk
 register, home-purchase readiness) read a financial profile of assets,
-liabilities, goals, what-if scenarios, and a home target. By default it uses a
-built-in fictional sample. To set up your own local profile in one step:
+liabilities, goals, what-if scenarios, and a home target. On first boot, the
+Streamlit app asks for a local baseline and saves `config/personal_profile.json`.
+You can also set up your own local profile from the terminal:
 
 ```bash
 python3 scripts/setup_personal.py
@@ -168,7 +170,7 @@ python3 scripts/setup_personal.py
 
 This creates a local `config/personal_profile.json` (from the example), confirms
 your private files are Git-ignored, and prints the next commands. Edit it with
-your numbers, then regenerate the report.
+your numbers, or use the First Run Setup screen in the app.
 
 `config/personal_profile.json` is Git-ignored and stays local. If it is absent,
 the report falls back to the fictional sample. Real transaction files are handled only through explicit local upload/review paths and Git-ignored folders.
