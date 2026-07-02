@@ -1,6 +1,7 @@
 """Tests for fake personal CSV import templates and local normalization."""
 
 from pathlib import Path
+from io import BytesIO
 import hashlib
 import subprocess
 import sys
@@ -23,6 +24,7 @@ from modules.importers.personal_csv import (
     normalize_uploaded_statement_file,
     normalize_uploaded_transactions,
     parse_coasthills_visa_pdf,
+    read_uploaded_tabular_file,
     validate_safe_output_path,
     write_uploaded_category_review,
     write_uploaded_transactions,
@@ -55,6 +57,13 @@ def _fake_coasthills_pdf_bytes(rows):
     data = doc.tobytes()
     doc.close()
     return data
+
+
+def _fake_excel_bytes(rows):
+    """Build a tiny fake Excel upload fixture with no real financial data."""
+    buffer = BytesIO()
+    pd.DataFrame(rows).to_excel(buffer, index=False)
+    return buffer.getvalue()
 
 
 def test_fake_bank_export_profile_fixture_exists_and_is_fake_only():
@@ -263,6 +272,27 @@ def test_normalize_uploaded_transactions_detects_supported_debit_credit_profile(
     assert normalized.loc[0, "transaction_id"] == "bank_001"
 
 
+def test_read_uploaded_tabular_file_accepts_excel_template_upload():
+    """Modern Excel uploads should use the same template path as CSV uploads."""
+    workbook = _fake_excel_bytes(
+        [
+            {
+                "posted_date": "2026-04-01",
+                "description": "Fake Excel Payroll",
+                "amount": 2500.00,
+                "source_category": "income",
+            }
+        ]
+    )
+
+    raw = read_uploaded_tabular_file(BytesIO(workbook), source_file="checking.xlsx")
+    profile, normalized = normalize_uploaded_transactions(raw, source_file="checking.xlsx")
+
+    assert profile == "personal-template"
+    assert normalized.loc[0, "vendor"] == "Fake Excel Payroll"
+    assert normalized.loc[0, "source_file"] == "checking.xlsx"
+
+
 def test_normalize_uploaded_transactions_rejects_unknown_columns():
     """Unsupported uploads should fail with the accepted column sets."""
     raw = pd.DataFrame([{"date": "2026-04-01", "memo": "Store", "value": -1}])
@@ -292,6 +322,29 @@ def test_normalize_uploaded_statement_file_accepts_pdf_upload_bytes():
     assert round(normalized["amount"].sum(), 2) == -69.12
     assert normalized.loc[0, "source_file"] == "Fake CoastHills Statement.pdf"
     assert normalized.loc[0, "vendor"] == "FAKE COASTHILLS GROCERY GOLETA CA"
+
+
+def test_normalize_uploaded_statement_file_accepts_excel_upload_bytes():
+    workbook = _fake_excel_bytes(
+        [
+            {
+                "Transaction Date": "2026-04-01",
+                "Description": "Fake Excel Grocery",
+                "Debit": "73.42",
+                "Credit": "",
+                "Category": "groceries",
+                "Account Name": "Fake Checking",
+                "Transaction ID": "excel_bank_001",
+            }
+        ]
+    )
+
+    profile, normalized = normalize_uploaded_statement_file(BytesIO(workbook), source_file="bank_export.xlsx")
+
+    assert profile == "debit-credit"
+    assert normalized.loc[0, "amount"] == -73.42
+    assert normalized.loc[0, "transaction_id"] == "excel_bank_001"
+    assert normalized.loc[0, "source_file"] == "bank_export.xlsx"
 
 
 def test_normalize_uploaded_files_merges_multiple_pdf_statements():

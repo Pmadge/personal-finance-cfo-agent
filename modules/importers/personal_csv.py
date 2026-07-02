@@ -1,7 +1,7 @@
-"""Import helpers for local, manual personal CSV workflows.
+"""Import helpers for local, manual personal CSV/Excel/PDF workflows.
 
 This module is intentionally simple and offline. It turns safe bank-style CSV
-exports into the internal transaction schema used by the rest of the app.
+or Excel exports into the internal transaction schema used by the rest of the app.
 Direct module calls and the Streamlit upload screen use these helpers; the
 standalone import CLI remains the fake/sample-only user entry point.
 """
@@ -35,6 +35,7 @@ SAFE_OUTPUT_ROOTS = [
     PROJECT_ROOT / "data" / "processed",
     PROJECT_ROOT / "outputs" / "personal",
 ]
+EXCEL_UPLOAD_EXTENSIONS = (".xlsx", ".xlsm")
 SPREADSHEET_FORMULA_PREFIXES = ("=", "+", "-", "@")
 
 COLUMN_MAP = {
@@ -219,8 +220,16 @@ def parse_coasthills_visa_pdf(input_pdf, source_file="statement.pdf"):
     return pd.DataFrame(rows)
 
 
+def read_uploaded_tabular_file(file_obj, source_file="uploaded.csv"):
+    """Read one uploaded CSV or modern Excel workbook into a DataFrame."""
+    source_name = Path(str(source_file)).name
+    if source_name.lower().endswith(EXCEL_UPLOAD_EXTENSIONS):
+        return pd.read_excel(file_obj)
+    return pd.read_csv(file_obj)
+
+
 def normalize_uploaded_statement_file(file_obj, source_file="uploaded"):
-    """Normalize an uploaded CSV or CoastHills Visa PDF statement."""
+    """Normalize an uploaded CSV, Excel workbook, or CoastHills Visa PDF statement."""
     source_name = Path(str(source_file)).name
     if source_name.lower().endswith(".pdf"):
         parsed = parse_coasthills_visa_pdf(file_obj, source_file=source_name)
@@ -229,7 +238,7 @@ def normalize_uploaded_statement_file(file_obj, source_file="uploaded"):
             source_file=source_name,
             import_batch_id="upload_preview",
         )
-    return normalize_uploaded_transactions(pd.read_csv(file_obj), source_file=source_name)
+    return normalize_uploaded_transactions(read_uploaded_tabular_file(file_obj, source_name), source_file=source_name)
 
 
 def normalize_uploaded_files(file_items):

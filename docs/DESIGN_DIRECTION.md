@@ -52,7 +52,7 @@ Streamlit over the report JSON contract (`docs/REPORT_JSON_CONTRACT.md`) plus a 
 Screens in build order:
 
 1. **Home Dashboard** — the 10-second CFO verdict + headline metrics.
-2. **Upload Transactions** — local CSV/PDF upload, multi-PDF merge, merchant-rule bulk fill, editable category review, and gated report generation.
+2. **Upload Transactions** — local CSV/Excel/PDF upload, multi-PDF merge, merchant-rule bulk fill, editable category review, and gated report generation.
 3. **Settings / Privacy** — built early on purpose: the local-only/safety model must be architectural, not bolted on later.
 4. **Monthly Report Reader** — section nav over `sections.*`.
 

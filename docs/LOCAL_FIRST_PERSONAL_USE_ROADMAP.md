@@ -64,7 +64,7 @@ Status: **complete**
 - [x] Add GitHub Actions CI.
 - [x] Keep generated PDFs/charts local or regenerated on demand.
 
-## Phase 2: Manual personal CSV/PDF import foundation
+## Phase 2: Manual personal CSV/Excel/PDF import foundation
 
 Status: **local upload path active for approved manual files**
 
@@ -83,7 +83,7 @@ Status: **local upload path active for approved manual files**
 - [x] Add clear validation errors.
 - [x] Add fake bank-export profile coverage.
 - [x] Add tests with fake personal-style CSV fixtures only.
-- [x] Add local Streamlit upload support for one CSV, one CoastHills Visa PDF, or multiple CoastHills Visa PDFs merged into one review file.
+- [x] Add local Streamlit upload support for one CSV, one Excel workbook, one CoastHills Visa PDF, or multiple CoastHills Visa PDFs merged into one review file.
 - [x] Reconcile the attached February-May 2026 PDF statement totals against parsed purchase rows.
 
 Bank-login automation remains out of scope; manual local uploads are the approved path.
@@ -146,7 +146,7 @@ These are wired into both:
 Current verification:
 
 ```text
-234 local tests passing
+236 local tests passing
 GitHub Actions passing
 100-persona stress harness available
 value-invariant checks added to the stress harness

@@ -11,9 +11,9 @@ All examples and committed screenshots use fully fictional sample personas. Publ
 ```text
 Repository: private GitHub repo
 CI: GitHub Actions passing
-Local tests: 234 passing
+Local tests: 236 passing
 Data posture: committed assets fictional/sample only
-Local real uploads: CSV and CoastHills Visa PDF statements supported in Git-ignored folders
+Local real uploads: CSV, Excel, and CoastHills Visa PDF statements supported in Git-ignored folders
 ```
 
 The project now has the full v1 CFO parity suite wired into both the fictional starter-person board pack and the draft personal report path.
@@ -26,7 +26,7 @@ A run generates:
 - a 3-month trend summary PDF
 - analysis charts
 - a sample-only monthly close workflow receipt
-- a draft personal report from reviewed fake personal rows or explicitly uploaded local CSV/PDF statements
+- a draft personal report from reviewed fake personal rows or explicitly uploaded local CSV/Excel/PDF statements
 - stress-test outputs for fictional personas
 
 Committed test-persona outputs now live under `test_personas/<persona>/outputs/` so GitHub visitors can inspect a full run without generating files locally. Portfolio screenshots live under `docs/screenshots/` so GitHub renders the walkthrough immediately. Selected report screenshots are regenerated from `test_personas/complex_household/transactions.csv` with `scripts/generate_complex_household_screenshots.py`; the Streamlit screenshot is captured from the local Read & Trust app.
@@ -156,7 +156,7 @@ Optional local profile setup:
 python3 scripts/setup_personal.py
 ```
 
-This creates `config/personal_profile.json` from the committed example. The local file is ignored by Git. Committed portfolio assets remain fake/sample-only; manually selected CSV/PDF uploads are processed only in Git-ignored local folders.
+This creates `config/personal_profile.json` from the committed example. The local file is ignored by Git. Committed portfolio assets remain fake/sample-only; manually selected CSV/Excel/PDF uploads are processed only in Git-ignored local folders.
 
 ## Tech stack
 
@@ -166,7 +166,7 @@ Python, pandas, matplotlib, reportlab, PyMuPDF, Streamlit, pytest, GitHub Action
 
 - Not investment, tax, accounting, legal, or compliance advice.
 - Does not connect to live accounts or real-time data.
-- Manual local CSV/PDF uploads are supported, but private outputs stay Git-ignored and are not portfolio artifacts.
+- Manual local CSV/Excel/PDF uploads are supported, but private outputs stay Git-ignored and are not portfolio artifacts.
 - Forecasts and rent-vs-buy outputs are directional estimates, not decisions.
 - The board pack is intentionally comprehensive. The new Executive Dashboard gives readers the one-page answer first, while the detailed sections remain available for auditability.
 

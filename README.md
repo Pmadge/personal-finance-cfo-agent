@@ -22,7 +22,7 @@ Most finance demos stop at spending charts. This project adds CFO-style variance
 
 ## Feature snapshot
 
-- Local CSV/PDF upload with no bank login, cloud sync, or cloud AI.
+- Local CSV/Excel/PDF upload with no bank login, cloud sync, or cloud AI.
 - Editable category review before any uploaded rows become report-ready.
 - Merchant-rule bulk fill for repeat vendors.
 - Deterministic self-checks for schema, categories, duplicates, and math reconciliation.
@@ -61,10 +61,10 @@ The Personal Finance CFO Agent turns fictional transaction data into a family of
 Current verification status:
 
 ```text
-234 local tests passing
+236 local tests passing
 GitHub Actions passing
 100-persona fictional stress harness available
-Local CSV upload, CoastHills Visa PDF upload, multi-PDF merge, category review, and gated personal report generation verified
+Local CSV/Excel upload, CoastHills Visa PDF upload, multi-PDF merge, category review, and gated personal report generation verified
 ```
 
 ## What It Produces
@@ -86,7 +86,7 @@ Selected screenshots are committed under `docs/screenshots/` for GitHub display.
 
 ```mermaid
 flowchart LR
-    A[CSV/PDF upload] --> B[Importer normalization]
+    A[CSV/Excel/PDF upload] --> B[Importer normalization]
     B --> C[Category review + merchant rules]
     C --> D[Reviewed rows]
     D --> E[Self-check gates]
@@ -129,8 +129,9 @@ python3 scripts/generate_report_json.py
 
 The local Streamlit app reads the verified sample report JSON and also has a local Upload Transactions screen. Uploads never leave the machine. Supported upload paths now include:
 
-- one personal-template CSV
+- one personal-template CSV or Excel workbook
 - one Debit/Credit CSV export
+- one Debit/Credit Excel workbook
 - one CoastHills FCU Visa statement PDF
 - multiple CoastHills FCU Visa statement PDFs merged into one review file
 
@@ -147,7 +148,7 @@ streamlit run streamlit_app.py
 Current screens:
 
 1. Home Dashboard — the 10-second CFO verdict and headline metrics.
-2. Upload Transactions — local CSV/PDF upload, category review editing, merchant-rule bulk fill, and gated report generation.
+2. Upload Transactions — local CSV/Excel/PDF upload, category review editing, merchant-rule bulk fill, and gated report generation.
 3. Monthly Report — section navigation over the verified report JSON sections.
 4. Category Review — read-only Workbench table over the local sample review CSV.
 5. Stress Test Explorer — read-only Workbench grid over generated fictional stress-test results.
@@ -207,7 +208,7 @@ To use a different fictional dataset, replace that file with a CSV using the sam
 
 Long term, this project should become a local-first personal CFO product that can run fully on Paul's Mac as either a script workflow or a small local app. The default design should not require cloud hosting, external AI APIs, hosted databases, or bank-login integrations.
 
-Personal financial data should stay local. The repository and portfolio screenshots stay fictional/sample-only, while the local app can process explicitly provided CSV/PDF statement uploads into Git-ignored local folders.
+Personal financial data should stay local. The repository and portfolio screenshots stay fictional/sample-only, while the local app can process explicitly provided CSV/Excel/PDF statement uploads into Git-ignored local folders.
 
 Important local-data rule: real transaction CSVs, PDF statements, processed personal files, local vendor rules, and personal reports belong only in Git-ignored local folders such as `data/personal/`, `data/processed/`, and `outputs/personal/`. Do not use real financial data in portfolio screenshots or committed sample artifacts.
 

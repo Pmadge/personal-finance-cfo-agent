@@ -19,7 +19,7 @@ import streamlit as st
 import pandas as pd
 
 from modules.config import APPROVED_CATEGORIES
-from modules.importers.personal_csv import parse_coasthills_visa_pdf, write_uploaded_transactions
+from modules.importers.personal_csv import parse_coasthills_visa_pdf, read_uploaded_tabular_file, write_uploaded_transactions
 from modules.ui.report_reader import (
     RISK_COLORS,
     VARIANCE_COLORS,
@@ -129,12 +129,12 @@ def render_upload_transactions() -> None:
     st.subheader("Upload Transactions")
     st.info("Local upload flow. Files are not sent anywhere; reports require saved final categories first.")
     uploaded_files = st.file_uploader(
-        "CSV or PDF statement/transaction history",
-        type=["csv", "pdf"],
+        "CSV, Excel, or PDF statement/transaction history",
+        type=["csv", "xlsx", "xlsm", "pdf"],
         accept_multiple_files=True,
     )
     if not uploaded_files:
-        st.caption("Supported now: one CSV, one PDF, or multiple CoastHills FCU Visa PDF statements.")
+        st.caption("Supported now: one CSV, one Excel workbook, one PDF, or multiple CoastHills FCU Visa PDF statements.")
         _render_uploaded_report_action()
         return
 
@@ -142,7 +142,7 @@ def render_upload_transactions() -> None:
         source_names = [uploaded.name for uploaded in uploaded_files]
         if len(uploaded_files) > 1:
             if any(not name.lower().endswith(".pdf") for name in source_names):
-                raise ValueError("Multiple uploads currently supports PDF statements only")
+                raise ValueError("Multiple uploads currently supports PDF statements only; upload one CSV or Excel export at a time")
             raw = pd.concat(
                 [
                     parse_coasthills_visa_pdf(uploaded.read(), source_file=uploaded.name)
@@ -157,7 +157,7 @@ def render_upload_transactions() -> None:
             if uploaded.name.lower().endswith(".pdf"):
                 raw = parse_coasthills_visa_pdf(uploaded.read(), source_file=uploaded.name)
             else:
-                raw = pd.read_csv(uploaded)
+                raw = read_uploaded_tabular_file(uploaded, source_file=uploaded.name)
         model = build_upload_preview_model(raw.to_dict("records"), source_file=source_label)
         review_model = build_uploaded_category_review_model(raw.to_dict("records"), source_file=source_label)
     except Exception as error:  # Streamlit boundary: show parser errors instead of crashing.
@@ -186,7 +186,7 @@ def render_upload_transactions() -> None:
         column_config={"final_category": st.column_config.SelectboxColumn("final_category", options=["", *APPROVED_CATEGORIES])},
         disabled=[column for column in review_df.columns if column not in {"final_category", "override_note"}],
     )
-    if st.button("Save normalized CSV locally"):
+    if st.button("Save normalized transactions locally"):
         write_uploaded_transactions(raw, DEFAULT_UPLOAD_NORMALIZED, source_file=source_label)
         st.success(f"Saved to {DEFAULT_UPLOAD_NORMALIZED}")
     if st.button("Save category review CSV locally"):
