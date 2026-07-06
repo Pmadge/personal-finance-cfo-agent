@@ -27,6 +27,7 @@ Most finance demos stop at spending charts. This project adds CFO-style variance
 - Merchant-rule bulk fill for repeat vendors.
 - Deterministic self-checks for schema, categories, duplicates, and math reconciliation.
 - PDF reports, charts, stress tests, and Streamlit reader screens from the same checked engine.
+- Local Progress Memory saves report-to-report history under Git-ignored `outputs/personal/`.
 
 ## Preview
 
@@ -61,7 +62,7 @@ The Personal Finance CFO Agent turns fictional transaction data into a family of
 Current verification status:
 
 ```text
-241 local tests passing
+245 local tests passing
 GitHub Actions passing
 100-persona fictional stress harness available
 Local CSV/Excel bank and brokerage upload, CoastHills Visa PDF upload, multi-PDF merge, category review, and gated personal report generation verified
@@ -154,9 +155,10 @@ Current screens:
 4. Monthly Report — empty personal state until a local report exists.
 5. Category Review — empty personal state until a local upload review exists.
 6. Example Reports — choose a fictional test persona and inspect sample dashboard/monthly report numbers.
-7. Stress Test Explorer — read-only Workbench grid over generated fictional stress-test results.
-8. Local AI Memo — disabled placeholder only; no AI call, no cloud fallback, no generated memo.
-9. Settings / Privacy — sample/local-only trust settings and self-check status.
+7. Progress Memory — read-only local report history and report-to-report deltas.
+8. Stress Test Explorer — read-only Workbench grid over generated fictional stress-test results.
+9. Local AI Memo — disabled placeholder only; no AI call, no cloud fallback, no generated memo.
+10. Settings / Privacy — sample/local-only trust settings and self-check status.
 
 ### Personalize the report (optional)
 

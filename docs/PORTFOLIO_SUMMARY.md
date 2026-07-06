@@ -11,7 +11,7 @@ All examples and committed screenshots use fully fictional sample personas. Publ
 ```text
 Repository: private GitHub repo
 CI: GitHub Actions passing
-Local tests: 241 passing
+Local tests: 245 passing
 Data posture: committed assets fictional/sample only
 Local real uploads: CSV, Excel, brokerage activity exports, and CoastHills Visa PDF statements supported in Git-ignored folders
 ```
@@ -172,4 +172,4 @@ Python, pandas, matplotlib, reportlab, PyMuPDF, Streamlit, pytest, GitHub Action
 
 ## Next planned step
 
-Keep the repo private until the project is fully ready for public review. Next, run one outside-viewer readiness pass before revisiting public visibility.
+Progress Memory now saves local report history and report-to-report deltas. Keep the repo private until an outside-viewer readiness pass is clean.

@@ -80,8 +80,9 @@ Full order:
 4. Monthly Report Reader
 5. Category Review         (Workbench-mode table; you approve)
 6. Example Reports         (explicit fictional persona picker)
-7. Stress Test Explorer    (Workbench-mode persona grid)
-8. Local AI Memo           (last; optional; off by default)
+7. Progress Memory         (local report history + deltas)
+8. Stress Test Explorer    (Workbench-mode persona grid)
+9. Local AI Memo           (last; optional; off by default)
 ```
 
 ## 4. What goes where

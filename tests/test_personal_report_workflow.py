@@ -120,6 +120,73 @@ def test_personal_report_self_checks_allow_distinct_transactions_with_same_visib
     assert checks["Status"].eq("PASS").all()
 
 
+def test_progress_memory_appends_snapshot_and_delta(tmp_path):
+    """Each personal report run should leave a local history record and comparison."""
+    from modules.personal_report_inputs import build_report_transactions_from_review
+    from modules.progress_memory import build_progress_snapshot, append_progress_snapshot
+
+    report_df = build_report_transactions_from_review(reviewed_rows())
+    history_path = tmp_path / "progress_history.json"
+
+    first = build_progress_snapshot(
+        report_df,
+        profile=SAMPLE_PERSONAL_PROFILE,
+        report_path="outputs/personal/first.pdf",
+        run_timestamp="2026-04-30T00:00:00+00:00",
+    )
+    second_df = report_df.copy()
+    second_df.loc[0, "amount"] = 3000.0
+    second = build_progress_snapshot(
+        second_df,
+        profile=SAMPLE_PERSONAL_PROFILE,
+        report_path="outputs/personal/second.pdf",
+        run_timestamp="2026-05-31T00:00:00+00:00",
+    )
+
+    append_progress_snapshot(history_path, first)
+    manifest = append_progress_snapshot(history_path, second)
+
+    assert [entry["report_file"] for entry in manifest["snapshots"]] == ["first.pdf", "second.pdf"]
+    assert manifest["latest_comparison"]["net_cash_flow_change"] == 500.0
+    assert manifest["latest_comparison"]["savings_rate_change"] > 0
+    assert manifest["snapshots"][-1]["metrics"]["debt_total"] == 18000.0
+
+
+def test_personal_report_script_writes_progress_history(tmp_path):
+    """Successful personal report generation should save local progress memory."""
+    review_path = tmp_path / "category_review_applied.csv"
+    reviewed_rows().to_csv(review_path, index=False)
+    output_path = PROJECT_ROOT / "outputs" / "personal" / "test_progress_memory_report.pdf"
+    history_path = PROJECT_ROOT / "outputs" / "personal" / "test_progress_history.json"
+    output_path.unlink(missing_ok=True)
+    history_path.unlink(missing_ok=True)
+
+    try:
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(SCRIPT),
+                "--reviewed-input",
+                str(review_path),
+                "--output",
+                str(output_path),
+                "--history",
+                str(history_path),
+                "--allow-unsafe-input-for-tests",
+            ],
+            cwd=PROJECT_ROOT,
+            text=True,
+            capture_output=True,
+            check=True,
+        )
+
+        assert "Wrote progress history" in result.stdout
+        assert history_path.exists()
+    finally:
+        output_path.unlink(missing_ok=True)
+        history_path.unlink(missing_ok=True)
+
+
 def test_personal_report_script_writes_draft_pdf_to_private_output(tmp_path):
     """The draft personal report script should create an inspectable PDF from reviewed fake data."""
     review_path = tmp_path / "category_review_applied.csv"
@@ -482,6 +549,7 @@ def test_personal_report_script_runs_self_checks_before_render(monkeypatch, tmp_
             reviewed_input=review_path,
             output=output_path,
             charts_dir=charts_dir,
+            history=PROJECT_ROOT / "outputs" / "personal" / "test_order_guard_history.json",
             allow_unsafe_input_for_tests=True,
         ),
     )

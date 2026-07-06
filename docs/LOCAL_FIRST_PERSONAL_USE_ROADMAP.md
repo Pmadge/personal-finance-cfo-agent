@@ -147,7 +147,7 @@ These are wired into both:
 Current verification:
 
 ```text
-241 local tests passing
+245 local tests passing
 GitHub Actions passing
 100-persona stress harness available
 value-invariant checks added to the stress harness
@@ -169,12 +169,13 @@ This lets local assets, liabilities, goals, scenarios, home target, major purcha
 
 ## Phase 6.5: Local progress memory
 
-Status: **planned**
+Status: **v1 active**
 
-- [ ] Save a local report history manifest under `outputs/personal/` after each generated personal report.
-- [ ] Track report-to-report changes in goals, runway, net worth, savings rate, debt payoff, risk flags, and action items.
-- [ ] Add a deterministic Progress Memory screen before enabling any local AI explanation layer.
-- [ ] Keep Local AI Memo disabled until the deterministic history is trustworthy and a local-only model path is explicitly approved.
+- [x] Save a local report history manifest under `outputs/personal/` after each generated personal report.
+- [x] Track report-to-report changes in goals, runway, net worth, savings rate, debt payoff/debt total, and risk flags.
+- [x] Add a deterministic Progress Memory screen before enabling any local AI explanation layer.
+- [ ] Add action-item trend tracking once personal reports produce deterministic action items.
+- [x] Keep Local AI Memo disabled until the deterministic history is trustworthy and a local-only model path is explicitly approved.
 
 ## Phase 7: Consolidation and public-release polish
 
@@ -228,6 +229,7 @@ Current screens:
 - Monthly Report
 - Category Review
 - Example Reports
+- Progress Memory
 - Stress Test Explorer
 - Local AI Memo placeholder, disabled by default
 - Settings / Privacy
@@ -257,4 +259,4 @@ Deferred until the product direction justifies more architecture:
 
 ## Next build task
 
-Keep the repo private. Next, finish the remaining readiness pass: run the local app as an outside reviewer, capture any rough edges, and only revisit public visibility after that review is clean.
+Keep the repo private. Next, run the local app as an outside reviewer, capture any rough edges, and only revisit public visibility after that review is clean.

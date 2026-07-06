@@ -24,6 +24,7 @@ from modules.net_worth import net_worth_snapshot
 from modules.personal_profile import load_personal_profile
 from modules.personal_report_charts import build_personal_insights, generate_personal_report_charts
 from modules.personal_report_inputs import build_report_transactions_from_review
+from modules.progress_memory import append_progress_snapshot, build_progress_snapshot
 from modules.risk import build_risk_register, risk_summary
 from modules.scenarios import compare_scenarios
 from modules.scorecard import outcomes_scorecard
@@ -35,6 +36,7 @@ UPLOADED_REVIEWED_INPUT = PROJECT_ROOT / "data" / "processed" / "uploaded_catego
 APPROVED_REVIEWED_INPUTS = {DEFAULT_REVIEWED_INPUT.resolve(), UPLOADED_REVIEWED_INPUT.resolve()}
 DEFAULT_OUTPUT = PROJECT_ROOT / "outputs" / "personal" / "personal_cfo_report_draft.pdf"
 DEFAULT_CHARTS_DIR = PROJECT_ROOT / "outputs" / "personal" / "charts"
+DEFAULT_HISTORY = PROJECT_ROOT / "outputs" / "personal" / "progress_history.json"
 
 
 def parse_args():
@@ -44,6 +46,7 @@ def parse_args():
     parser.add_argument("--reviewed-input", type=Path, default=DEFAULT_REVIEWED_INPUT)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--charts-dir", type=Path, default=DEFAULT_CHARTS_DIR)
+    parser.add_argument("--history", type=Path, default=DEFAULT_HISTORY)
     parser.add_argument(
         "--allow-unsafe-input-for-tests",
         action="store_true",
@@ -66,7 +69,7 @@ def _is_under(path, root):
     return resolved_path == resolved_root or resolved_root in resolved_path.parents
 
 
-def _validate_paths(reviewed_input, output, charts_dir, allow_unsafe_input_for_tests=False):
+def _validate_paths(reviewed_input, output, charts_dir, history_path=DEFAULT_HISTORY, allow_unsafe_input_for_tests=False):
     if not Path(reviewed_input).exists():
         raise SystemExit(f"Missing reviewed input: {reviewed_input}")
     if not allow_unsafe_input_for_tests:
@@ -81,6 +84,8 @@ def _validate_paths(reviewed_input, output, charts_dir, allow_unsafe_input_for_t
         raise SystemExit(f"Unsafe personal report output path. Use outputs/personal/: {output}")
     if not validate_safe_listed_output_path(charts_dir):
         raise SystemExit(f"Unsafe personal report charts path. Use outputs/personal/: {charts_dir}")
+    if not validate_safe_listed_output_path(history_path):
+        raise SystemExit(f"Unsafe progress history path. Use outputs/personal/: {history_path}")
 
 
 def _money(value):
@@ -424,19 +429,24 @@ def _privacy_notice_for_input(reviewed_input):
 
 def main():
     args = parse_args()
-    _validate_paths(args.reviewed_input, args.output, args.charts_dir, args.allow_unsafe_input_for_tests)
+    _validate_paths(args.reviewed_input, args.output, args.charts_dir, args.history, args.allow_unsafe_input_for_tests)
     review_df = pd.read_csv(args.reviewed_input, keep_default_na=False)
     report_df = build_report_transactions_from_review(review_df)
     checks = assert_personal_report_self_checks(review_df, report_df, APPROVED_CATEGORIES)
     print(f"Personal report self-checks passed ({len(checks)} checks).")
+    profile = load_personal_profile()
     output_path = build_draft_personal_report(
         report_df,
         args.output,
         args.charts_dir,
+        profile=profile,
         privacy_notice=_privacy_notice_for_input(args.reviewed_input),
     )
+    snapshot = build_progress_snapshot(report_df, profile=profile, report_path=output_path)
+    append_progress_snapshot(args.history, snapshot)
     print(f"Wrote draft personal report: {_relative(output_path)}")
     print(f"Wrote personal report charts: {_relative(args.charts_dir)}")
+    print(f"Wrote progress history: {_relative(args.history)}")
     print(_privacy_notice_for_input(args.reviewed_input))
 
 

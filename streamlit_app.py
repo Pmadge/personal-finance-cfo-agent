@@ -31,11 +31,13 @@ from modules.ui.report_reader import (
     build_local_ai_memo_model,
     build_monthly_report_model,
     build_privacy_settings_model,
+    build_progress_memory_model,
     build_stress_test_model,
     build_uploaded_category_review_model,
     build_uploaded_report_action_model,
     build_upload_preview_model,
     load_category_review_rows,
+    load_progress_history,
     load_report_contract,
     load_stress_test_summary,
     save_uploaded_category_review_edits,
@@ -48,6 +50,7 @@ DEFAULT_UPLOAD_NORMALIZED = Path("data/processed/uploaded_transactions_normalize
 DEFAULT_UPLOAD_CATEGORY_REVIEW = Path("data/processed/uploaded_category_review.csv")
 DEFAULT_UPLOAD_REPORT = Path("outputs/personal/uploaded_personal_cfo_report.pdf")
 DEFAULT_UPLOAD_CHARTS = Path("outputs/personal/uploaded_charts")
+DEFAULT_PROGRESS_HISTORY = Path("outputs/personal/progress_history.json")
 DEFAULT_PERSONAL_PROFILE = DEFAULT_PROFILE_PATH
 SAMPLE_REPORTS = {
     "Complex Household sample": Path("test_personas/complex_household/outputs/report.json"),
@@ -66,7 +69,7 @@ def main() -> None:
     report_path = DEFAULT_REPORT_JSON
     category_review_path = DEFAULT_CATEGORY_REVIEW
     stress_test_path = DEFAULT_STRESS_TEST_RUN
-    screens = ["First Run Setup", "Home Dashboard", "Upload Transactions", "Monthly Report", "Category Review", "Example Reports", "Stress Test Explorer", "Local AI Memo", "Settings / Privacy"]
+    screens = ["First Run Setup", "Home Dashboard", "Upload Transactions", "Monthly Report", "Category Review", "Example Reports", "Progress Memory", "Stress Test Explorer", "Local AI Memo", "Settings / Privacy"]
     requested_screen = st.query_params.get("screen", "")
     default_screen = "Home Dashboard" if DEFAULT_PERSONAL_PROFILE.exists() else "First Run Setup"
     page = st.sidebar.radio("Screen", screens, index=screens.index(requested_screen) if requested_screen in screens else screens.index(default_screen))
@@ -85,6 +88,8 @@ def main() -> None:
         render_personal_report_placeholder("Category Review")
     elif page == "Example Reports":
         render_example_reports()
+    elif page == "Progress Memory":
+        render_progress_memory()
     elif page == "Stress Test Explorer":
         try:
             run = load_stress_test_summary(stress_test_path)
@@ -366,6 +371,25 @@ def render_category_review(model: dict) -> None:
 
     st.markdown("#### Review workbench")
     st.dataframe(pd.DataFrame(model["rows"]), use_container_width=True, hide_index=True)
+
+
+def render_progress_memory() -> None:
+    st.subheader("Progress Memory")
+    st.info("Read-only local history from generated personal reports. No AI summary is produced here.")
+    if not DEFAULT_PROGRESS_HISTORY.exists():
+        st.caption("No progress history yet. Generate a personal CFO report first.")
+        return
+    try:
+        model = build_progress_memory_model(load_progress_history(DEFAULT_PROGRESS_HISTORY))
+    except (OSError, ValueError, ContractTrustError) as error:
+        st.error(f"Progress history is not trusted: {error}")
+        return
+    st.caption(f"{model['workbench_badge']} · latest: {model['latest_report']}")
+    cols = st.columns(3)
+    for index, metric in enumerate(model["metrics"]):
+        cols[index % 3].metric(metric["label"], metric["value"], metric["delta"])
+    st.markdown("#### Report history")
+    st.dataframe(pd.DataFrame(model["history_rows"]), use_container_width=True, hide_index=True)
 
 
 def render_stress_test_explorer(model: dict) -> None:

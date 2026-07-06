@@ -17,11 +17,13 @@ from modules.ui.report_reader import (
     build_monthly_report_model,
     apply_merchant_category_rules,
     build_privacy_settings_model,
+    build_progress_memory_model,
     build_stress_test_model,
     build_uploaded_category_review_model,
     build_uploaded_report_action_model,
     build_upload_preview_model,
     load_category_review_rows,
+    load_progress_history,
     save_uploaded_category_review_edits,
     load_report_contract,
     load_stress_test_summary,
@@ -425,6 +427,50 @@ def test_stress_test_loader_rejects_unapproved_local_paths(tmp_path):
 
     with pytest.raises(ContractTrustError, match="approved sample artifact"):
         load_stress_test_summary(run_dir)
+
+
+def test_progress_memory_model_summarizes_report_to_report_changes(tmp_path):
+    history_path = tmp_path / "progress_history.json"
+    history_path.write_text(
+        json.dumps(
+            {
+                "schema_version": "1.0.0",
+                "snapshots": [
+                    {
+                        "run_timestamp": "2026-04-30T00:00:00+00:00",
+                        "period": "2026-04",
+                        "report_file": "first.pdf",
+                        "metrics": {"net_cash_flow": 2400.0, "savings_rate": 96.0, "net_worth": 1000.0, "emergency_runway_months": 2.0, "debt_total": 500.0, "high_risks": 1},
+                    },
+                    {
+                        "run_timestamp": "2026-05-31T00:00:00+00:00",
+                        "period": "2026-05",
+                        "report_file": "second.pdf",
+                        "metrics": {"net_cash_flow": 2900.0, "savings_rate": 96.67, "net_worth": 1200.0, "emergency_runway_months": 3.0, "debt_total": 400.0, "high_risks": 0},
+                    },
+                ],
+                "latest_comparison": {"net_cash_flow_change": 500.0, "savings_rate_change": 0.67, "net_worth_change": 200.0, "emergency_runway_months_change": 1.0, "debt_total_change": -100.0, "high_risks_change": -1},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    history = load_progress_history(history_path, approved_paths={history_path})
+    model = build_progress_memory_model(history)
+
+    assert model["title"] == "Progress Memory"
+    assert model["latest_report"] == "second.pdf"
+    assert model["metrics"][0] == {"label": "Net cash flow", "value": "$2,900.00", "delta": "$500.00"}
+    assert model["metrics"][4] == {"label": "Debt total", "value": "$400.00", "delta": "-$100.00"}
+    assert model["history_rows"][0]["report_file"] == "first.pdf"
+
+
+def test_progress_memory_loader_rejects_unapproved_paths(tmp_path):
+    history_path = tmp_path / "progress_history.json"
+    history_path.write_text(json.dumps({"schema_version": "1.0.0", "snapshots": []}), encoding="utf-8")
+
+    with pytest.raises(ContractTrustError, match="approved local progress history"):
+        load_progress_history(history_path)
 
 
 def test_local_ai_memo_model_is_disabled_placeholder_with_verified_sources():

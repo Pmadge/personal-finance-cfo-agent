@@ -23,6 +23,7 @@ EXPECTED_SCHEMA_VERSION = "1.0.0"
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 APPROVED_CATEGORY_REVIEW_PATHS = {PROJECT_ROOT / "data" / "processed" / "category_review.csv"}
 APPROVED_STRESS_TEST_RUNS = {PROJECT_ROOT / "outputs" / "stress_tests" / "review_smoke_12_personas"}
+APPROVED_PROGRESS_HISTORY_PATHS = {PROJECT_ROOT / "outputs" / "personal" / "progress_history.json"}
 APPROVED_PRIVACY_FLAGS = {
     "mode": "sample",
     "real_data_enabled": False,
@@ -77,6 +78,21 @@ def load_stress_test_summary(
     if aggregate.get("failed") != 0 or any(row.get("status") != "PASS" for row in rows):
         raise ContractTrustError("stress-test run is not fully passing.")
     return {"run_name": run_path.name, "aggregate": aggregate, "rows": rows}
+
+
+def load_progress_history(
+    path: str | Path,
+    *,
+    approved_paths: set[Path] | None = None,
+) -> dict[str, Any]:
+    """Load approved local progress history for read-only UI rendering."""
+    history_path = _require_approved_path(path, approved_paths or APPROVED_PROGRESS_HISTORY_PATHS, "local progress history")
+    history = json.loads(history_path.read_text(encoding="utf-8"))
+    if history.get("schema_version") != "1.0.0":
+        raise ContractTrustError("unsupported progress history schema version.")
+    if not isinstance(history.get("snapshots"), list):
+        raise ContractTrustError("progress history snapshots must be a list.")
+    return history
 
 
 def validate_report_contract(data: dict[str, Any]) -> None:
@@ -358,6 +374,35 @@ def build_stress_test_model(run: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def build_progress_memory_model(history: dict[str, Any]) -> dict[str, Any]:
+    """Build the read-only Progress Memory model from saved report snapshots."""
+    snapshots = history.get("snapshots", [])
+    latest = snapshots[-1] if snapshots else {"metrics": {}, "report_file": "No report yet", "period": ""}
+    metrics = latest.get("metrics", {})
+    comparison = history.get("latest_comparison", {})
+    rows = []
+    for snapshot in snapshots:
+        row = {"period": snapshot.get("period", ""), "report_file": snapshot.get("report_file", "")}
+        row.update(snapshot.get("metrics", {}))
+        rows.append(row)
+    return {
+        "title": "Progress Memory",
+        "workbench_badge": "Local history · read-only",
+        "latest_report": latest.get("report_file", ""),
+        "latest_period": latest.get("period", ""),
+        "metrics": [
+            {"label": "Net cash flow", "value": _money(metrics.get("net_cash_flow", 0)), "delta": _money_delta(comparison.get("net_cash_flow_change"))},
+            {"label": "Savings rate", "value": _percent(metrics.get("savings_rate", 0)), "delta": _percent_delta(comparison.get("savings_rate_change"))},
+            {"label": "Net worth", "value": _money(metrics.get("net_worth", 0)), "delta": _money_delta(comparison.get("net_worth_change"))},
+            {"label": "Emergency runway", "value": _months(metrics.get("emergency_runway_months")), "delta": _number_delta(comparison.get("emergency_runway_months_change"))},
+            {"label": "Debt total", "value": _money(metrics.get("debt_total", 0)), "delta": _money_delta(comparison.get("debt_total_change"))},
+            {"label": "High risks", "value": str(metrics.get("high_risks", 0)), "delta": _number_delta(comparison.get("high_risks_change"))},
+        ],
+        "history_rows": rows,
+        "source_artifacts": ["progress_history.json"],
+    }
+
+
 def build_local_ai_memo_model(data: dict[str, Any]) -> dict[str, Any]:
     """Build the disabled Local AI Memo placeholder model without calling AI."""
     validate_report_contract(data)
@@ -389,8 +434,28 @@ def _require_approved_path(path: str | Path, approved_paths: set[Path], label: s
     resolved_candidate = (PROJECT_ROOT / candidate).resolve() if not candidate.is_absolute() else candidate.resolve()
     approved_resolved = {approved.resolve() for approved in approved_paths}
     if resolved_candidate not in approved_resolved:
-        raise ContractTrustError(f"{label} must be an approved sample artifact.")
+        kind = "approved local progress history" if label == "local progress history" else "approved sample artifact"
+        raise ContractTrustError(f"{label} must be an {kind}.")
     return resolved_candidate
+
+
+def _money_delta(value: float | int | None) -> str:
+    if value is None:
+        return "n/a"
+    return _money(value)
+
+
+def _percent_delta(value: float | int | None) -> str:
+    if value is None:
+        return "n/a"
+    return f"{float(value):.2f}%"
+
+
+def _number_delta(value: float | int | None) -> str:
+    if value is None:
+        return "n/a"
+    value = float(value)
+    return str(int(value)) if value.is_integer() else f"{value:.2f}"
 
 
 def _money(value: float | int) -> str:
