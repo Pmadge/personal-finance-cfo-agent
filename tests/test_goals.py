@@ -112,6 +112,25 @@ def test_net_worth_goal_progress_and_behind_when_date_passed():
     assert "Behind" in row["Status"]  # target date already passed
 
 
+def test_plain_english_target_date_does_not_crash_goal_tracking():
+    row = track_goals(
+        [
+            {
+                "name": "Emergency Fund",
+                "type": "savings",
+                "target_amount": 10000.0,
+                "current_amount": 2500.0,
+                "target_date": "18 months",
+            }
+        ],
+        as_of_date="2026-06-30",
+        default_monthly=500.0,
+    ).iloc[0]
+
+    assert row["Monthly Needed"] is None
+    assert row["Status"].startswith("📊 In progress")
+
+
 def test_unknown_goal_type_raises():
     with pytest.raises(ValueError, match="Unknown goal type"):
         track_goals([{"name": "X", "type": "retirement", "target_amount": 1, "current_amount": 0}],

@@ -20,8 +20,12 @@ GOAL_TYPES = {"savings", "debt_payoff", "net_worth", "savings_rate"}
 
 def _months_until(target_date, as_of_date):
     """Whole calendar months from as_of_date to target_date (can be negative)."""
-    target = pd.Timestamp(target_date)
-    as_of = pd.Timestamp(as_of_date)
+    try:
+        target = pd.Timestamp(target_date)
+        as_of = pd.Timestamp(as_of_date)
+    except (TypeError, ValueError):
+        # ponytail: first-run setup accepts plain-English dates; treat those as no date until a real parser exists.
+        return None
     return (target.year - as_of.year) * 12 + (target.month - as_of.month)
 
 

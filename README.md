@@ -62,7 +62,7 @@ The Personal Finance CFO Agent turns fictional transaction data into a family of
 Current verification status:
 
 ```text
-245 local tests passing
+246 local tests passing
 GitHub Actions passing
 100-persona fictional stress harness available
 Local CSV/Excel bank and brokerage upload, CoastHills Visa PDF upload, multi-PDF merge, category review, and gated personal report generation verified

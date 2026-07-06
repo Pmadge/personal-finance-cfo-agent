@@ -284,7 +284,7 @@ def render_upload_transactions() -> None:
     cols[2].metric("Report generation", "Locked")
     st.caption(f"Source file: {model['source_file']}")
     st.markdown("#### Normalized preview")
-    st.dataframe(pd.DataFrame(model["preview_rows"]), use_container_width=True, hide_index=True)
+    st.dataframe(pd.DataFrame(model["preview_rows"]), width="stretch", hide_index=True)
     st.markdown("#### Category review")
     st.caption("Edit `final_category` where needed, then save the review CSV before generating a report.")
     review_rows = review_model["rows"]
@@ -294,7 +294,7 @@ def render_upload_transactions() -> None:
     review_df = pd.DataFrame(review_rows)
     edited_review = st.data_editor(
         review_df,
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
         column_config={"final_category": st.column_config.SelectboxColumn("final_category", options=["", *APPROVED_CATEGORIES])},
         disabled=[column for column in review_df.columns if column not in {"final_category", "override_note"}],
@@ -370,7 +370,7 @@ def render_category_review(model: dict) -> None:
     st.write(", ".join(model["categories"]) or "No final categories yet.")
 
     st.markdown("#### Review workbench")
-    st.dataframe(pd.DataFrame(model["rows"]), use_container_width=True, hide_index=True)
+    st.dataframe(pd.DataFrame(model["rows"]), width="stretch", hide_index=True)
 
 
 def render_progress_memory() -> None:
@@ -389,7 +389,7 @@ def render_progress_memory() -> None:
     for index, metric in enumerate(model["metrics"]):
         cols[index % 3].metric(metric["label"], metric["value"], metric["delta"])
     st.markdown("#### Report history")
-    st.dataframe(pd.DataFrame(model["history_rows"]), use_container_width=True, hide_index=True)
+    st.dataframe(pd.DataFrame(model["history_rows"]), width="stretch", hide_index=True)
 
 
 def render_stress_test_explorer(model: dict) -> None:
@@ -402,7 +402,7 @@ def render_stress_test_explorer(model: dict) -> None:
         column.metric(metric["label"], metric["value"])
 
     st.markdown("#### Coverage")
-    st.dataframe(pd.DataFrame([model["coverage_counts"]]), use_container_width=True, hide_index=True)
+    st.dataframe(pd.DataFrame([model["coverage_counts"]]), width="stretch", hide_index=True)
 
     st.markdown("#### Persona grid")
     grid_columns = [
@@ -417,7 +417,7 @@ def render_stress_test_explorer(model: dict) -> None:
         "high_risks",
     ]
     df = pd.DataFrame(model["persona_rows"])
-    st.dataframe(df[[column for column in grid_columns if column in df.columns]], use_container_width=True, hide_index=True)
+    st.dataframe(df[[column for column in grid_columns if column in df.columns]], width="stretch", hide_index=True)
 
     st.markdown("#### Source artifacts")
     st.write(", ".join(model["source_artifacts"]))
@@ -446,11 +446,11 @@ def _render_section(key: str, data: object) -> None:
         if key == "budget_vs_actual" and "Color Flag" in df.columns:
             df[""] = df["Color Flag"].map(lambda f: VARIANCE_COLORS.get(f, ""))
             cols = [""] + [c for c in df.columns if c not in ("Color Flag", "")]
-            st.dataframe(df[cols], use_container_width=True, hide_index=True)
+            st.dataframe(df[cols], width="stretch", hide_index=True)
         elif key == "risk_register" and "Level" in df.columns:
             df[""] = df["Level"].map(lambda lvl: RISK_COLORS.get(lvl, ""))
             cols = [""] + [c for c in df.columns if c != ""]
-            st.dataframe(df[cols], use_container_width=True, hide_index=True)
+            st.dataframe(df[cols], width="stretch", hide_index=True)
         elif key == "goals" and "Progress (%)" in df.columns:
             for _, row in df.iterrows():
                 pct = float(row["Progress (%)"])
@@ -458,7 +458,7 @@ def _render_section(key: str, data: object) -> None:
                 st.progress(min(pct / 100, 1.0))
                 st.caption(f"Target: {row['Target']} · Current: {row['Current']} · Monthly needed: {row['Monthly Needed']}")
         else:
-            st.dataframe(df, use_container_width=True, hide_index=True)
+            st.dataframe(df, width="stretch", hide_index=True)
     elif isinstance(data, dict):
         items = list(data.items())
         cols = st.columns(min(len(items), 3))

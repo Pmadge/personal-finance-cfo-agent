@@ -147,7 +147,7 @@ These are wired into both:
 Current verification:
 
 ```text
-245 local tests passing
+246 local tests passing
 GitHub Actions passing
 100-persona stress harness available
 value-invariant checks added to the stress harness

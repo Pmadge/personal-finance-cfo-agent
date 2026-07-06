@@ -11,7 +11,7 @@ All examples and committed screenshots use fully fictional sample personas. Publ
 ```text
 Repository: private GitHub repo
 CI: GitHub Actions passing
-Local tests: 245 passing
+Local tests: 246 passing
 Data posture: committed assets fictional/sample only
 Local real uploads: CSV, Excel, brokerage activity exports, and CoastHills Visa PDF statements supported in Git-ignored folders
 ```
