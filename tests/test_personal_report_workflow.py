@@ -152,6 +152,26 @@ def test_progress_memory_appends_snapshot_and_delta(tmp_path):
     assert manifest["snapshots"][-1]["metrics"]["debt_total"] == 18000.0
 
 
+def test_progress_memory_handles_none_metrics_without_crashing(tmp_path):
+    """A None metric (e.g. runway with no recurring expenses) must not break history appends."""
+    from modules.progress_memory import append_progress_snapshot
+
+    metrics = {"net_cash_flow": 100.0, "savings_rate": 10.0, "net_worth": 5.0,
+               "emergency_runway_months": None, "debt_total": 0.0, "high_risks": 0}
+    first = {"run_timestamp": "t1", "period": "2026-01", "report_file": "",
+             "metrics": metrics, "goals": [], "action_items": []}
+    second = {**first, "run_timestamp": "t2",
+              "metrics": {**metrics, "emergency_runway_months": 3.0}}
+    history_path = tmp_path / "progress_history.json"
+
+    append_progress_snapshot(history_path, first)
+    manifest = append_progress_snapshot(history_path, second)
+
+    comparison = manifest["latest_comparison"]
+    assert comparison["emergency_runway_months_change"] is None  # unknowable, not zero
+    assert comparison["net_cash_flow_change"] == 0.0
+
+
 def test_personal_report_script_writes_progress_history(tmp_path):
     """Successful personal report generation should save local progress memory."""
     review_path = tmp_path / "category_review_applied.csv"

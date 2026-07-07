@@ -106,10 +106,17 @@ def _compare_latest(snapshots: list[dict]) -> dict:
         return {}
     previous = snapshots[-2].get("metrics", {})
     current = snapshots[-1].get("metrics", {})
-    return {
-        f"{key}_change": _round(float(current.get(key, 0.0)) - float(previous.get(key, 0.0)))
-        for key in NUMERIC_METRICS
-    }
+    changes = {}
+    for key in NUMERIC_METRICS:
+        prior_value = previous.get(key)
+        current_value = current.get(key)
+        # Metrics can legitimately be None (e.g. runway with no recurring
+        # expenses); a change against None is unknowable, not zero.
+        if prior_value is None or current_value is None:
+            changes[f"{key}_change"] = None
+        else:
+            changes[f"{key}_change"] = _round(float(current_value) - float(prior_value))
+    return changes
 
 
 def _round(value):
