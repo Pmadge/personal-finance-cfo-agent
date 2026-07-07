@@ -105,6 +105,7 @@ BROKERAGE_PRICE_COLUMNS = ["Price", "Share Price"]
 BROKERAGE_FEE_COLUMNS = ["Fees", "Fee", "Commission"]
 BROKERAGE_ACCOUNT_COLUMNS = ["Account", "Account Name"]
 STATEMENT_DATE_RE = re.compile(r"^\d{2}/\d{2}$")
+STATEMENT_FULL_DATE_RE = re.compile(r"\b(\d{2})/(\d{2})/(\d{4})\b")
 STATEMENT_REFERENCE_RE = re.compile(r"^\d{20,}$")
 STATEMENT_MONEY_RE = re.compile(r"^\$?\s*\d{1,3}(?:,\d{3})*\.\d{2}-?$")
 
@@ -270,10 +271,29 @@ def _money_to_float(value):
     return float(str(value).replace("$", "").replace(",", "").replace("-", ""))
 
 
+def _statement_closing_date(lines):
+    """Latest full MM/DD/YYYY date printed on the statement (closing/due date).
+
+    Transaction rows print only MM/DD, so the statement's own full dates are the
+    only trustworthy year source. Fail closed rather than guess a year.
+    """
+    dates = [
+        (int(match.group(3)), int(match.group(1)), int(match.group(2)))
+        for line in lines
+        for match in STATEMENT_FULL_DATE_RE.finditer(line)
+    ]
+    if not dates:
+        raise ValueError(
+            "Could not find a full MM/DD/YYYY date in the PDF to determine the statement year"
+        )
+    return max(dates)
+
+
 def parse_coasthills_visa_pdf(input_pdf, source_file="statement.pdf"):
     """Extract purchase rows from CoastHills FCU Visa statement PDFs."""
     rows = []
     lines = _statement_pdf_lines(input_pdf)
+    statement_year, statement_month, _ = _statement_closing_date(lines)
     for index in range(len(lines) - 5):
         if not (
             STATEMENT_DATE_RE.match(lines[index])
@@ -288,11 +308,17 @@ def parse_coasthills_visa_pdf(input_pdf, source_file="statement.pdf"):
         if amount_index >= len(lines) or not STATEMENT_MONEY_RE.match(lines[amount_index]):
             continue
         posted_month, posted_day = lines[index + 1].split("/")
+        # A January statement lists December purchases: months after the closing
+        # month belong to the prior year.
+        posted_year = statement_year - 1 if int(posted_month) > statement_month else statement_year
+        raw_amount = lines[amount_index]
+        magnitude = _money_to_float(raw_amount)
         rows.append(
             {
-                "posted_date": f"2026-{posted_month}-{posted_day}",
+                "posted_date": f"{posted_year}-{posted_month}-{posted_day}",
                 "description": lines[index + 4],
-                "amount": -_money_to_float(lines[amount_index]),
+                # Trailing minus is the statement's credit notation: money back, not spend.
+                "amount": magnitude if raw_amount.endswith("-") else -magnitude,
                 "source_category": "misc",
                 "source_account": "CoastHills FCU Visa",
                 "transaction_id": lines[index + 3],
