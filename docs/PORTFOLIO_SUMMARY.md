@@ -9,11 +9,11 @@ All examples and committed screenshots use fully fictional sample personas. Publ
 ## Current status
 
 ```text
-Repository: private GitHub repo
+Repository: public GitHub repo
 CI: GitHub Actions passing
-Local tests: 246 passing
+Local tests: 251 passing
 Data posture: committed assets fictional/sample only
-Local real uploads: CSV, Excel, brokerage activity exports, and CoastHills Visa PDF statements supported in Git-ignored folders
+Local real uploads: CSV, Excel, brokerage activity exports, and Credit Union Visa PDF statements supported in Git-ignored folders
 ```
 
 The project now has the full v1 CFO parity suite wired into both the fictional starter-person board pack and the draft personal report path.

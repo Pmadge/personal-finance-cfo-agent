@@ -289,8 +289,8 @@ def _statement_closing_date(lines):
     return max(dates)
 
 
-def parse_coasthills_visa_pdf(input_pdf, source_file="statement.pdf"):
-    """Extract purchase rows from CoastHills FCU Visa statement PDFs."""
+def parse_credit_union_visa_pdf(input_pdf, source_file="statement.pdf"):
+    """Extract purchase rows from Credit Union Visa statement PDFs."""
     rows = []
     lines = _statement_pdf_lines(input_pdf)
     statement_year, statement_month, _ = _statement_closing_date(lines)
@@ -320,12 +320,12 @@ def parse_coasthills_visa_pdf(input_pdf, source_file="statement.pdf"):
                 # Trailing minus is the statement's credit notation: money back, not spend.
                 "amount": magnitude if raw_amount.endswith("-") else -magnitude,
                 "source_category": "misc",
-                "source_account": "CoastHills FCU Visa",
+                "source_account": "Credit Union Visa",
                 "transaction_id": lines[index + 3],
             }
         )
     if not rows:
-        raise ValueError("No CoastHills Visa statement transactions found in PDF")
+        raise ValueError("No Credit Union Visa statement transactions found in PDF")
     return pd.DataFrame(rows)
 
 
@@ -338,11 +338,11 @@ def read_uploaded_tabular_file(file_obj, source_file="uploaded.csv"):
 
 
 def normalize_uploaded_statement_file(file_obj, source_file="uploaded"):
-    """Normalize an uploaded CSV, Excel workbook, or CoastHills Visa PDF statement."""
+    """Normalize an uploaded CSV, Excel workbook, or Credit Union Visa PDF statement."""
     source_name = Path(str(source_file)).name
     if source_name.lower().endswith(".pdf"):
-        parsed = parse_coasthills_visa_pdf(file_obj, source_file=source_name)
-        return "coasthills-visa-pdf", normalize_personal_transactions(
+        parsed = parse_credit_union_visa_pdf(file_obj, source_file=source_name)
+        return "credit-union-visa-pdf", normalize_personal_transactions(
             parsed,
             source_file=source_name,
             import_batch_id="upload_preview",
@@ -351,7 +351,7 @@ def normalize_uploaded_statement_file(file_obj, source_file="uploaded"):
 
 
 def normalize_uploaded_files(file_items):
-    """Normalize one upload or merge multiple CoastHills Visa PDF uploads."""
+    """Normalize one upload or merge multiple Credit Union Visa PDF uploads."""
     file_items = list(file_items)
     if not file_items:
         raise ValueError("Upload at least one file")
@@ -363,13 +363,13 @@ def normalize_uploaded_files(file_items):
         raise ValueError("Multiple uploads currently supports PDF statements only")
     raw = pd.concat(
         [
-            parse_coasthills_visa_pdf(file_obj, source_file=source_name)
+            parse_credit_union_visa_pdf(file_obj, source_file=source_name)
             for (file_obj, _), source_name in zip(file_items, source_names)
         ],
         ignore_index=True,
     )
     source_label = " + ".join(source_names)
-    return " + ".join(source_names), "coasthills-visa-pdf-batch", normalize_personal_transactions(
+    return " + ".join(source_names), "credit-union-visa-pdf-batch", normalize_personal_transactions(
         raw,
         source_file=source_label,
         import_batch_id="upload_preview",

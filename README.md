@@ -65,7 +65,7 @@ Current verification status:
 251 local tests passing
 GitHub Actions passing
 100-persona fictional stress harness available
-Local CSV/Excel bank and brokerage upload, CoastHills Visa PDF upload, multi-PDF merge, category review, and gated personal report generation verified
+Local CSV/Excel bank and brokerage upload, Credit Union Visa PDF upload, multi-PDF merge, category review, and gated personal report generation verified
 ```
 
 ## What It Produces
@@ -134,8 +134,8 @@ The local Streamlit app starts with a blank first-run setup when `config/persona
 - one Debit/Credit CSV export
 - one Debit/Credit Excel workbook
 - one brokerage activity CSV or Excel export with date, amount, and action/description/symbol columns
-- one CoastHills FCU Visa statement PDF
-- multiple CoastHills FCU Visa statement PDFs merged into one review file
+- one Credit Union Visa statement PDF
+- multiple Credit Union Visa statement PDFs merged into one review file
 
 The upload flow is: upload → preview normalized rows → apply merchant rules if useful → edit final categories → save local review CSV → generate a gated local CFO report.
 

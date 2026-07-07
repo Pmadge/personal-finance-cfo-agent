@@ -7,7 +7,7 @@ The tests cover:
 - fictional sample reports and charts
 - local CSV/Excel importer behavior
 - brokerage activity CSV/Excel importer behavior
-- CoastHills Visa PDF parsing and multi-PDF merge
+- Credit Union Visa PDF parsing and multi-PDF merge
 - category review editing and merchant-rule bulk fill
 - gated personal report generation after final categories are approved
 - privacy/path checks for Git-ignored personal outputs

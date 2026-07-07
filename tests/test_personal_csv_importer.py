@@ -24,7 +24,7 @@ from modules.importers.personal_csv import (
     normalize_uploaded_files,
     normalize_uploaded_statement_file,
     normalize_uploaded_transactions,
-    parse_coasthills_visa_pdf,
+    parse_credit_union_visa_pdf,
     read_uploaded_tabular_file,
     validate_safe_output_path,
     write_uploaded_category_review,
@@ -39,15 +39,15 @@ FAKE_BANK_EXPORT_PATH = PROJECT_ROOT / "data" / "sample" / "fake_bank_export_pro
 
 
 FAKE_PDF_ROWS = [
-    ("01/31", "02/01", "00000000000000000001", "FAKE COASTHILLS GROCERY GOLETA CA", "12.34"),
-    ("02/14", "02/15", "00000000000000000002", "FAKE COASTHILLS BOOKSTORE ISLA VISTA CA", "56.78"),
+    ("01/31", "02/01", "00000000000000000001", "FAKE CREDIT UNION GROCERY GOLETA CA", "12.34"),
+    ("02/14", "02/15", "00000000000000000002", "FAKE CREDIT UNION BOOKSTORE ISLA VISTA CA", "56.78"),
 ]
 FAKE_PDF_ROWS_LATER = [
-    ("03/01", "03/02", "00000000000000000003", "FAKE COASTHILLS COFFEE GOLETA CA", "9.99"),
+    ("03/01", "03/02", "00000000000000000003", "FAKE CREDIT UNION COFFEE GOLETA CA", "9.99"),
 ]
 
 
-def _fake_coasthills_pdf_bytes(rows, closing_date="Statement Closing Date 03/31/2026"):
+def _fake_credit_union_pdf_bytes(rows, closing_date="Statement Closing Date 03/31/2026"):
     """Build a tiny text-based statement PDF fixture with no real financial data."""
     lines = [closing_date] if closing_date else []
     for transaction_date, posted_date, reference, vendor, amount in rows:
@@ -357,20 +357,20 @@ def test_normalize_brokerage_activity_export_handles_parentheses_and_sells():
     assert normalized.loc[0, "raw_category"] == "investment_sell"
 
 
-def test_parse_coasthills_visa_pdf_extracts_statement_purchases():
-    parsed = parse_coasthills_visa_pdf(_fake_coasthills_pdf_bytes(FAKE_PDF_ROWS))
+def test_parse_credit_union_visa_pdf_extracts_statement_purchases():
+    parsed = parse_credit_union_visa_pdf(_fake_credit_union_pdf_bytes(FAKE_PDF_ROWS))
 
     assert len(parsed) == 2
     assert round(parsed["amount"].sum(), 2) == -69.12
-    assert parsed.loc[0, "description"] == "FAKE COASTHILLS GROCERY GOLETA CA"
+    assert parsed.loc[0, "description"] == "FAKE CREDIT UNION GROCERY GOLETA CA"
     assert parsed.loc[0, "transaction_id"] == "00000000000000000001"
     assert set(["posted_date", "description", "amount", "source_category", "transaction_id"]).issubset(parsed.columns)
 
 
 def test_pdf_statement_year_comes_from_statement_date_not_hardcoded():
     """Transaction rows print only MM/DD; the year must come from the statement's own full date."""
-    parsed = parse_coasthills_visa_pdf(
-        _fake_coasthills_pdf_bytes(FAKE_PDF_ROWS, closing_date="Statement Closing Date 03/31/2027")
+    parsed = parse_credit_union_visa_pdf(
+        _fake_credit_union_pdf_bytes(FAKE_PDF_ROWS, closing_date="Statement Closing Date 03/31/2027")
     )
 
     assert list(parsed["posted_date"]) == ["2027-02-01", "2027-02-15"]
@@ -378,9 +378,9 @@ def test_pdf_statement_year_comes_from_statement_date_not_hardcoded():
 
 def test_pdf_december_purchases_on_january_statement_get_prior_year():
     """A January statement lists December purchases; they belong to the prior year."""
-    december_row = [("12/28", "12/29", "00000000000000000009", "FAKE COASTHILLS MARKET GOLETA CA", "20.00")]
-    parsed = parse_coasthills_visa_pdf(
-        _fake_coasthills_pdf_bytes(december_row, closing_date="Statement Closing Date 01/15/2027")
+    december_row = [("12/28", "12/29", "00000000000000000009", "FAKE CREDIT UNION MARKET GOLETA CA", "20.00")]
+    parsed = parse_credit_union_visa_pdf(
+        _fake_credit_union_pdf_bytes(december_row, closing_date="Statement Closing Date 01/15/2027")
     )
 
     assert parsed.loc[0, "posted_date"] == "2026-12-29"
@@ -389,28 +389,28 @@ def test_pdf_december_purchases_on_january_statement_get_prior_year():
 def test_pdf_without_any_full_date_fails_closed():
     """No guessed years: a statement with no MM/DD/YYYY date anywhere must be rejected."""
     with pytest.raises(ValueError, match="statement year"):
-        parse_coasthills_visa_pdf(_fake_coasthills_pdf_bytes(FAKE_PDF_ROWS, closing_date=""))
+        parse_credit_union_visa_pdf(_fake_credit_union_pdf_bytes(FAKE_PDF_ROWS, closing_date=""))
 
 
 def test_pdf_trailing_minus_amount_is_a_credit_not_spending():
     """Statement credit notation (trailing minus) must land as money back, not an expense."""
-    credit_row = [("02/10", "02/11", "00000000000000000008", "FAKE COASTHILLS REFUND GOLETA CA", "15.25-")]
-    parsed = parse_coasthills_visa_pdf(_fake_coasthills_pdf_bytes(credit_row))
+    credit_row = [("02/10", "02/11", "00000000000000000008", "FAKE CREDIT UNION REFUND GOLETA CA", "15.25-")]
+    parsed = parse_credit_union_visa_pdf(_fake_credit_union_pdf_bytes(credit_row))
 
     assert parsed.loc[0, "amount"] == 15.25
 
 
 def test_normalize_uploaded_statement_file_accepts_pdf_upload_bytes():
     profile, normalized = normalize_uploaded_statement_file(
-        _fake_coasthills_pdf_bytes(FAKE_PDF_ROWS),
-        source_file="Fake CoastHills Statement.pdf",
+        _fake_credit_union_pdf_bytes(FAKE_PDF_ROWS),
+        source_file="Fake Credit Union Statement.pdf",
     )
 
-    assert profile == "coasthills-visa-pdf"
+    assert profile == "credit-union-visa-pdf"
     assert len(normalized) == 2
     assert round(normalized["amount"].sum(), 2) == -69.12
-    assert normalized.loc[0, "source_file"] == "Fake CoastHills Statement.pdf"
-    assert normalized.loc[0, "vendor"] == "FAKE COASTHILLS GROCERY GOLETA CA"
+    assert normalized.loc[0, "source_file"] == "Fake Credit Union Statement.pdf"
+    assert normalized.loc[0, "vendor"] == "FAKE CREDIT UNION GROCERY GOLETA CA"
 
 
 def test_normalize_uploaded_statement_file_accepts_excel_upload_bytes():
@@ -438,18 +438,18 @@ def test_normalize_uploaded_statement_file_accepts_excel_upload_bytes():
 
 def test_normalize_uploaded_files_merges_multiple_pdf_statements():
     uploads = [
-        (_fake_coasthills_pdf_bytes(FAKE_PDF_ROWS), "Fake February Statement.pdf"),
-        (_fake_coasthills_pdf_bytes(FAKE_PDF_ROWS_LATER), "Fake March Statement.pdf"),
+        (_fake_credit_union_pdf_bytes(FAKE_PDF_ROWS), "Fake February Statement.pdf"),
+        (_fake_credit_union_pdf_bytes(FAKE_PDF_ROWS_LATER), "Fake March Statement.pdf"),
     ]
 
     source_label, profile, normalized = normalize_uploaded_files(uploads)
 
-    assert profile == "coasthills-visa-pdf-batch"
+    assert profile == "credit-union-visa-pdf-batch"
     assert source_label == "Fake February Statement.pdf + Fake March Statement.pdf"
     assert len(normalized) == 3
     assert round(normalized["amount"].sum(), 2) == -79.11
-    assert normalized.loc[0, "vendor"] == "FAKE COASTHILLS GROCERY GOLETA CA"
-    assert normalized.loc[len(normalized) - 1, "vendor"] == "FAKE COASTHILLS COFFEE GOLETA CA"
+    assert normalized.loc[0, "vendor"] == "FAKE CREDIT UNION GROCERY GOLETA CA"
+    assert normalized.loc[len(normalized) - 1, "vendor"] == "FAKE CREDIT UNION COFFEE GOLETA CA"
 
 
 def test_normalize_uploaded_files_rejects_multiple_csv_uploads():

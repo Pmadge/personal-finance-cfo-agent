@@ -83,7 +83,7 @@ Status: **local upload path active for approved manual files**
 - [x] Add clear validation errors.
 - [x] Add fake bank-export profile coverage.
 - [x] Add tests with fake personal-style CSV fixtures only.
-- [x] Add local Streamlit upload support for one CSV, one Excel workbook, one CoastHills Visa PDF, or multiple CoastHills Visa PDFs merged into one review file.
+- [x] Add local Streamlit upload support for one CSV, one Excel workbook, one Credit Union Visa PDF, or multiple Credit Union Visa PDFs merged into one review file.
 - [x] Add brokerage activity CSV/Excel normalization for buys, sells, dividends, interest, fees, deposits, withdrawals, symbols, quantities, prices, and fees.
 - [x] Reconcile the attached February-May 2026 PDF statement totals against parsed purchase rows.
 

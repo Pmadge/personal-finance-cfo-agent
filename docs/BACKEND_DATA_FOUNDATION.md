@@ -20,7 +20,7 @@ Personal_Finance_CFO_Agent/
 │   ├── analytics.py                              # monthly/budget/cash-flow math
 │   ├── detectors.py                              # recurring and unusual transaction detection
 │   ├── reports/                                  # PDF builders
-│   ├── importers/                                # local CSV and CoastHills Visa PDF normalization
+│   ├── importers/                                # local CSV and Credit Union Visa PDF normalization
 │   ├── ui/                                       # Streamlit trust/upload models
 │   └── ...
 ├── outputs/
@@ -54,7 +54,7 @@ Current self-checks verify:
 
 The Streamlit Upload Transactions screen now routes manual files through the same deterministic checks:
 
-1. parse one CSV, one CoastHills Visa PDF, or multiple CoastHills Visa PDFs
+1. parse one CSV, one Credit Union Visa PDF, or multiple Credit Union Visa PDFs
 2. normalize to the internal transaction schema
 3. preview rows locally
 4. build a category review CSV

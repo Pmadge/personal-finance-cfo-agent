@@ -19,7 +19,7 @@ import streamlit as st
 import pandas as pd
 
 from modules.config import APPROVED_CATEGORIES
-from modules.importers.personal_csv import parse_coasthills_visa_pdf, read_uploaded_tabular_file, write_uploaded_transactions
+from modules.importers.personal_csv import parse_credit_union_visa_pdf, read_uploaded_tabular_file, write_uploaded_transactions
 from modules.personal_profile import DEFAULT_PROFILE_PATH, build_onboarding_profile, write_personal_profile
 from modules.ui.report_reader import (
     RISK_COLORS,
@@ -247,7 +247,7 @@ def render_upload_transactions() -> None:
         accept_multiple_files=True,
     )
     if not uploaded_files:
-        st.caption("Supported now: one bank/brokerage CSV or Excel workbook, one PDF, or multiple CoastHills FCU Visa PDF statements.")
+        st.caption("Supported now: one bank/brokerage CSV or Excel workbook, one PDF, or multiple Credit Union Visa PDF statements.")
         _render_uploaded_report_action()
         return
 
@@ -258,7 +258,7 @@ def render_upload_transactions() -> None:
                 raise ValueError("Multiple uploads currently supports PDF statements only; upload one CSV or Excel export at a time")
             raw = pd.concat(
                 [
-                    parse_coasthills_visa_pdf(uploaded.read(), source_file=uploaded.name)
+                    parse_credit_union_visa_pdf(uploaded.read(), source_file=uploaded.name)
                     for uploaded in uploaded_files
                 ],
                 ignore_index=True,
@@ -268,7 +268,7 @@ def render_upload_transactions() -> None:
             uploaded = uploaded_files[0]
             source_label = uploaded.name
             if uploaded.name.lower().endswith(".pdf"):
-                raw = parse_coasthills_visa_pdf(uploaded.read(), source_file=uploaded.name)
+                raw = parse_credit_union_visa_pdf(uploaded.read(), source_file=uploaded.name)
             else:
                 raw = read_uploaded_tabular_file(uploaded, source_file=uploaded.name)
         model = build_upload_preview_model(raw.to_dict("records"), source_file=source_label)
