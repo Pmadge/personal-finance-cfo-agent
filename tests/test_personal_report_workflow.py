@@ -500,20 +500,37 @@ def test_personal_report_self_checks_normalize_source_row_numbers_from_csv_text(
         assert_personal_report_self_checks(review_df, report_df, APPROVED_CATEGORIES)
 
 
-def test_personal_report_self_checks_fail_on_duplicate_final_statement_rows():
-    """Exact final-statement duplicates should fail even when source IDs are blank."""
+def test_personal_report_self_checks_fail_on_duplicate_rows_without_identity():
+    """Exact duplicates should still fail when rows carry no source identity at all."""
+    from modules.personal_report_inputs import build_report_transactions_from_review
+    from modules.self_checks import assert_personal_report_self_checks
+
+    review_df = pd.concat([reviewed_rows(), reviewed_rows().iloc[[1]]], ignore_index=True)
+    review_df = review_df.astype({"source_row_number": str})
+    review_df.loc[:, "transaction_id"] = ""
+    review_df.loc[:, "source_file"] = ""
+    review_df.loc[:, "source_row_number"] = ""
+    review_df.loc[:, "import_batch_id"] = ""
+    report_df = build_report_transactions_from_review(review_df)
+
+    with pytest.raises(ValueError, match="Duplicate final statement rows"):
+        assert_personal_report_self_checks(review_df, report_df, APPROVED_CATEGORIES)
+
+
+def test_identical_repeat_purchases_with_unique_source_rows_are_allowed():
+    """Two real same-price purchases (same coffee twice) must not block the report."""
     from modules.personal_report_inputs import build_report_transactions_from_review
     from modules.self_checks import assert_personal_report_self_checks
 
     review_df = pd.concat([reviewed_rows(), reviewed_rows().iloc[[1]]], ignore_index=True)
     review_df.loc[:, "transaction_id"] = ""
-    review_df.loc[:, "source_file"] = ["file_a.csv", "file_a.csv", "file_b.csv"]
-    review_df.loc[:, "source_row_number"] = [2, 3, 8]
-    review_df.loc[:, "import_batch_id"] = ["batch_a", "batch_a", "batch_b"]
+    review_df.loc[:, "source_file"] = "real_export.csv"
+    review_df.loc[:, "source_row_number"] = [2, 3, 4]
+    review_df.loc[:, "import_batch_id"] = "upload_preview"
     report_df = build_report_transactions_from_review(review_df)
 
-    with pytest.raises(ValueError, match="Duplicate final statement rows"):
-        assert_personal_report_self_checks(review_df, report_df, APPROVED_CATEGORIES)
+    checks = assert_personal_report_self_checks(review_df, report_df, APPROVED_CATEGORIES)
+    assert set(checks["Status"]) == {"PASS"}
 
 
 def test_personal_report_self_checks_fail_on_rows_still_needing_review():

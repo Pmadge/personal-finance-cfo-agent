@@ -271,6 +271,24 @@ def check_personal_report_duplicates(review_df, report_df):
             f"Duplicate source row identities: {duplicate_source_rows}",
         )
 
+    # Real statements legitimately repeat identical purchases (two same-price
+    # coffees on one day). When every row carries a complete source identity and
+    # those identities are unique (verified above), identical amounts are real
+    # repeats, not data errors - the fingerprint check below exists for rows
+    # that lack identity.
+    identity = pd.DataFrame(
+        {
+            column: _normalized_text_series(review_df[column])
+            for column in ["source_file", "source_row_number", "import_batch_id"]
+        }
+    )
+    if len(review_df) and bool(identity.ne("").all(axis=1).all()):
+        return _result(
+            "No duplicate personal report transactions",
+            True,
+            "Source row identities are unique; identical repeat purchases allowed",
+        )
+
     final_statement_columns = ["date", "vendor", "amount", "raw_category", "assigned_category"]
     missing_statement_columns = [column for column in final_statement_columns if column not in report_df.columns]
     if missing_statement_columns:

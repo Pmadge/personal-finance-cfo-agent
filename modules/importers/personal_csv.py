@@ -106,6 +106,7 @@ BROKERAGE_FEE_COLUMNS = ["Fees", "Fee", "Commission"]
 BROKERAGE_ACCOUNT_COLUMNS = ["Account", "Account Name"]
 STATEMENT_DATE_RE = re.compile(r"^\d{2}/\d{2}$")
 STATEMENT_FULL_DATE_RE = re.compile(r"\b(\d{2})/(\d{2})/(\d{4})\b")
+STATEMENT_SHORT_DATE_RE = re.compile(r"\b(\d{2})/(\d{2})/(\d{2})(?!\d)")
 STATEMENT_REFERENCE_RE = re.compile(r"^\d{20,}$")
 STATEMENT_MONEY_RE = re.compile(r"^\$?\s*\d{1,3}(?:,\d{3})*\.\d{2}-?$")
 
@@ -283,8 +284,16 @@ def _statement_closing_date(lines):
         for match in STATEMENT_FULL_DATE_RE.finditer(line)
     ]
     if not dates:
+        # Some statements print two-digit years (03/31/26). Only used when no
+        # four-digit date exists anywhere, so a 2026 date never half-matches.
+        dates = [
+            (2000 + int(match.group(3)), int(match.group(1)), int(match.group(2)))
+            for line in lines
+            for match in STATEMENT_SHORT_DATE_RE.finditer(line)
+        ]
+    if not dates:
         raise ValueError(
-            "Could not find a full MM/DD/YYYY date in the PDF to determine the statement year"
+            "Could not find a full MM/DD/YYYY (or MM/DD/YY) date in the PDF to determine the statement year"
         )
     return max(dates)
 

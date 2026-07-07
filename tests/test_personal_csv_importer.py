@@ -894,3 +894,12 @@ def test_normalize_personal_transactions_fails_on_invalid_normalized_values():
 
     with pytest.raises(ValueError, match="Date values must use YYYY-MM-DD"):
         normalize_personal_transactions(raw)
+
+
+def test_pdf_two_digit_year_statement_date_is_accepted():
+    """Statements printing 03/31/26 style dates must still yield the right year."""
+    parsed = parse_credit_union_visa_pdf(
+        _fake_credit_union_pdf_bytes(FAKE_PDF_ROWS, closing_date="Statement Closing Date 03/31/26")
+    )
+
+    assert list(parsed["posted_date"]) == ["2026-02-01", "2026-02-15"]
