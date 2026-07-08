@@ -10,7 +10,7 @@ A local-first portfolio prototype that turns fictional samples or user-approved 
 > **Local-first:** this project does not connect to bank accounts, does not use cloud AI, and is not financial advice. Portfolio screenshots and committed artifacts stay fictional/sample-only. Real uploads stay local in Git-ignored folders.
 
 For a deeper visual walkthrough with sample report screenshots, see the
-[Portfolio Summary](docs/PORTFOLIO_SUMMARY.md).
+[Portfolio Summary](docs/PORTFOLIO_SUMMARY.md). New here? Start with the step-by-step [User Guide](docs/USER_GUIDE.md).
 
 The local app/interface design direction and the engine's UI data contract are
 documented in [Design Direction](docs/DESIGN_DIRECTION.md) and
