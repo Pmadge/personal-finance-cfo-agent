@@ -91,6 +91,17 @@ def main() -> None:
     elif page == "Progress Memory":
         render_progress_memory()
     elif page == "Stress Test Explorer":
+        if not (Path(stress_test_path) / "summary.csv").exists():
+            st.subheader("Stress Test Explorer")
+            st.info(
+                "No stress-test results yet - this is normal on a fresh install. "
+                "Generate the fictional sample run first, then reload this screen:"
+            )
+            st.code(
+                "python3 scripts/stress_test_personas.py --count 12 --seed 20260628 "
+                "--output-dir outputs/stress_tests/review_smoke_12_personas"
+            )
+            return
         try:
             run = load_stress_test_summary(stress_test_path)
         except (OSError, ValueError, ContractTrustError) as error:
@@ -287,15 +298,25 @@ def render_upload_transactions() -> None:
     st.dataframe(pd.DataFrame(model["preview_rows"]), width="stretch", hide_index=True)
     st.markdown("#### Category review")
     st.caption("Edit `final_category` where needed, then save the review CSV before generating a report.")
-    review_rows = review_model["rows"]
+    # Review rows must survive Streamlit reruns: every button click reruns the
+    # whole script, and rebuilding the rows from the raw upload each time wiped
+    # merchant-rule fills and typed categories before the user could save them.
+    state_key = f"upload_review_rows::{source_label}"
+    if state_key not in st.session_state:
+        st.session_state[state_key] = [
+            {**row, "final_category": row.get("final_category") or ""}
+            for row in review_model["rows"]
+        ]
     if st.button("Apply merchant rules to blank categories"):
-        review_rows, changed = apply_merchant_category_rules(review_rows)
+        filled_rows, changed = apply_merchant_category_rules(st.session_state[state_key])
+        st.session_state[state_key] = filled_rows
         st.success(f"Applied merchant rules to {changed} rows")
-    review_df = pd.DataFrame(review_rows)
+    review_df = pd.DataFrame(st.session_state[state_key]).fillna("")
     edited_review = st.data_editor(
         review_df,
         width="stretch",
         hide_index=True,
+        key=f"upload_review_editor::{source_label}",
         column_config={"final_category": st.column_config.SelectboxColumn("final_category", options=["", *APPROVED_CATEGORIES])},
         disabled=[column for column in review_df.columns if column not in {"final_category", "override_note"}],
     )
@@ -303,6 +324,7 @@ def render_upload_transactions() -> None:
         write_uploaded_transactions(raw, DEFAULT_UPLOAD_NORMALIZED, source_file=source_label)
         st.success(f"Saved to {DEFAULT_UPLOAD_NORMALIZED}")
     if st.button("Save category review CSV locally"):
+        st.session_state[state_key] = edited_review.to_dict("records")
         save_uploaded_category_review_edits(edited_review.to_dict("records"), DEFAULT_UPLOAD_CATEGORY_REVIEW)
         st.success(f"Saved to {DEFAULT_UPLOAD_CATEGORY_REVIEW}")
     _render_uploaded_report_action()
